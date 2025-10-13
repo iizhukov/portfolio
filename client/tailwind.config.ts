@@ -44,6 +44,9 @@ module.exports = {
       transitionDuration: {
         DEFAULT: 'var(--transition)',
       },
+      spacing: {
+        '25': '100px',
+      },
     },
   },
   plugins: [],

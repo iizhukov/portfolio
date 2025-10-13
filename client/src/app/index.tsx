@@ -1,9 +1,20 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import '../shared/styles/global.css'
+import { RouterProvider } from 'atomic-router-react'
+import { router } from '@shared/router'
+import { Pages } from '@pages/index'
+import { Layout } from './layout'
+import { appStarted } from '@shared/config/init'
+import '@shared/styles/global.css'
+
+appStarted()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <h1 className="text-2xl font-bold text-red-500">Hello World</h1>
+    <Layout wallpaper="/wallpaper.jpg" blur={true}>
+      <RouterProvider router={router}>
+        <Pages />
+      </RouterProvider>
+    </Layout>
   </StrictMode>
 )
