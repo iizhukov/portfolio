@@ -1,4 +1,11 @@
 import { clsx } from 'clsx'
+import { useWindowSize } from '../hooks/use-window-size'
+
+export type WindowSize =
+  | 'standard' // (800x600px)
+  | 'large' // (1200x800px)
+  | 'vertical' // (600x800px)
+  | 'fullscreen' // (95% x 95%)
 
 interface App {
   id: string
@@ -13,6 +20,7 @@ interface WindowProps {
   onClose: () => void
   onMinimize: () => void
   onMaximize: () => void
+  size: WindowSize
   className?: string
 }
 
@@ -22,23 +30,31 @@ export const Window = ({
   onClose,
   onMinimize,
   onMaximize,
+  size,
   className,
 }: WindowProps) => {
+  const dimensions = useWindowSize(size)
+
   return (
     <div
       className={clsx(
-        'fixed top-[5%] left-1/2 transform -translate-x-1/2 w-[80%] h-[85%]',
-        'bg-white dark:bg-gray-900 rounded-xl shadow-2xl',
-        'flex flex-col overflow-hidden backdrop-blur-xl',
-        'transition-all duration-500 ease-out',
+        'fixed bg-white dark:bg-gray-900 rounded-xl shadow-2xl flex flex-col overflow-hidden transition-all duration-500 ease-out',
         {
-          'opacity-100 scale-100 translate-y-0': isActive,
-          'opacity-0 scale-95 translate-y-4 pointer-events-none': !isActive,
+          'opacity-100 scale-100': isActive,
+          'opacity-0 scale-95 pointer-events-none': !isActive,
         },
         className
       )}
       style={{
         visibility: isActive ? 'visible' : 'hidden',
+        width: dimensions.width,
+        height: dimensions.height,
+        maxWidth: dimensions.maxWidth,
+        maxHeight: dimensions.maxHeight,
+        top: dimensions.top || '50%',
+        left: dimensions.left || '50%',
+        transform: 'translate(-50%, -50%)',
+        transition: 'all 0.5s ease-out',
       }}
     >
       {/* Window Header */}

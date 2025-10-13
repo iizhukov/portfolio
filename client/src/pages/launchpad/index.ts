@@ -8,6 +8,8 @@ export {
   LAUNCHPAD_GRID_COLS,
   LAUNCHPAD_ICON_SIZE,
   LAUNCHPAD_ICON_GAP,
+  LAUNCHPAD_CONTAINER,
+  LAUNCHPAD_RESPONSIVE,
 } from './model/launchpad'
 
 export const LaunchpadRoute = {

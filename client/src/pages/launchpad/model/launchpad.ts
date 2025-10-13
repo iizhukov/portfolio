@@ -1,15 +1,15 @@
 export const MOCK_APPS = [
   {
     id: 'finder',
-    name: 'Finder',
-    icon: '/assets/icons/folder.ico',
+    name: 'Projects',
+    icon: '/assets/icons/wpaper_folder.ico',
     type: 'finder',
   },
   {
-    id: 'notes',
-    name: 'Notes',
-    icon: '/assets/icons/notes.ico',
-    type: 'notes',
+    id: 'discord',
+    name: 'Connections',
+    icon: '/assets/icons/discord.ico',
+    type: 'discord',
   },
   {
     id: 'settings',
@@ -19,6 +19,24 @@ export const MOCK_APPS = [
   },
 ]
 
-export const LAUNCHPAD_GRID_COLS = 8
+export const LAUNCHPAD_GRID_COLS = 7
 export const LAUNCHPAD_ICON_SIZE = 100
-export const LAUNCHPAD_ICON_GAP = 64
+export const LAUNCHPAD_ICON_GAP = 80
+
+export const LAUNCHPAD_CONTAINER = {
+  maxWidth: '1200px',
+  padding: '80px',
+  gap: '80px',
+} as const
+
+export const LAUNCHPAD_RESPONSIVE = {
+  small: {
+    padding: '40px',
+    maxWidth: '100%',
+  },
+
+  large: {
+    padding: '80px',
+    maxWidth: '1200px',
+  },
+} as const

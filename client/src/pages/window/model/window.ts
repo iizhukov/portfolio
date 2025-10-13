@@ -18,12 +18,10 @@ export const MOCK_APPS = [
     type: 'theme',
   },
 ]
-export const WINDOW_DEFAULT_SIZE = {
-  width: 800,
-  height: 600,
-}
 
-export const WINDOW_MIN_SIZE = {
-  width: 400,
-  height: 300,
-}
+export const WINDOW_SIZES = {
+  standard: { width: '800px', height: '600px' },
+  large: { width: '1200px', height: '800px' },
+  vertical: { width: '600px', height: '800px' },
+  fullscreen: { width: '95vw', height: '95vh' },
+} as const

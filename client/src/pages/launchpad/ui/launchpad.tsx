@@ -1,5 +1,6 @@
 import { clsx } from 'clsx'
-import { LAUNCHPAD_ICON_GAP, LAUNCHPAD_ICON_SIZE } from '../model/launchpad'
+import { LAUNCHPAD_ICON_SIZE, LAUNCHPAD_GRID_COLS } from '../model/launchpad'
+import { useLaunchpadLayout } from '../hooks/use-launchpad-layout'
 
 interface AppIcon {
   id: string
@@ -15,17 +16,22 @@ interface LaunchpadProps {
 }
 
 export const Launchpad = ({ apps = [], onAppClick = () => {}, className }: LaunchpadProps) => {
+  const layout = useLaunchpadLayout()
+
   return (
     <div
-      className={clsx(
-        'fixed inset-0 flex justify-center items-start z-10',
-        'px-40 py-20',
-        className
-      )}
+      className={clsx('fixed inset-0 flex justify-center items-start z-10', className)}
+      style={{
+        padding: layout.padding,
+      }}
     >
       <div
-        className="grid grid-cols-8 w-full max-w-[1440px] text-white"
-        style={{ gap: `${LAUNCHPAD_ICON_GAP}px` }}
+        className={`grid w-full text-white`}
+        style={{
+          gridTemplateColumns: `repeat(${LAUNCHPAD_GRID_COLS}, 1fr)`,
+          gap: `${layout.gap}px`,
+          maxWidth: layout.maxWidth,
+        }}
       >
         {apps.map(app => (
           <div

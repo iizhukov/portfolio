@@ -1,17 +1,39 @@
-import { Window } from './window'
+import { Window, type WindowSize } from './window'
 import { MOCK_APPS } from '../model/window'
 import { router } from '@shared/router'
 import { useEffect, useState } from 'react'
 
+// Константы для анимаций
+const WINDOW_APPEAR_DELAY = 50 // ms
+const WINDOW_CLOSE_DELAY = 500 // ms
+
 export const WindowPage = () => {
   const [isActive, setIsActive] = useState(false)
+  const [isMaximized, setIsMaximized] = useState(false)
 
   const currentApp = MOCK_APPS[0]
+
+  const getWindowSize = (appType: string): WindowSize => {
+    if (isMaximized) return 'fullscreen'
+
+    switch (appType) {
+      case 'finder':
+        return 'large'
+      case 'notes':
+        return 'vertical'
+      case 'settings':
+        return 'standard'
+      case 'theme':
+        return 'standard'
+      default:
+        return 'standard'
+    }
+  }
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsActive(true)
-    }, 50)
+    }, WINDOW_APPEAR_DELAY)
 
     return () => clearTimeout(timer)
   }, [])
@@ -20,15 +42,15 @@ export const WindowPage = () => {
     setIsActive(false)
     setTimeout(() => {
       router.push({ path: '/', params: {}, query: {}, method: 'push' })
-    }, 500)
+    }, WINDOW_CLOSE_DELAY)
   }
 
   const handleMinimize = () => {
-    console.log('Minimize window')
+    // TODO: Implement minimize functionality
   }
 
   const handleMaximize = () => {
-    console.log('Maximize window')
+    setIsMaximized(!isMaximized)
   }
 
   return (
@@ -38,6 +60,7 @@ export const WindowPage = () => {
       onClose={handleClose}
       onMinimize={handleMinimize}
       onMaximize={handleMaximize}
+      size={getWindowSize(currentApp.type)}
     />
   )
 }
