@@ -23,6 +23,15 @@
     --status-green: 153, 46%, 49%; /* green */
     --status-red: 0, 84%, 60%; /* red */
 
+    /* Settings */
+    --settings-bg: 0, 0%, 100%; /* white */
+    --settings-sidebar-bg: 0, 0%, 98%; /* light gray */
+    --settings-border: 0, 0%, 90%; /* light gray border */
+    --settings-text: 0, 0%, 20%; /* dark gray */
+    --settings-text-secondary: 0, 0%, 60%; /* medium gray */
+    --settings-hover: 0, 0%, 95%; /* light hover */
+    --settings-active: 214, 100%, 50%; /* blue */
+
     --window-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* light shadow */
   }
 
@@ -46,6 +55,15 @@
     --bg-connections: 252, 6%, 15%; /* dark gray */
     --status-green: 153, 46%, 49%; /* green */
     --status-red: 0, 84%, 60%; /* red */
+
+    /* Settings */
+    --settings-bg: 0, 0%, 9%; /* very dark gray */
+    --settings-sidebar-bg: 0, 0%, 12%; /* dark gray */
+    --settings-border: 0, 0%, 25%; /* medium dark gray */
+    --settings-text: 0, 0%, 90%; /* light gray */
+    --settings-text-secondary: 0, 0%, 60%; /* medium gray */
+    --settings-hover: 0, 0%, 15%; /* dark hover */
+    --settings-active: 214, 100%, 60%; /* light blue */
 
     --window-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); /* dark shadow */
   }
