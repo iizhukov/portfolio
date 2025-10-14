@@ -1,7 +1,7 @@
-import { Window, type WindowSize } from './window'
+import { Window } from './window'
 import { MOCK_APPS } from '../model/window'
 import { router } from '@shared/router'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 
 // Константы для анимаций
 const WINDOW_APPEAR_DELAY = 50 // ms
@@ -13,12 +13,12 @@ export const WindowPage = () => {
 
   const currentApp = MOCK_APPS[0]
 
-  const getWindowSize = (appType: string): WindowSize => {
+  const windowSize = useMemo(() => {
     if (isMaximized) return 'fullscreen'
 
-    switch (appType) {
+    switch (currentApp.type) {
       case 'finder':
-        return 'large'
+        return 'vertical'
       case 'notes':
         return 'vertical'
       case 'settings':
@@ -28,7 +28,7 @@ export const WindowPage = () => {
       default:
         return 'standard'
     }
-  }
+  }, [isMaximized, currentApp.type])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -42,7 +42,7 @@ export const WindowPage = () => {
     setIsActive(false)
     setTimeout(() => {
       router.push({ path: '/', params: {}, query: {}, method: 'push' })
-    }, WINDOW_CLOSE_DELAY)
+    }, WINDOW_CLOSE_DELAY) // +300ms для анимации виджета
   }
 
   const handleMinimize = () => {
@@ -60,7 +60,7 @@ export const WindowPage = () => {
       onClose={handleClose}
       onMinimize={handleMinimize}
       onMaximize={handleMaximize}
-      size={getWindowSize(currentApp.type)}
+      size={windowSize}
     />
   )
 }

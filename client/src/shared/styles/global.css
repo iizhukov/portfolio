@@ -3,31 +3,51 @@
 @tailwind utilities;
 @layer base {
   :root {
-    --bg-primary: hsl(0, 0%, 100%);
-    --bg-secondary: hsl(240, 5%, 96%);
-    --bg-sidebar: hsl(240, 5%, 97%);
-    --text-primary: hsl(0, 0%, 0%);
-    --text-secondary: hsl(0, 0%, 40%);
-    --text-white: hsl(0, 0%, 100%);
-    --accent-blue: hsl(211, 100%, 50%);
-    --accent-red: hsl(3, 100%, 59%);
-    --border-light: hsl(240, 5%, 92%);
-    --radius: 12px;
-    --transition: 0.25s;
+    /* Light theme colors */
+    --window-bg: 0, 0%, 100%; /* white */
+    --window-header-bg: 0, 0%, 96%; /* light gray */
+    --window-header-border: 0, 0%, 90%; /* light gray border */
+    --window-text: 0, 0%, 20%; /* dark gray */
+    --window-text-secondary: 0, 0%, 60%; /* medium gray */
+
+    /* Window controls */
+    --control-close: 0, 84%, 60%; /* red */
+    --control-close-hover: 0, 84%, 50%; /* dark red */
+    --control-minimize: 45, 93%, 58%; /* yellow */
+    --control-minimize-hover: 45, 93%, 48%; /* dark yellow */
+    --control-maximize: 142, 76%, 36%; /* green */
+    --control-maximize-hover: 142, 76%, 26%; /* dark green */
+
+    /* Connections */
+    --bg-connections: 252, 6%, 15%; /* dark gray */
+    --status-green: 153, 46%, 49%; /* green */
+    --status-red: 0, 84%, 60%; /* red */
+
+    --window-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* light shadow */
   }
 
   .dark {
-    --bg-primary: hsl(0, 0%, 0%);
-    --bg-secondary: hsl(240, 2%, 11%);
-    --bg-sidebar: hsl(240, 2%, 17%);
-    --text-primary: hsl(0, 0%, 100%);
-    --text-secondary: hsl(240, 15%, 94%);
-    --text-white: hsl(0, 0%, 100%);
-    --accent-blue: hsl(211, 100%, 52%);
-    --accent-red: hsl(3, 100%, 61%);
-    --border-light: hsl(240, 2%, 22%);
-    --radius: 12px;
-    --transition: 0.25s;
+    /* Dark theme colors */
+    --window-bg: 0, 0%, 9%; /* very dark gray */
+    --window-header-bg: 0, 0%, 15%; /* dark gray */
+    --window-header-border: 0, 0%, 25%; /* medium dark gray */
+    --window-text: 0, 0%, 90%; /* light gray */
+    --window-text-secondary: 0, 0%, 60%; /* medium gray */
+
+    /* Window controls (same colors work for both themes) */
+    --control-close: 0, 84%, 60%; /* red */
+    --control-close-hover: 0, 84%, 50%; /* dark red */
+    --control-minimize: 45, 93%, 58%; /* yellow */
+    --control-minimize-hover: 45, 93%, 48%; /* dark yellow */
+    --control-maximize: 142, 76%, 36%; /* green */
+    --control-maximize-hover: 142, 76%, 26%; /* dark green */
+
+    /* Connections */
+    --bg-connections: 252, 6%, 15%; /* dark gray */
+    --status-green: 153, 46%, 49%; /* green */
+    --status-red: 0, 84%, 60%; /* red */
+
+    --window-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); /* dark shadow */
   }
 }
 

@@ -1,5 +1,6 @@
 import { clsx } from 'clsx'
 import { useWindowSize } from '../hooks/use-window-size'
+import { Connections } from '@widgets/connections'
 
 export type WindowSize =
   | 'standard' // (800x600px)
@@ -25,7 +26,7 @@ interface WindowProps {
 }
 
 export const Window = ({
-  app,
+  // app,
   isActive,
   onClose,
   onMinimize,
@@ -38,7 +39,7 @@ export const Window = ({
   return (
     <div
       className={clsx(
-        'fixed bg-white dark:bg-gray-900 rounded-xl shadow-2xl flex flex-col overflow-hidden transition-all duration-500 ease-out',
+        'fixed bg-window-bg rounded-xl shadow-2xl flex flex-col overflow-hidden transition-all duration-500 ease-out',
         {
           'opacity-100 scale-100': isActive,
           'opacity-0 scale-95 pointer-events-none': !isActive,
@@ -54,48 +55,46 @@ export const Window = ({
         top: dimensions.top || '50%',
         left: dimensions.left || '50%',
         transform: 'translate(-50%, -50%)',
-        transition: 'all 0.5s ease-out',
+        transition:
+          'width 0.4s ease-out, height 0.4s ease-out, opacity 0.3s ease-out, transform 0.3s ease-out',
+        willChange: 'width, height, transform',
       }}
     >
       {/* Window Header */}
-      <div className="h-9 flex items-center px-2.5 gap-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="h-9 flex items-center px-2.5 gap-2 bg-window-header-bg border-b border-window-header-border">
         {/* Window Controls */}
         <div className="flex gap-2">
           <button
             onClick={onClose}
-            className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-all duration-200 cursor-pointer hover:scale-110"
+            className="w-3 h-3 rounded-full bg-control-close hover:bg-control-close-hover transition-colors duration-200 cursor-pointer"
             title="Close"
           />
           <button
             onClick={onMinimize}
-            className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-all duration-200 cursor-pointer hover:scale-110"
+            className="w-3 h-3 rounded-full bg-control-minimize hover:bg-control-minimize-hover transition-colors duration-200 cursor-pointer"
             title="Minimize"
           />
           <button
             onClick={onMaximize}
-            className="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 transition-all duration-200 cursor-pointer hover:scale-110"
+            className="w-3 h-3 rounded-full bg-control-maximize hover:bg-control-maximize-hover transition-colors duration-200 cursor-pointer"
             title="Maximize"
           />
         </div>
 
         {/* Window Title */}
-        <span className="flex-1 text-center font-medium text-sm text-gray-700 dark:text-gray-300">
-          {app.name}
-        </span>
+        {/* <span className="flex-1 text-center font-medium text-sm text-window-text">{app.name}</span> */}
+        <span className="flex-1 text-center font-medium text-sm text-window-text">Connections</span>
       </div>
 
       {/* Window Content */}
       <div className="flex-1 flex overflow-hidden">
-        <div className="flex-1 flex items-center justify-center">
-          <div
-            className={clsx('text-center transition-all duration-700 delay-200', {
-              'opacity-100 translate-y-0': isActive,
-              'opacity-0 translate-y-4': !isActive,
-            })}
-          >
-            <h2 className="text-2xl font-bold mb-4">{app.name}</h2>
-            <p className="text-gray-600 dark:text-gray-400">App content will be here</p>
-          </div>
+        <div
+          className={clsx('w-full h-full transition-opacity', {
+            'duration-300 opacity-100': isActive,
+            'duration-100 opacity-0': !isActive,
+          })}
+        >
+          <Connections />
         </div>
       </div>
     </div>

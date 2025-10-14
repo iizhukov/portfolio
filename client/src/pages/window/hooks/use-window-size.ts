@@ -46,8 +46,9 @@ export const useWindowSize = (size: WindowSize) => {
 
   useEffect(() => {
     const updateDimensions = () => {
+      const baseSize = WINDOW_SIZES[size]
+
       if (size === 'fullscreen') {
-        const baseSize = WINDOW_SIZES[size]
         setDimensions({
           width: baseSize.width,
           height: baseSize.height,
@@ -67,7 +68,6 @@ export const useWindowSize = (size: WindowSize) => {
         const scaleY = screenHeight / BASE_SCREEN.height
         const scale = Math.min(scaleX, scaleY, 1)
 
-        const baseSize = WINDOW_SIZES[size]
         const scaledWidth = Math.round(parseInt(baseSize.width) * scale)
         const scaledHeight = Math.round(parseInt(baseSize.height) * scale)
 
@@ -75,6 +75,16 @@ export const useWindowSize = (size: WindowSize) => {
           width: `${scaledWidth}px`,
           height: `${scaledHeight}px`,
           maxWidth: '95vw',
+          maxHeight: '90vh',
+          top: undefined,
+          left: undefined,
+        })
+      } else {
+        // Для больших экранов используем базовые размеры
+        setDimensions({
+          width: baseSize.width,
+          height: baseSize.height,
+          maxWidth: size === 'vertical' ? '70vw' : '95vw',
           maxHeight: '90vh',
           top: undefined,
           left: undefined,

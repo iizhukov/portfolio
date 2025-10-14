@@ -4,45 +4,42 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        border: 'hsl(var(--border-light))',
-
-        background: 'hsl(var(--bg-primary))',
-        foreground: 'hsl(var(--text-primary))',
-        accent: {
-          DEFAULT: 'hsl(var(--accent-blue))',
-          foreground: 'hsl(var(--text-white))',
+        connections: {
+          DEFAULT: 'hsl(var(--bg-connections))',
         },
-        secondary: {
-          DEFAULT: 'hsl(var(--bg-secondary))',
-          foreground: 'hsl(var(--text-secondary))',
+        window: {
+          bg: 'hsl(var(--window-bg))',
+          header: {
+            bg: 'hsl(var(--window-header-bg))',
+            border: 'hsl(var(--window-header-border))',
+          },
+          text: 'hsl(var(--window-text))',
+          'text-secondary': 'hsl(var(--window-text-secondary))',
         },
-        sidebar: {
-          DEFAULT: 'hsl(var(--bg-sidebar))',
+        control: {
+          close: 'hsl(var(--control-close))',
+          'close-hover': 'hsl(var(--control-close-hover))',
+          minimize: 'hsl(var(--control-minimize))',
+          'minimize-hover': 'hsl(var(--control-minimize-hover))',
+          maximize: 'hsl(var(--control-maximize))',
+          'maximize-hover': 'hsl(var(--control-maximize-hover))',
         },
-        destructive: {
-          DEFAULT: 'hsl(var(--accent-red))',
-          foreground: 'hsl(var(--text-white))',
-        },
-        muted: {
-          DEFAULT: 'hsl(var(--bg-secondary))',
-          foreground: 'hsl(var(--text-secondary))',
-        },
-        popover: {
-          DEFAULT: 'hsl(var(--bg-primary))',
-          foreground: 'hsl(var(--text-primary))',
-        },
-        card: {
-          DEFAULT: 'hsl(var(--bg-primary))',
-          foreground: 'hsl(var(--text-primary))',
+        status: {
+          green: 'hsl(var(--status-green))',
+          red: 'hsl(var(--status-red))',
         },
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        lg: '12px',
+        md: '10px',
+        sm: '8px',
       },
+      borderColor: {
+        connections: 'hsl(var(--bg-connections))',
+      },
+
       transitionDuration: {
-        DEFAULT: 'var(--transition)',
+        DEFAULT: '0.25s',
       },
       spacing: {
         '25': '100px',
