@@ -1,6 +1,7 @@
 import { clsx } from 'clsx'
 import { useWindowSize } from '../hooks/use-window-size'
 import { Connections } from '@widgets/connections'
+import { Settings } from '@widgets/settings'
 
 export type WindowSize =
   | 'standard' // (800x600px)
@@ -26,7 +27,7 @@ interface WindowProps {
 }
 
 export const Window = ({
-  // app,
+  app,
   isActive,
   onClose,
   onMinimize,
@@ -82,8 +83,7 @@ export const Window = ({
         </div>
 
         {/* Window Title */}
-        {/* <span className="flex-1 text-center font-medium text-sm text-window-text">{app.name}</span> */}
-        <span className="flex-1 text-center font-medium text-sm text-window-text">Connections</span>
+        <span className="flex-1 text-center font-medium text-sm text-window-text">{app.name}</span>
       </div>
 
       {/* Window Content */}
@@ -94,7 +94,7 @@ export const Window = ({
             'duration-100 opacity-0': !isActive,
           })}
         >
-          <Connections />
+          {app.type === 'settings' ? <Settings /> : <Connections />}
         </div>
       </div>
     </div>

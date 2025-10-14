@@ -7,6 +7,15 @@ module.exports = {
         connections: {
           DEFAULT: 'hsl(var(--bg-connections))',
         },
+        settings: {
+          bg: 'hsl(var(--settings-bg))',
+          'sidebar-bg': 'hsl(var(--settings-sidebar-bg))',
+          border: 'hsl(var(--settings-border))',
+          text: 'hsl(var(--settings-text))',
+          'text-secondary': 'hsl(var(--settings-text-secondary))',
+          hover: 'hsl(var(--settings-hover))',
+          active: 'hsl(var(--settings-active))',
+        },
         window: {
           bg: 'hsl(var(--window-bg))',
           header: {

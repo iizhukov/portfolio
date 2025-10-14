@@ -12,6 +12,12 @@ export const MOCK_APPS = [
     type: 'notes',
   },
   {
+    id: 'settings',
+    name: 'System Preferences',
+    icon: '/assets/icons/settings.ico',
+    type: 'settings',
+  },
+  {
     id: 'theme',
     name: 'Theme',
     icon: '/assets/icons/color_meter.ico',

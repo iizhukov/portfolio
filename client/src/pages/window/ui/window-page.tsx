@@ -10,8 +10,9 @@ const WINDOW_CLOSE_DELAY = 500 // ms
 export const WindowPage = () => {
   const [isActive, setIsActive] = useState(false)
   const [isMaximized, setIsMaximized] = useState(false)
+  const [currentAppIndex, setCurrentAppIndex] = useState(0)
 
-  const currentApp = MOCK_APPS[0]
+  const currentApp = MOCK_APPS[currentAppIndex]
 
   const windowSize = useMemo(() => {
     if (isMaximized) return 'fullscreen'
@@ -22,7 +23,7 @@ export const WindowPage = () => {
       case 'notes':
         return 'vertical'
       case 'settings':
-        return 'standard'
+        return 'large'
       case 'theme':
         return 'standard'
       default:
@@ -52,6 +53,21 @@ export const WindowPage = () => {
   const handleMaximize = () => {
     setIsMaximized(!isMaximized)
   }
+
+  const switchToApp = (appType: string) => {
+    const appIndex = MOCK_APPS.findIndex(app => app.type === appType)
+    if (appIndex !== -1) {
+      setCurrentAppIndex(appIndex)
+    }
+  }
+
+  // Для демонстрации - переключаемся на settings через 3 секунды
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      switchToApp('settings')
+    }, 3000)
+    return () => clearTimeout(timer)
+  }, [])
 
   return (
     <Window
