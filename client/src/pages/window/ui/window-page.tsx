@@ -19,7 +19,7 @@ export const WindowPage = () => {
 
     switch (currentApp.type) {
       case 'finder':
-        return 'vertical'
+        return 'large'
       case 'notes':
         return 'vertical'
       case 'settings':
@@ -61,10 +61,10 @@ export const WindowPage = () => {
     }
   }
 
-  // Для демонстрации - переключаемся на settings через 3 секунды
+  // Для демонстрации - переключаемся на finder через 3 секунды
   useEffect(() => {
     const timer = setTimeout(() => {
-      switchToApp('settings')
+      // switchToApp('finder')
     }, 3000)
     return () => clearTimeout(timer)
   }, [])

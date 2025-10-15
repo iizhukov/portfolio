@@ -32,6 +32,17 @@
     --settings-hover: 0, 0%, 95%; /* light hover */
     --settings-active: 214, 100%, 50%; /* blue */
 
+    /* Finder */
+    --finder-bg: 0, 0%, 100%; /* white */
+    --finder-sidebar: 0, 0%, 98%; /* light gray */
+    --finder-toolbar: 0, 0%, 96%; /* light gray toolbar */
+    --finder-border: 0, 0%, 90%; /* light gray border */
+    --finder-text: 0, 0%, 20%; /* dark gray */
+    --finder-text-secondary: 0, 0%, 60%; /* medium gray */
+    --finder-text-hover: 0, 0%, 40%; /* dark gray hover */
+    --finder-hover: 0, 0%, 95%; /* light hover */
+    --finder-active: 214, 100%, 50%; /* blue */
+
     --window-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* light shadow */
   }
 
@@ -64,6 +75,17 @@
     --settings-text-secondary: 0, 0%, 60%; /* medium gray */
     --settings-hover: 0, 0%, 15%; /* dark hover */
     --settings-active: 214, 100%, 60%; /* light blue */
+
+    /* Finder */
+    --finder-bg: 0, 0%, 9%; /* very dark gray */
+    --finder-sidebar: 0, 0%, 12%; /* dark gray */
+    --finder-toolbar: 0, 0%, 15%; /* dark gray toolbar */
+    --finder-border: 0, 0%, 25%; /* medium dark gray */
+    --finder-text: 0, 0%, 90%; /* light gray */
+    --finder-text-secondary: 0, 0%, 60%; /* medium gray */
+    --finder-text-hover: 0, 0%, 100%; /* white hover */
+    --finder-hover: 0, 0%, 15%; /* dark hover */
+    --finder-active: 214, 100%, 60%; /* light blue */
 
     --window-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); /* dark shadow */
   }

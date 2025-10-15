@@ -16,6 +16,17 @@ module.exports = {
           hover: 'hsl(var(--settings-hover))',
           active: 'hsl(var(--settings-active))',
         },
+        finder: {
+          bg: 'hsl(var(--finder-bg))',
+          sidebar: 'hsl(var(--finder-sidebar))',
+          toolbar: 'hsl(var(--finder-toolbar))',
+          border: 'hsl(var(--finder-border))',
+          text: 'hsl(var(--finder-text))',
+          'text-secondary': 'hsl(var(--finder-text-secondary))',
+          'text-hover': 'hsl(var(--finder-text-hover))',
+          hover: 'hsl(var(--finder-hover))',
+          active: 'hsl(var(--finder-active))',
+        },
         window: {
           bg: 'hsl(var(--window-bg))',
           header: {

@@ -2,6 +2,7 @@ import { clsx } from 'clsx'
 import { useWindowSize } from '../hooks/use-window-size'
 import { Connections } from '@widgets/connections'
 import { Settings } from '@widgets/settings'
+import { Finder } from '@widgets/finder'
 
 export type WindowSize =
   | 'standard' // (800x600px)
@@ -94,7 +95,13 @@ export const Window = ({
             'duration-100 opacity-0': !isActive,
           })}
         >
-          {app.type === 'settings' ? <Settings /> : <Connections />}
+          {app.type === 'settings' ? (
+            <Settings />
+          ) : app.type === 'finder' ? (
+            <Finder />
+          ) : (
+            <Connections />
+          )}
         </div>
       </div>
     </div>
