@@ -1,5 +1,5 @@
 import { type Project } from '../types/finder'
-import { getFileIcon } from '../utils/file-icons'
+import { getFileIcon, getFolderIcon } from '../utils/file-icons'
 
 interface FileGridProps {
   items: Project[]
@@ -44,7 +44,11 @@ export const FileGrid = ({
               }`}
             >
               <img
-                src={getFileIcon(item.fileType || 'folder')}
+                src={
+                  item.type === 'folder'
+                    ? getFolderIcon(!!item.children && item.children.length > 0)
+                    : getFileIcon(item.fileType || 'folder')
+                }
                 alt={item.name}
                 className="w-6 h-6 mr-3"
                 onError={e => {
@@ -103,7 +107,11 @@ export const FileGrid = ({
             }`}
           >
             <img
-              src={getFileIcon(item.fileType || 'folder')}
+              src={
+                item.type === 'folder'
+                  ? getFolderIcon(!!item.children && item.children.length > 0)
+                  : getFileIcon(item.fileType || 'folder')
+              }
               alt={item.name}
               className="w-12 h-12 mb-2"
               onError={e => {

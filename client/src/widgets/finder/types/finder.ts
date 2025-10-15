@@ -24,6 +24,7 @@ export interface FinderState {
 
 export type FileType =
   | 'folder'
+  | 'folder-filled'
   | 'github'
   | 'demo'
   | 'diagram'

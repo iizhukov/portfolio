@@ -2,7 +2,8 @@ import { type FileType } from '../types/finder'
 
 export const FILE_ICON_MAP: Record<FileType, string> = {
   // Folders
-  folder: '/assets/icons/wpaper_folder.ico',
+  folder: '/assets/icons/folder.ico',
+  'folder-filled': '/assets/icons/wpaper_folder.ico',
 
   // GitHub and repositories
   github: '/assets/icons/github.ico',
@@ -44,6 +45,10 @@ export const FILE_ICON_MAP: Record<FileType, string> = {
 
 export const getFileIcon = (fileType: FileType): string => {
   return FILE_ICON_MAP[fileType] || FILE_ICON_MAP.folder
+}
+
+export const getFolderIcon = (hasChildren: boolean): string => {
+  return hasChildren ? FILE_ICON_MAP['folder-filled'] : FILE_ICON_MAP.folder
 }
 
 export const getFileTypeFromName = (name: string): FileType => {

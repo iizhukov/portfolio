@@ -1,6 +1,6 @@
 import { Button } from '@shared/ui/button'
 import { type Project } from '../types/finder'
-import { getFileIcon } from '../utils/file-icons'
+import { getFileIcon, getFolderIcon } from '../utils/file-icons'
 
 interface NavigationBarProps {
   canGoBack: boolean
@@ -46,7 +46,10 @@ export const NavigationBar = ({
           id: item.id,
           name: item.name,
           path: currentPath.slice(0, i + 1),
-          icon: getFileIcon(item.fileType || 'folder'),
+          icon:
+            item.type === 'folder'
+              ? getFolderIcon(!!item.children && item.children.length > 0)
+              : getFileIcon(item.fileType || 'folder'),
         })
 
         if (item.children) {
@@ -101,16 +104,18 @@ export const NavigationBar = ({
               onClick={() => onNavigateToPath(item.path)}
               className="flex items-center gap-1 text-finder-text hover:text-finder-text-hover transition-colors duration-200"
             >
-              <img
-                src={item.icon}
-                alt={item.name}
-                className="w-4 h-4"
-                onError={e => {
-                  // Fallback to folder icon if image fails
-                  const target = e.target as HTMLImageElement
-                  target.src = getFileIcon('folder')
-                }}
-              />
+              {item.id === 'root' && (
+                <img
+                  src={item.icon}
+                  alt={item.name}
+                  className="w-4 h-4"
+                  onError={e => {
+                    // Fallback to folder icon if image fails
+                    const target = e.target as HTMLImageElement
+                    target.src = getFileIcon('folder')
+                  }}
+                />
+              )}
               <span className="font-medium">{item.name}</span>
             </button>
           </div>
