@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  web-client:
+    build:
+      context: ./web
+    expose:
+      - "80"
+    networks:
+      - portfolio-network
+    restart: unless-stopped
+
+networks:
+  portfolio-network:
+    driver: bridge
