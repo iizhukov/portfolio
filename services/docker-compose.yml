@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  connections-service:
+    build:
+      context: ./connections
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8000"
+    environment:
+      POSTGRES_SERVER: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: connections_db
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: connections
+      MINIO_SECURE: "false"
+      MESSAGE_BROKERS: redpanda:9092
+      ADMIN_CONNECTIONS_TOPIC: admin_connections
+      MODULES_SERVICE_URL: http://modules-service:8002
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+    networks:
+      - portfolio-network
+    restart: unless-stopped
+
+networks:
+  portfolio-network:
+    driver: bridge
