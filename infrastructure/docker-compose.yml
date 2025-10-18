@@ -107,10 +107,28 @@ services:
       - portfolio-network
     restart: unless-stopped
 
+  redis:
+    image: redis:7-alpine
+    command: redis-server /etc/redis/redis.conf
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./redis/redis.conf:/etc/redis/redis.conf:ro
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - portfolio-network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   minio_data:
   redpanda_data:
+  redis_data:
 
 networks:
   portfolio-network:
