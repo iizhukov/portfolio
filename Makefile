@@ -1,4 +1,4 @@
-.PHONY: help dev dev-build dev-logs dev-down clean test lint format
+.PHONY: help dev dev-build dev-logs dev-down clean test lint format dev-setup dev-gateway dev-connections dev-docker dev-infra
 
 help:
 	@echo "Portfolio Project - Available commands:"
@@ -114,3 +114,18 @@ restart-apps:
 restart-services:
 	docker-compose -f services/docker-compose.yml restart
 
+
+dev-setup:
+	./scripts/dev-setup.sh
+
+dev-gateway:
+	./scripts/dev-gateway.sh
+
+dev-connections:
+	./scripts/dev-connections.sh
+
+dev-docker:
+	docker-compose up -d
+
+dev-infra:
+	docker-compose -f docker-compose.dev.yml up -d
