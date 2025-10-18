@@ -8,24 +8,33 @@ rpc_server:
 kafka_api:
   - address: "0.0.0.0"
     port: 9092
+    name: "internal"
   - address: "0.0.0.0"
     port: 19092
+    name: "external"
 
 pandaproxy:
-  - address: "0.0.0.0"
-    port: 8082
-  - address: "0.0.0.0"
-    port: 18082
+  pandaproxy_api:
+    - address: "0.0.0.0"
+      port: 8082
+      name: "internal"
+    - address: "0.0.0.0"
+      port: 18082
+      name: "external"
 
 schema_registry:
-  - address: "0.0.0.0"
-    port: 8081
-  - address: "0.0.0.0"
-    port: 18081
+  schema_registry_api:
+    - address: "0.0.0.0"
+      port: 8081
+      name: "internal"
+    - address: "0.0.0.0"
+      port: 18081
+      name: "external"
 
 admin:
   - address: "0.0.0.0"
     port: 9644
+    name: "admin"
 
 logger:
   level: "info"
