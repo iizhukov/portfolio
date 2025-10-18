@@ -1,0 +1,46 @@
+cluster_id: "portfolio-cluster"
+node_id: 0
+
+rpc_server:
+  address: "0.0.0.0"
+  port: 33145
+
+kafka_api:
+  - address: "0.0.0.0"
+    port: 9092
+  - address: "0.0.0.0"
+    port: 19092
+
+pandaproxy:
+  - address: "0.0.0.0"
+    port: 8082
+  - address: "0.0.0.0"
+    port: 18082
+
+schema_registry:
+  - address: "0.0.0.0"
+    port: 8081
+  - address: "0.0.0.0"
+    port: 18081
+
+admin:
+  - address: "0.0.0.0"
+    port: 9644
+
+logger:
+  level: "info"
+  format: "json"
+
+smp: 1
+memory: 1G
+reserve_memory: 0M
+
+data_directory: "/var/lib/redpanda/data"
+
+mode: "dev-container"
+
+default_log_level: "info"
+
+auto_create_topics_enabled: false
+
+topic_memory_per_partition: 1048576
