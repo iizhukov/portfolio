@@ -1,44 +1,68 @@
-import os
-from typing import Optional
-
-from pydantic_settings import BaseSettings
+from shared.python.env_utils import getenv, getenv_int, validate_required_env_vars, print_env_info
 
 
-class Settings(BaseSettings):
-    PROJECT_NAME: str = "Connections Service"
-    VERSION: str = "1.0.0"
-    API_V1_STR: str = "/api/v1"
+class Settings:
+    def __init__(self):
+        required_vars = [
+            "HOST",
+            "PORT",
 
-    # Database
-    POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER", "localhost")
-    POSTGRES_PORT: str = os.getenv("POSTGRES_PORT", "5432")
-    POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
-    POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "postgres")
-    POSTGRES_DB: str = os.getenv("POSTGRES_DB", "connections_db")
-    DATABASE_URL: str = ""
+            "POSTGRES_SERVER",
+            "POSTGRES_PORT",
+            "POSTGRES_USER", 
+            "POSTGRES_PASSWORD",
+            "POSTGRES_DB",
 
-    # MinIO
-    MINIO_ENDPOINT: str = os.getenv("MINIO_ENDPOINT", "localhost:9000")
-    MINIO_ACCESS_KEY: str = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
-    MINIO_SECRET_KEY: str = os.getenv("MINIO_SECRET_KEY", "minioadmin")
-    MINIO_BUCKET: str = os.getenv("MINIO_BUCKET", "connections")
-    MINIO_SECURE: bool = os.getenv("MINIO_SECURE", "False").lower() == "true"
+            "MESSAGE_BROKERS",
+            "ADMIN_CONNECTIONS_TOPIC",
 
-    # Message Broker
-    MESSAGE_BROKERS: str = os.getenv("MESSAGE_BROKERS", "localhost:9092")
-    ADMIN_CONNECTIONS_TOPIC: str = os.getenv("ADMIN_CONNECTIONS_TOPIC", "admin_connections")
+            "MODULES_SERVICE_URL",
+            "GRPC_PORT",
+        ]
+        
+        validate_required_env_vars(required_vars)
+        
+        self.PROJECT_NAME: str = "Connections Service"
+        self.VERSION: str = getenv("VERSION")
+        self.API_V1_STR = getenv("API_V1_STR")
+
+        self.POSTGRES_SERVER: str = getenv("POSTGRES_SERVER")
+        self.POSTGRES_PORT: str = getenv("POSTGRES_PORT")
+        self.POSTGRES_USER: str = getenv("POSTGRES_USER")
+        self.POSTGRES_PASSWORD: str = getenv("POSTGRES_PASSWORD")
+        self.POSTGRES_DB: str = getenv("POSTGRES_DB")
+        self.DATABASE_URL: str = f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+
+        self.MESSAGE_BROKERS: str = getenv("MESSAGE_BROKERS")
+        self.ADMIN_CONNECTIONS_TOPIC: str = getenv("ADMIN_CONNECTIONS_TOPIC")
+        
+        self.MODULES_SERVICE_URL: str = getenv("MODULES_SERVICE_URL")
+        
+        self.GRPC_PORT: int = getenv_int("GRPC_PORT")
+        
+        self.HOST: str = getenv("HOST")
+        self.PORT: int = getenv_int("PORT")
+        
+        self._print_config_info()
     
-    # Module
-    MODULES_SERVICE_URL: str = os.getenv("MODULES_SERVICE_URL", "http://localhost:8000")
+    def _print_config_info(self):
+        env_vars = {
+            "HOST": self.HOST,
+            "PORT": str(self.PORT),
 
-    class Config:
-        case_sensitive = True
-        env_file = ".env"
+            "POSTGRES_SERVER": self.POSTGRES_SERVER,
+            "POSTGRES_PORT": self.POSTGRES_PORT,
+            "POSTGRES_USER": self.POSTGRES_USER,
+            "POSTGRES_PASSWORD": self.POSTGRES_PASSWORD,
+            "POSTGRES_DB": self.POSTGRES_DB,
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        if not self.DATABASE_URL:
-            self.DATABASE_URL = f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+            "MESSAGE_BROKERS": self.MESSAGE_BROKERS,
+            "ADMIN_CONNECTIONS_TOPIC": self.ADMIN_CONNECTIONS_TOPIC,
+
+            "MODULES_SERVICE_URL": self.MODULES_SERVICE_URL,
+            "GRPC_PORT": str(self.GRPC_PORT)
+        }
+        print_env_info(env_vars)
 
 
 settings = Settings()

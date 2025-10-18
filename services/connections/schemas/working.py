@@ -1,21 +1,19 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
 
 
-class WorkingStatusBase(BaseModel):
-    label: str
-    percent: int
-
-
-class WorkingStatusCreate(WorkingStatusBase):
-    pass
-
-
-class WorkingStatus(WorkingStatusBase):
-    id: int
-    created_at: datetime
-    updated_at: Optional[datetime] = None
+class WorkingResponseSchema(BaseModel):
+    id: int = Field(..., description="ID записи")
+    working_on: str = Field(..., description="Описание работы")
+    percentage: int = Field(..., ge=0, le=100, description="Процент выполнения")
+    created_at: datetime = Field(..., description="Дата создания")
+    updated_at: Optional[datetime] = Field(None, description="Дата обновления")
     
     class Config:
         from_attributes = True
+
+
+class WorkingUpdateSchema(BaseModel):
+    working_on: str = Field(..., description="Описание работы")
+    percentage: int = Field(..., ge=0, le=100, description="Процент выполнения")

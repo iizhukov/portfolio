@@ -1,25 +1,24 @@
 from confluent_kafka import Consumer, KafkaError
-from core.config import Settings
+from core.config import settings
 import json
-import logging
+from core.logging import get_logger
 
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class AdminConsumer:
     def __init__(self):
         self.conf = {
-            'bootstrap.servers': Settings.MESSAGE_BROKERS,
-            'group.id': Settings.ADMIN_CONNECTIONS_TOPIC,
+            'bootstrap.servers': settings.MESSAGE_BROKERS,
+            'group.id': settings.ADMIN_CONNECTIONS_TOPIC,
             'auto.offset.reset': 'earliest'
         }
         self.consumer = Consumer(self.conf)
         self.running = False
     
     async def start(self):
-        """Start consuming messages"""
-        self.consumer.subscribe([Settings.ADMIN_CONNECTIONS_TOPIC])
+        self.consumer.subscribe([settings.ADMIN_CONNECTIONS_TOPIC])
         self.running = True
         
         logger.info("Starting Admin Command Consumer")
@@ -46,14 +45,12 @@ class AdminConsumer:
                 logger.error(f"Error processing message: {e}")
     
     async def process_command(self, command: dict):
-        """Process admin command"""
         command_type = command.get('type')
         data = command.get('data', {})
 
         logger.info(f"Processing command: {command_type}")
         
     def stop(self):
-        """Stop consumer"""
         self.running = False
         self.consumer.close()
 

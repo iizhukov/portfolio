@@ -1,6 +1,7 @@
-from models.connection import ConnectionModel
-from models.status import StatusModel
-from models.working import WorkingModel
+from .base import Base
+from .status import StatusModel
+from .connection import ConnectionModel
+from .working import WorkingModel
+from .image import ImageModel
 
-
-__all__ = ["ConnectionModel", "StatusModel", "WorkingModel"]
+__all__ = ["Base", "StatusModel", "ConnectionModel", "WorkingModel", "ImageModel"]
