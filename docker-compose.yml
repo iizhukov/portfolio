@@ -1,0 +1,10 @@
+version: '3.8'
+
+include:
+  - infrastructure/docker-compose.yml
+  - apps/docker-compose.yml
+  - services/docker-compose.yml
+
+networks:
+  portfolio-network:
+    driver: bridge
