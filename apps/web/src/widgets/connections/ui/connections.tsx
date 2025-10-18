@@ -3,7 +3,7 @@ const CONNECTIONS_DATA = [
     label: 'GitHub',
     value: 'iizhukov',
     href: 'https://github.com/iizhukov',
-    type: 'external',
+    type: 'social',
   },
   {
     label: 'Mail',
@@ -15,13 +15,13 @@ const CONNECTIONS_DATA = [
     label: 'Telegram',
     value: '@ii_zhukov',
     href: 'https://t.me/ii_zhukov',
-    type: 'external',
+    type: 'social',
   },
   {
     label: 'VK',
     value: 'ii_zhukov',
     href: 'https://vk.com/ii_zhukov',
-    type: 'external',
+    type: 'social',
   },
 ]
 
@@ -62,8 +62,8 @@ export const Connections = () => {
                       <span className="text-m font-bold">{connection.label}:</span>
                       <a
                         href={connection.href}
-                        target={connection.type === 'external' ? '_blank' : undefined}
-                        rel={connection.type === 'external' ? 'noopener noreferrer' : undefined}
+                        target={connection.type === 'social' ? '_blank' : undefined}
+                        rel={connection.type === 'social' ? 'noopener noreferrer' : undefined}
                         className="text-sm text-pink-500 hover:text-blue-300 hover:underline underline-offset-2 transition-colors duration-200"
                       >
                         {connection.value}
