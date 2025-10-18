@@ -1,32 +1,60 @@
-version: '3.8'
-
 services:
   connections-service:
     build:
-      context: ./connections
-      dockerfile: Dockerfile
+      context: ../
+      dockerfile: services/connections/Dockerfile
     ports:
-      - "8001:8000"
+      - "8002:8002"
     environment:
       POSTGRES_SERVER: postgres
       POSTGRES_PORT: 5432
       POSTGRES_USER: connections_user
       POSTGRES_PASSWORD: connections_password
       POSTGRES_DB: connections_db
-      MINIO_ENDPOINT: minio:9000
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
-      MINIO_BUCKET: connections
-      MINIO_SECURE: "false"
       MESSAGE_BROKERS: redpanda:9092
       ADMIN_CONNECTIONS_TOPIC: admin_connections
-      MODULES_SERVICE_URL: http://modules-service:8002
+      MODULES_SERVICE_URL: http://modules-service:8001
+      GRPC_PORT: 50051
+      HOST: 0.0.0.0
+      PORT: 8002
+      VERSION: "1.0.0"
+      API_V1_STR: "/api/v1"
     depends_on:
       postgres:
         condition: service_healthy
-      minio:
-        condition: service_healthy
       redpanda:
+        condition: service_healthy
+    networks:
+      - portfolio-network
+    restart: unless-stopped
+
+  api-gateway:
+    build:
+      context: ../
+      dockerfile: services/gateway/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      CONNECTIONS_SERVICE_HOST: connections-service
+      CONNECTIONS_SERVICE_PORT: 50051
+      MODULES_SERVICE_HOST: modules-service
+      MODULES_SERVICE_PORT: 50052
+      ADMIN_SERVICE_HOST: admin-service
+      ADMIN_SERVICE_PORT: 50053
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      REDIS_PASSWORD: ""
+      GRPC_TIMEOUT: 30
+      GRPC_MAX_RETRIES: 3
+      CACHE_TTL_CONNECTIONS: 300
+      CACHE_TTL_MODULES: 600
+      CACHE_TTL_ADMIN: 60
+      HOST: 0.0.0.0
+      PORT: 8000
+      LOG_LEVEL: INFO
+    depends_on:
+      redis:
         condition: service_healthy
     networks:
       - portfolio-network

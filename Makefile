@@ -129,3 +129,13 @@ dev-docker:
 
 dev-infra:
 	docker-compose -f docker-compose.dev.yml up -d
+
+
+connections-setup:
+	cd services/connections/scripts && python setup.py
+
+connections-generate-grpc:
+	cd services/connections/scripts && python generate_grpc.py
+
+connections-init-db:
+	cd services/connections/scripts && python init_db.py

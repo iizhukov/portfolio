@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   nginx:
     build:
@@ -65,39 +63,27 @@ services:
 
   redpanda:
     image: docker.redpanda.com/redpandadata/redpanda:latest
-    command:
-      - redpanda
-      - start
-      - --kafka-addr
-      - internal://0.0.0.0:9092,external://0.0.0.0:19092
-      - --advertise-kafka-addr
-      - internal://redpanda:9092,external://localhost:19092
-      - --pandaproxy-addr
-      - internal://0.0.0.0:8082,external://0.0.0.0:18082
-      - --advertise-pandaproxy-addr
-      - internal://redpanda:8082,external://localhost:18082
-      - --schema-registry-addr
-      - internal://0.0.0.0:8081,external://0.0.0.0:18081
-      - --rpc-addr
-      - redpanda:33145
-      - --advertise-rpc-addr
-      - redpanda:33145
-      - --smp
-      - '1'
-      - --memory
-      - 1G
-      - --mode
-      - dev-container
-      - --default-log-level=info
     ports:
-      - "18081:18081"
-      - "18082:18082"
-      - "19092:19092"
-      - "19644:9644"
+      - "9092:9092"
+      - "9644:9644"
     volumes:
       - redpanda_data:/var/lib/redpanda/data
-      - ./redpanda/redpanda.yaml:/etc/redpanda/redpanda.yaml:ro
-      - ./redpanda/init-topics.sh:/docker-entrypoint-initdb.d/init-topics.sh:ro
+    environment:
+      REDPANDA_CLUSTER_ID: "portfolio-cluster"
+      REDPANDA_NODE_ID: "0"
+      REDPANDA_RPC_ADDRESS: "0.0.0.0:33145"
+      REDPANDA_KAFKA_ADDRESS: "0.0.0.0:9092"
+      REDPANDA_ADVERTISE_KAFKA_ADDRESS: "redpanda:9092"
+      REDPANDA_PANDAPROXY_ADDRESS: "0.0.0.0:8082"
+      REDPANDA_ADVERTISE_PANDAPROXY_ADDRESS: "redpanda:8082"
+      REDPANDA_SCHEMA_REGISTRY_ADDRESS: "0.0.0.0:8081"
+      REDPANDA_ADVERTISE_SCHEMA_REGISTRY_ADDRESS: "redpanda:8081"
+      REDPANDA_ADMIN_ADDRESS: "0.0.0.0:9644"
+      REDPANDA_SMP: "1"
+      REDPANDA_MEMORY: "1G"
+      REDPANDA_MODE: "dev-container"
+      REDPANDA_DEFAULT_LOG_LEVEL: "info"
+      REDPANDA_AUTO_CREATE_TOPICS_ENABLED: "true"
     healthcheck:
       test: ["CMD-SHELL", "rpk cluster health | grep -E 'Healthy:.+true' || exit 1"]
       interval: 30s
