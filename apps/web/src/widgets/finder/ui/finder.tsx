@@ -14,7 +14,7 @@ export const Finder = () => {
     goForward,
     goToRoot,
     toggleSelection,
-    getPathString,
+    // getPathString,
     canGoBack,
     canGoForward,
   } = useFinder()

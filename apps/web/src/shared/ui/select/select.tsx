@@ -1,7 +1,7 @@
 import { clsx } from 'clsx'
 import { useState } from 'react'
 
-interface SelectOption {
+export interface SelectOption {
   value: string
   label: string
 }

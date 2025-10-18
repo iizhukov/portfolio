@@ -20,7 +20,7 @@ export const NavigationBar = ({
   projects,
   onGoBack,
   onGoForward,
-  onGoToRoot,
+  // onGoToRoot,
   onNavigateToPath,
 }: NavigationBarProps) => {
   // Build breadcrumb items from current path

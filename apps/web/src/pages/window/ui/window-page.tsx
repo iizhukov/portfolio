@@ -10,7 +10,7 @@ const WINDOW_CLOSE_DELAY = 500 // ms
 export const WindowPage = () => {
   const [isActive, setIsActive] = useState(false)
   const [isMaximized, setIsMaximized] = useState(false)
-  const [currentAppIndex, setCurrentAppIndex] = useState(0)
+  const [currentAppIndex, _] = useState(0)
 
   const currentApp = MOCK_APPS[currentAppIndex]
 
@@ -54,12 +54,12 @@ export const WindowPage = () => {
     setIsMaximized(!isMaximized)
   }
 
-  const switchToApp = (appType: string) => {
-    const appIndex = MOCK_APPS.findIndex(app => app.type === appType)
-    if (appIndex !== -1) {
-      setCurrentAppIndex(appIndex)
-    }
-  }
+  // const switchToApp = (appType: string) => {
+  //   const appIndex = MOCK_APPS.findIndex(app => app.type === appType)
+  //   if (appIndex !== -1) {
+  //     setCurrentAppIndex(appIndex)
+  //   }
+  // }
 
   // Для демонстрации - переключаемся на finder через 3 секунды
   useEffect(() => {
