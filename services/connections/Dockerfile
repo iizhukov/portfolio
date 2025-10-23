@@ -7,12 +7,16 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
+RUN pip install poetry==1.8.3
+
+RUN poetry config virtualenvs.create false
+
 COPY shared/python ./shared/python
-RUN pip install -e ./shared/python
+RUN cd shared/python && poetry install --no-interaction --no-ansi
 
-COPY services/connections/requirements.txt .
+COPY services/connections/pyproject.toml services/connections/poetry.lock* ./
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN poetry install --no-interaction --no-ansi --no-root
 
 COPY services/connections/ .
 
