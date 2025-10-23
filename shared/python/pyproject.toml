@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "portfolio-shared"
+version = "1.0.0"
+description = "Shared utilities for Portfolio project"
+authors = ["iizhukov <iizhukov@icloud.com>"]
+readme = "README.md"
+packages = [{include = "shared", from = "."}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pydantic = ">=2.0.0"
+sqlalchemy = ">=2.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
