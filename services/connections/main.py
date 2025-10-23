@@ -1,4 +1,5 @@
 import asyncio
+import sys
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,10 +7,13 @@ from contextlib import asynccontextmanager
 
 from core.config import settings
 from core.logging import get_logger
+from shared.logging.utils import disable_library_loggers
 from api.v1.router import api_router
 from workers.consumer import admin_consumer
 from workers.grpc_service import serve as serve_grpc
 
+
+disable_library_loggers()
 
 logger = get_logger(__name__)
 
@@ -18,7 +22,20 @@ logger = get_logger(__name__)
 async def lifespan(app: FastAPI):
     logger.info("Starting Connections Service...")
     
-    consumer_task = asyncio.create_task(admin_consumer.start())
+    consumer_task = None
+
+    if settings.MESSAGE_BROKERS and settings.MESSAGE_BROKERS != "":
+        try:
+            consumer_task = asyncio.create_task(admin_consumer.start())
+            logger.info("Kafka consumer started")
+        except Exception as e:
+            logger.error(f"Failed to start Kafka consumer: {e}")
+            sys.exit(1)
+            
+    else:
+        logger.error("MESSAGE_BROKERS not configured")
+        sys.exit(1)
+    
     grpc_task = asyncio.create_task(serve_grpc())
     
     try:
@@ -26,12 +43,16 @@ async def lifespan(app: FastAPI):
     finally:
         logger.info("Shutting down Connections Service...")
 
-        admin_consumer.stop()
-        consumer_task.cancel()
+        if consumer_task:
+            admin_consumer.stop()
+            consumer_task.cancel()
+            try:
+                await consumer_task
+            except asyncio.CancelledError:
+                pass
+        
         grpc_task.cancel()
-
         try:
-            await consumer_task
             await grpc_task
         except asyncio.CancelledError:
             pass
@@ -46,9 +67,10 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
+    # allow_origins=["http://localhost:8000"],
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
 
