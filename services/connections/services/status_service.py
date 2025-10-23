@@ -14,21 +14,24 @@ class StatusService:
         result = await self.db.execute(select(StatusModel).limit(1))
         return result.scalar_one_or_none()
 
-    async def update_status(self, status_data: StatusUpdateSchema) -> StatusModel:
+    async def update_status(self, status: str) -> StatusModel:
         existing_status = await self.get_status()
         
         if existing_status:
             await self.db.execute(
                 update(StatusModel)
                 .where(StatusModel.id == existing_status.id)
-                .values(status=status_data.status)
+                .values(status=status)
             )
-            await self.db.commit()
-            await self.db.refresh(existing_status)
+
+            await self.db.flush()
+
             return existing_status
         else:
-            new_status = StatusModel(status=status_data.status)
+            new_status = StatusModel(status=status)
+
             self.db.add(new_status)
-            await self.db.commit()
-            await self.db.refresh(new_status)
+
+            await self.db.flush()
+
             return new_status

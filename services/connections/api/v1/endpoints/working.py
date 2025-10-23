@@ -18,14 +18,3 @@ async def get_working_status(db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Working status not found")
 
     return working
-
-
-@router.put("/admin/on-working", response_model=WorkingResponseSchema)
-async def update_working_status(
-    working_data: WorkingUpdateSchema,
-    db: AsyncSession = Depends(get_db)
-):
-    service = WorkingService(db)
-    working = await service.update_working_status(working_data)
-
-    return working

@@ -1,1 +1,1 @@
-from shared.python.logging_utils import get_logger
+from shared.logging.utils import get_logger

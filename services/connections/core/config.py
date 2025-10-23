@@ -1,4 +1,4 @@
-from shared.python.env_utils import getenv, getenv_int, validate_required_env_vars, print_env_info
+from shared.env.utils import getenv, getenv_int, validate_required_env_vars, print_env_info
 
 
 class Settings:
@@ -16,7 +16,7 @@ class Settings:
             "MESSAGE_BROKERS",
             "ADMIN_CONNECTIONS_TOPIC",
 
-            "MODULES_SERVICE_URL",
+            # "MODULES_SERVICE_URL",
             "GRPC_PORT",
         ]
         

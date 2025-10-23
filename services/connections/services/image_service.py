@@ -28,7 +28,7 @@ class ImageService:
                 .where(ImageModel.id == existing_image.id)
                 .values(**update_data)
             )
-            await self.db.commit()
-            await self.db.refresh(existing_image)
+            
+            await self.db.flush()
         
         return existing_image

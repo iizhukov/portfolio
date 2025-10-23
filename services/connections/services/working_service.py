@@ -15,28 +15,27 @@ class WorkingService:
 
         return result.scalar_one_or_none()
 
-    async def update_working_status(self, working_data: WorkingUpdateSchema) -> WorkingModel:
+    async def update_working_status(self, working_on: str, percentage: int) -> WorkingModel:
         existing_working = await self.get_working_status()
         
         if existing_working:
             await self.db.execute(
                 update(WorkingModel)
                 .where(WorkingModel.id == existing_working.id)
-                .values(working_on=working_data.working_on, percentage=working_data.percentage)
+                .values(working_on=working_on, percentage=percentage)
             )
-            await self.db.commit()
-            await self.db.refresh(existing_working)
+            
+            await self.db.flush()
 
             return existing_working
         else:
             new_working = WorkingModel(
-                working_on=working_data.working_on,
-                percentage=working_data.percentage
+                working_on=working_on,
+                percentage=percentage
             )
 
             self.db.add(new_working)
 
-            await self.db.commit()
-            await self.db.refresh(new_working)
+            await self.db.flush()
 
             return new_working

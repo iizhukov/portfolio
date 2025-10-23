@@ -1,17 +1,15 @@
 from pydantic import BaseModel, Field
 from typing import Optional
-from datetime import datetime
 
 
 class ConnectionResponseSchema(BaseModel):
     id: int = Field(..., description="ID подключения")
+
     label: str = Field(..., description="Название подключения")
     type: str = Field(..., description="Тип подключения")
     href: str = Field(..., description="Ссылка")
     value: str = Field(..., description="Значение")
-    created_at: datetime = Field(..., description="Дата создания")
-    updated_at: Optional[datetime] = Field(None, description="Дата обновления")
-    
+
     class Config:
         from_attributes = True
 

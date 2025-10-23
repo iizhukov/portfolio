@@ -4,22 +4,12 @@ package connections;
 
 service ConnectionsService {
   rpc GetConnections(GetConnectionsRequest) returns (GetConnectionsResponse);
-  
-  rpc GetConnection(GetConnectionRequest) returns (GetConnectionResponse);
-  
-  rpc CreateConnection(CreateConnectionRequest) returns (CreateConnectionResponse);
-  
-  rpc UpdateConnection(UpdateConnectionRequest) returns (UpdateConnectionResponse);
-  
-  rpc DeleteConnection(DeleteConnectionRequest) returns (DeleteConnectionResponse);
+
+  rpc GetImage(GetImageRequest) returns (GetImageResponse);
   
   rpc GetStatus(GetStatusRequest) returns (GetStatusResponse);
   
-  rpc UpdateStatus(UpdateStatusRequest) returns (UpdateStatusResponse);
-  
   rpc GetWorking(GetWorkingRequest) returns (GetWorkingResponse);
-  
-  rpc UpdateWorking(UpdateWorkingRequest) returns (UpdateWorkingResponse);
 }
 
 message Connection {
@@ -28,23 +18,24 @@ message Connection {
   string type = 3;
   string href = 4;
   string value = 5;
-  string created_at = 6;
-  string updated_at = 7;
+}
+
+message Image {
+  int32 id = 1;
+  string filename = 2;
+  string content_type = 3;
+  string url = 4;
 }
 
 message Status {
   int32 id = 1;
   string status = 2;
-  string created_at = 3;
-  string updated_at = 4;
 }
 
 message Working {
   int32 id = 1;
   string working_on = 2;
   int32 percentage = 3;
-  string created_at = 4;
-  string updated_at = 5;
 }
 
 message GetConnectionsRequest {}
@@ -53,43 +44,10 @@ message GetConnectionsResponse {
   repeated Connection connections = 1;
 }
 
-message GetConnectionRequest {
-  int32 id = 1;
-}
+message GetImageRequest {}
 
-message GetConnectionResponse {
-  Connection connection = 1;
-}
-
-message CreateConnectionRequest {
-  string label = 1;
-  string type = 2;
-  string href = 3;
-  string value = 4;
-}
-
-message CreateConnectionResponse {
-  Connection connection = 1;
-}
-
-message UpdateConnectionRequest {
-  int32 id = 1;
-  string label = 2;
-  string type = 3;
-  string href = 4;
-  string value = 5;
-}
-
-message UpdateConnectionResponse {
-  Connection connection = 1;
-}
-
-message DeleteConnectionRequest {
-  int32 id = 1;
-}
-
-message DeleteConnectionResponse {
-  bool success = 1;
+message GetImageResponse {
+  Image image = 1;
 }
 
 message GetStatusRequest {}
@@ -98,25 +56,8 @@ message GetStatusResponse {
   Status status = 1;
 }
 
-message UpdateStatusRequest {
-  string status = 1;
-}
-
-message UpdateStatusResponse {
-  Status status = 1;
-}
-
 message GetWorkingRequest {}
 
 message GetWorkingResponse {
-  Working working = 1;
-}
-
-message UpdateWorkingRequest {
-  string label = 1;
-  int32 percent = 2;
-}
-
-message UpdateWorkingResponse {
   Working working = 1;
 }

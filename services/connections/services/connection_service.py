@@ -30,8 +30,7 @@ class ConnectionService:
 
         self.db.add(new_connection)
 
-        await self.db.commit()
-        await self.db.refresh(new_connection)
+        await self.db.flush()
 
         return new_connection
 
@@ -48,14 +47,14 @@ class ConnectionService:
                 .where(ConnectionModel.id == connection_id)
                 .values(**update_data)
             )
-            await self.db.commit()
-            await self.db.refresh(connection)
+
+            await self.db.flush()
         
         return connection
 
     async def delete_connection(self, connection_id: int) -> bool:
         result = await self.db.execute(delete(ConnectionModel).where(ConnectionModel.id == connection_id))
 
-        await self.db.commit()
+        await self.db.flush()
 
         return result.all().count(1) > 0

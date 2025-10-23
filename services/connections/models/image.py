@@ -12,7 +12,6 @@ class ImageModel(Base):
     filename = mapped_column(String, nullable=False)
     content_type = mapped_column(String, nullable=False)
     url = mapped_column(String, nullable=False)
-    size = mapped_column(Integer, nullable=True)
     created_at = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at = mapped_column(DateTime(timezone=True), onupdate=func.now())
 
@@ -25,7 +24,6 @@ class ImageModel(Base):
             "filename": self.filename,
             "content_type": self.content_type,
             "url": self.url,
-            "size": self.size,
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }

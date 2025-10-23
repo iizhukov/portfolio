@@ -9,7 +9,7 @@ from services.health_service import HealthService
 router = APIRouter()
 
 
-@router.get("/health-check", response_model=HealthCheckResponseSchema)
+@router.get("/health", response_model=HealthCheckResponseSchema)
 async def health_check(db: AsyncSession = Depends(get_db)):
     service = HealthService(db)
     health_status = await service.check_health()

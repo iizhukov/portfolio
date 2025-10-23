@@ -1,7 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 from datetime import datetime
-import httpx
 
 from core.config import settings
 from schemas.health_check import HealthCheckResponseSchema
@@ -22,7 +21,6 @@ class HealthService:
             status="healthy" if overall_healthy else "unhealthy",
             timestamp=datetime.now(),
             database=db_healthy,
-            minio=True,
             redpanda=redpanda_healthy,
             modules_service=modules_healthy
         )
@@ -38,4 +36,5 @@ class HealthService:
         return True
 
     async def _check_modules_service(self) -> bool:
-        return True
+        # TODO: Add it after the service is implemented
+        return False

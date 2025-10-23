@@ -1,5 +1,4 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from shared.python.database_utils import DatabaseManager
+from shared.database.utils import DatabaseManager
 from core.config import settings
 
 

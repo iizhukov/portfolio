@@ -9,10 +9,10 @@ def generate_grpc_files():
     root = Path(__file__).parent.parent
     proto_path = root / "proto"
     generated_path = root / "generated"
-    
+
     if not proto_path.exists():
-        print("❌ Директория proto не найдена!")
-        print("   Запустите скрипт из директории services/connections")
+        print("\033[91mError\033[0m: proto directory not found!")
+        print("   Run the script from the services/connections directory")
         sys.exit(1)
     
     generated_path.mkdir(exist_ok=True)
@@ -25,24 +25,41 @@ def generate_grpc_files():
         f"{proto_path / 'connections.proto'}"
     ]
     
-    print("🔧 Генерация gRPC файлов...")
-    print(f"   Команда: {' '.join(cmd)}")
+    print("Generating gRPC files...")
+    print(f"   Command: {' '.join(cmd)}")
     
     try:
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        print("✅ gRPC файлы успешно сгенерированы!")
-        print("   Созданы файлы в services/connections/generated/:")
+        print("GRPC files generated \033[92msuccessfully\033[0m!")
+        print("   Files created in services/connections/generated/:")
         print("   - connections_pb2.py")
         print("   - connections_pb2_grpc.py")
+        return True
         
     except subprocess.CalledProcessError as e:
-        print(f"❌ Ошибка при генерации gRPC файлов:")
+        print(f"\033[91mError\033[0m generating gRPC files:")
         print(f"   {e.stderr}")
-        sys.exit(1)
+        return False
     except FileNotFoundError:
-        print("❌ grpc_tools не найден!")
-        print("   Установите: pip install grpcio-tools")
+        print("\033[91mError\033[0m: grpc_tools not found!")
+        print("   Install: pip install grpcio-tools")
+        return False
+
+
+def main():
+    print("=" * 60)
+    print("gRPC File Generation")
+    print("=" * 60)
+    print()
+    
+    if not generate_grpc_files():
+        print("\n\033[91mFailed\033[0m to generate gRPC files")
         sys.exit(1)
+    
+    print("\n" + "=" * 60)
+    print("Generation \033[92mcompleted\033[0m!")
+    print("=" * 60)
+
 
 if __name__ == "__main__":
-    generate_grpc_files()
+    main()
