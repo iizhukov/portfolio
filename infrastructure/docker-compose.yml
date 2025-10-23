@@ -1,18 +1,4 @@
 services:
-  nginx:
-    build:
-      context: ./nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - web-client
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    networks:
-      - portfolio-network
-    restart: unless-stopped
-
   postgres:
     image: postgres:15
     environment:
@@ -39,6 +25,22 @@ services:
       - portfolio-network
     restart: unless-stopped
 
+  nginx:
+    build:
+      context: ./nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - portfolio-network
+    restart: unless-stopped
+    depends_on:
+      - minio
+      - redis
+      - postgres
+
   minio:
     image: minio/minio:latest
     command: server /data --console-address ":9001"
@@ -64,26 +66,28 @@ services:
   redpanda:
     image: docker.redpanda.com/redpandadata/redpanda:latest
     ports:
-      - "9092:9092"
-      - "9644:9644"
+      - "9092:9092"   # Kafka API (localhost)
+      - "19092:19092" # Kafka API (docker network)
+      - "8081:8081"   # Schema Registry
+      - "8082:8082"   # PandaProxy (REST API)
+      - "9644:9644"   # Admin API
     volumes:
       - redpanda_data:/var/lib/redpanda/data
+    command:
+      - redpanda
+      - start
+      - --kafka-addr=INSIDE://0.0.0.0:19092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr=INSIDE://redpanda:19092,OUTSIDE://localhost:9092
+      - --pandaproxy-addr=0.0.0.0:8082
+      - --schema-registry-addr=0.0.0.0:8081
+      - --rpc-addr=redpanda:33145
+      - --advertise-rpc-addr=redpanda:33145
+      - --mode=dev-container
+      - --smp=1
+      - --memory=1G
+      - --check=false
     environment:
-      REDPANDA_CLUSTER_ID: "portfolio-cluster"
-      REDPANDA_NODE_ID: "0"
-      REDPANDA_RPC_ADDRESS: "0.0.0.0:33145"
-      REDPANDA_KAFKA_ADDRESS: "0.0.0.0:9092"
-      REDPANDA_ADVERTISE_KAFKA_ADDRESS: "redpanda:9092"
-      REDPANDA_PANDAPROXY_ADDRESS: "0.0.0.0:8082"
-      REDPANDA_ADVERTISE_PANDAPROXY_ADDRESS: "redpanda:8082"
-      REDPANDA_SCHEMA_REGISTRY_ADDRESS: "0.0.0.0:8081"
-      REDPANDA_ADVERTISE_SCHEMA_REGISTRY_ADDRESS: "redpanda:8081"
-      REDPANDA_ADMIN_ADDRESS: "0.0.0.0:9644"
-      REDPANDA_SMP: "1"
-      REDPANDA_MEMORY: "1G"
-      REDPANDA_MODE: "dev-container"
-      REDPANDA_DEFAULT_LOG_LEVEL: "info"
-      REDPANDA_AUTO_CREATE_TOPICS_ENABLED: "true"
+      CLUSTER_ID: "portfolio-cluster"
     healthcheck:
       test: ["CMD-SHELL", "rpk cluster health | grep -E 'Healthy:.+true' || exit 1"]
       interval: 30s
@@ -118,4 +122,3 @@ volumes:
 
 networks:
   portfolio-network:
-    driver: bridge
