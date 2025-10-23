@@ -5,6 +5,7 @@ shared/python/*.py
 !shared/python/__init__.py
 
 .env
+.env.docker
 
 __pycache__/
 *.pyc
