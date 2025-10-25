@@ -151,8 +151,9 @@ async def serve():
     await server.start()
     
     try:
-        await server.wait_for_termination()
-    except KeyboardInterrupt:
+        while True:
+            await asyncio.sleep(1)
+    except asyncio.CancelledError:
         logger.info("Shutting down gRPC server...")
         await server.stop(5)
 

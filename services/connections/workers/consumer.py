@@ -1,7 +1,13 @@
+import os
+import json
+import signal
+import asyncio
+
+from typing import Any
 from confluent_kafka import Consumer, KafkaError
 from confluent_kafka.admin import AdminClient, NewTopic
+
 from core.config import settings
-import json
 from core.logging import get_logger
 
 
@@ -56,7 +62,7 @@ class AdminConsumer:
             try:
                 self._ensure_topic_exists()
                 
-                self.consumer = Consumer(self.conf)
+                self.consumer = Consumer(self.conf) # type: ignore
                 logger.info(f"Kafka consumer initialized: {settings.MESSAGE_BROKERS}")
             except Exception as e:
                 logger.error(f"Failed to initialize Kafka consumer: {e}")
@@ -65,6 +71,9 @@ class AdminConsumer:
     async def start(self):
         try:
             self._initialize_consumer()
+
+            if self.consumer is None:
+                raise Exception("Kafka consumer is not initialized")
 
             self.consumer.subscribe([settings.ADMIN_CONNECTIONS_TOPIC])
             self.running = True
@@ -75,19 +84,21 @@ class AdminConsumer:
             return
         
         while self.running:
-            msg = self.consumer.poll(1.0)
+            msg = self.consumer.poll(0.1)
 
             if msg is None:
+                await asyncio.sleep(0.1)
                 continue
+                
             if msg.error():
-                if msg.error().code() == KafkaError._PARTITION_EOF:
+                if msg.error().code() == KafkaError._PARTITION_EOF: # type: ignore
                     continue
                 else:
                     logger.error(f"Consumer error: {msg.error()}")
                     continue
 
             try:
-                command = json.loads(msg.value().decode('utf-8'))
+                command = json.loads(msg.value().decode('utf-8')) # type: ignore
                 await self.process_command(command)
                 
                 self.consumer.commit(msg)
@@ -112,6 +123,8 @@ class AdminConsumer:
                 await self._update_status(data)
             elif command_type == 'update_working':
                 await self._update_working(data)
+            elif command_type == 'shutdown_service':
+                await self._shutdown_service(data)
             else:
                 logger.warning(f"Unknown command type: {command_type}")
         except Exception as e:
@@ -178,6 +191,17 @@ class AdminConsumer:
                 data.get('percentage', 0)
             )
             logger.info(f"Updated working: {working.working_on} - {working.percentage}%")
+    
+    async def _shutdown_service(self, data: dict):
+        import asyncio
+        
+        reason = data.get('reason', 'No reason provided')
+        logger.warning(f"Shutdown command received via Kafka. Reason: {reason}")
+
+        await asyncio.sleep(0.5)
+        
+        logger.info("Initiating graceful shutdown...")
+        os.kill(os.getpid(), signal.SIGTERM)
 
     def stop(self):
         self.running = False

@@ -21,7 +21,7 @@ logger = get_logger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting Connections Service...")
-    
+
     consumer_task = None
 
     if settings.MESSAGE_BROKERS and settings.MESSAGE_BROKERS != "":
@@ -36,7 +36,7 @@ async def lifespan(app: FastAPI):
         logger.error("MESSAGE_BROKERS not configured")
         sys.exit(1)
     
-    grpc_task = asyncio.create_task(serve_grpc())
+    # grpc_task = asyncio.create_task(serve_grpc())
     
     try:
         yield
@@ -51,11 +51,11 @@ async def lifespan(app: FastAPI):
             except asyncio.CancelledError:
                 pass
         
-        grpc_task.cancel()
-        try:
-            await grpc_task
-        except asyncio.CancelledError:
-            pass
+        # grpc_task.cancel()
+        # try:
+        #     await grpc_task
+        # except asyncio.CancelledError:
+            # pass
 
 
 app = FastAPI(
