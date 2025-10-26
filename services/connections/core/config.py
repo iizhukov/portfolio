@@ -7,6 +7,9 @@ class Settings:
             "HOST",
             "PORT",
 
+            "VERSION",
+            "API_V1_STR",
+
             "POSTGRES_SERVER",
             "POSTGRES_PORT",
             "POSTGRES_USER", 
