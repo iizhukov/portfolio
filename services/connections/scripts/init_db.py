@@ -41,10 +41,18 @@ async def create_initial_data():
     
     try:
         from core.database import db_manager
+        from sqlalchemy import select, func
         
         async for db in db_manager.get_session():
+            status_count = await db.scalar(select(func.count(StatusModel.id)))
+            
+            if status_count and status_count > 0:
+                print("   Data already exists, skipping initial data creation")
+                return True
+            
             status = StatusModel(status="inactive")
             db.add(status)
+            await db.flush()
             print("   - Status: inactive")
 
             connections = [
@@ -69,6 +77,8 @@ async def create_initial_data():
             )
             db.add(image)
             print("   - Image: profile.jpg")
+            
+            db.flush()
         
         print("Initial data created \033[92msuccessfully\033[0m!")
         return True

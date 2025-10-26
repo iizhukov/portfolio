@@ -5,6 +5,23 @@ import sys
 from pathlib import Path
 
 
+def fix_imports_in_generated_files(generated_dir: Path):
+    grpc_file = generated_dir / "connections_pb2_grpc.py"
+    
+    if grpc_file.exists():
+        print("Fixing imports in connections_pb2_grpc.py...")
+        
+        content = grpc_file.read_text()
+        
+        content = content.replace(
+            "import connections_pb2 as connections__pb2",
+            "from generated import connections_pb2 as connections__pb2"
+        )
+        
+        grpc_file.write_text(content)
+        print("   \033[92m✓\033[0m Imports fixed")
+
+
 def generate_grpc_files():
     root = Path(__file__).parent.parent
     
@@ -39,6 +56,7 @@ def generate_grpc_files():
         f"--python_out={generated_path}",
         f"--grpc_python_out={generated_path}",
         f"--proto_path={proto_path}",
+        f"--mypy_out={generated_path}",
         f"{proto_path / 'connections.proto'}"
     ]
     
@@ -53,6 +71,9 @@ def generate_grpc_files():
         print("   Files created in services/connections/generated/:")
         print("   - connections_pb2.py")
         print("   - connections_pb2_grpc.py")
+        
+        fix_imports_in_generated_files(generated_path)
+        
         return True
         
     except subprocess.CalledProcessError as e:
