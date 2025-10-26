@@ -10,6 +10,8 @@ service ConnectionsService {
   rpc GetStatus(GetStatusRequest) returns (GetStatusResponse);
   
   rpc GetWorking(GetWorkingRequest) returns (GetWorkingResponse);
+  
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
 }
 
 message Connection {
@@ -60,4 +62,14 @@ message GetWorkingRequest {}
 
 message GetWorkingResponse {
   Working working = 1;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  string status = 1;
+  string timestamp = 2;
+  bool database = 3;
+  bool redpanda = 4;
+  bool modules_service = 5;
 }
