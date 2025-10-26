@@ -7,13 +7,30 @@ from pathlib import Path
 
 def generate_grpc_files():
     root = Path(__file__).parent.parent
-    proto_path = root / "proto"
-    generated_path = root / "generated"
-
-    if not proto_path.exists():
+    
+    proto_locations = [
+        root / "proto",
+        root.parent.parent / "shared" / "python" / "shared" / "proto",
+        Path("/shared/python/shared/proto"),
+    ]
+    
+    proto_path = None
+    for location in proto_locations:
+        if location.exists() and (location / "connections.proto").exists():
+            proto_path = location
+            break
+    
+    if not proto_path:
         print("\033[91mError\033[0m: proto directory not found!")
-        print("   Run the script from the services/connections directory")
+        print("   Tried locations:")
+
+        for location in proto_locations:
+            print(f"   - {location}")
+
+        print("   Make sure proto file exists in one of these locations")
         sys.exit(1)
+    
+    generated_path = root / "generated"
     
     generated_path.mkdir(exist_ok=True)
     
@@ -26,6 +43,8 @@ def generate_grpc_files():
     ]
     
     print("Generating gRPC files...")
+    print(f"   Proto source: {proto_path}")
+    print(f"   Generated to: {generated_path}")
     print(f"   Command: {' '.join(cmd)}")
     
     try:
