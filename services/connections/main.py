@@ -36,7 +36,8 @@ async def lifespan(app: FastAPI):
         logger.error("MESSAGE_BROKERS not configured")
         sys.exit(1)
     
-    # grpc_task = asyncio.create_task(serve_grpc())
+    grpc_task = asyncio.create_task(serve_grpc())
+    logger.info("gRPC server started")
     
     try:
         yield
@@ -51,11 +52,12 @@ async def lifespan(app: FastAPI):
             except asyncio.CancelledError:
                 pass
         
-        # grpc_task.cancel()
-        # try:
-        #     await grpc_task
-        # except asyncio.CancelledError:
-            # pass
+        if 'grpc_task' in locals():
+            grpc_task.cancel()
+            try:
+                await grpc_task
+            except asyncio.CancelledError:
+                pass
 
 
 app = FastAPI(

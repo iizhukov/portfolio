@@ -1,9 +1,14 @@
+import asyncio
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 from datetime import datetime
 
 from core.config import settings
+from core.logging import get_logger
 from schemas.health_check import HealthCheckResponseSchema
+
+logger = get_logger(__name__)
 
 
 class HealthService:
@@ -33,7 +38,21 @@ class HealthService:
             return False
 
     async def _check_redpanda(self) -> bool:
-        return True
+        try:
+            from confluent_kafka.admin import AdminClient
+            
+            loop = asyncio.get_event_loop()
+            
+            def check_kafka():
+                admin_client = AdminClient({'bootstrap.servers': settings.MESSAGE_BROKERS})
+                metadata = admin_client.list_topics(timeout=5)
+                return metadata is not None
+            
+            result = await loop.run_in_executor(None, check_kafka)
+            return result
+        except Exception as e:
+            logger.error(f"Redpanda health check failed: {e}")
+            return False
 
     async def _check_modules_service(self) -> bool:
         # TODO: Add it after the service is implemented
