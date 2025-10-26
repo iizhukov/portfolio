@@ -7,6 +7,3 @@ services:
     networks:
       - portfolio-network
     restart: unless-stopped
-
-networks:
-  portfolio-network:
