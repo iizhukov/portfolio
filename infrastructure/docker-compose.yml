@@ -119,6 +119,3 @@ volumes:
   minio_data:
   redpanda_data:
   redis_data:
-
-networks:
-  portfolio-network:
