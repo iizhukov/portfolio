@@ -115,6 +115,55 @@ async def application_health_check():
     if connections_health:
         infrastructure_health["postgresql"] = connections_health.get("database", False)
         infrastructure_health["redpanda"] = connections_health.get("redpanda", False)
+
+    def _fetch_http_health(url: str, label: str) -> dict[str, str]:
+        try:
+            response = httpx.get(url, timeout=2.0)
+            if response.status_code == 200:
+                payload = response.json() if response.headers.get("content-type", "").startswith("application/json") else {}
+                status_value = payload.get("status", "healthy")
+                return {"status": status_value}
+        except Exception as exc:
+            logger.error("Failed to get %s health: %s", label, exc)
+        return {"status": "unhealthy"}
+
+    modules_payload = {"status": "unhealthy"}
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"http://{settings.MODULES_SERVICE_HOST}:{settings.MODULES_HTTP_PORT}/health",
+                timeout=2.0,
+            )
+        if response.status_code == 200:
+            modules_payload = response.json()
+        else:
+            modules_payload = {"status": "unhealthy"}
+    except Exception as exc:
+        logger.error("Failed to get modules health: %s", exc)
+        modules_payload = {"status": "unhealthy"}
+
+    modules_status = modules_payload.get("status", "").lower()
+    services_health["modules"] = modules_payload
+    infrastructure_health["modules_http"] = modules_status in {"healthy", "running"}
+
+    upload_payload = {"status": "unhealthy"}
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"http://{settings.UPLOAD_SERVICE_HOST}:{settings.UPLOAD_SERVICE_PORT}/health",
+                timeout=2.0,
+            )
+        if response.status_code == 200:
+            upload_payload = response.json()
+        else:
+            upload_payload = {"status": "unhealthy"}
+    except Exception as exc:
+        logger.error("Failed to get upload service health: %s", exc)
+        upload_payload = {"status": "unhealthy"}
+
+    upload_status = upload_payload.get("status", "").lower()
+    services_health["upload"] = upload_payload
+    infrastructure_health["upload_http"] = upload_status in {"healthy", "running"}
     
     redis_healthy = await redis_manager.health_check()
     infrastructure_health["redis"] = redis_healthy
@@ -140,8 +189,12 @@ async def application_health_check():
     except Exception:
         apps_health["web"] = False
     
+    def _service_is_healthy(service_info: dict) -> bool:
+        status_value = service_info.get("status", "").lower()
+        return status_value in {"healthy", "running"}
+
     all_services_healthy = all(
-        service.get("status") == "healthy" for service in services_health.values()
+        _service_is_healthy(service) for service in services_health.values()
     ) if services_health else False
     all_infrastructure_healthy = all(infrastructure_health.values())
     all_apps_healthy = all(apps_health.values())
