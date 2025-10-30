@@ -18,6 +18,8 @@ protobuf = ">=6.0.0"
 sqlalchemy = "2.0.44"
 asyncpg = "0.30.0"
 greenlet = "^3.2.4"
+uvicorn = "^0.38.0"
+fastapi = "^0.120.3"
 
 [tool.poetry.dependencies.portfolio-shared]
 path = "../../shared/python"

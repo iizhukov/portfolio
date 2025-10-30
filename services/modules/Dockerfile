@@ -42,7 +42,7 @@ RUN set -eux; \
 COPY services/modules/entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh
 
-EXPOSE 50051
+EXPOSE 50051 8001
 
 ENTRYPOINT ["./entrypoint.sh"]
 

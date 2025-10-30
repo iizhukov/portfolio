@@ -5,6 +5,7 @@ class Settings:
     def __init__(self) -> None:
         required_vars = [
             "HOST",
+            "PORT",
             "GRPC_PORT",
 
             "POSTGRES_SERVER",
@@ -17,6 +18,7 @@ class Settings:
         validate_required_env_vars(required_vars)
 
         self.HOST: str = getenv("HOST")
+        self.PORT: int = getenv_int("PORT")
         self.GRPC_PORT: int = getenv_int("GRPC_PORT")
 
         self.POSTGRES_SERVER: str = getenv("POSTGRES_SERVER")
@@ -39,6 +41,7 @@ class Settings:
     def _print_debug_info(self) -> None:
         env_snapshot = {
             "HOST": self.HOST,
+            "PORT": str(self.PORT),
             "GRPC_PORT": str(self.GRPC_PORT),
             "POSTGRES_SERVER": self.POSTGRES_SERVER,
             "POSTGRES_PORT": self.POSTGRES_PORT,
