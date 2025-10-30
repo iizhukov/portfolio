@@ -1,6 +1,8 @@
 import asyncio
 import sys
+
 from pathlib import Path
+from datetime import datetime
 
 import grpc
 from google.protobuf import empty_pb2
@@ -123,6 +125,70 @@ class ModulesGrpcService(modules_pb2_grpc.ModulesServiceServicer):
 
         return empty_pb2.Empty()
 
+    async def ListServices(
+        self,
+        request: modules_pb2.ListServicesRequest,
+        context: grpc.aio.ServicerContext,
+    ) -> modules_pb2.ListServicesResponse:
+        try:
+            records = await registry.list_services()
+        except Exception as exc:  # noqa: BLE001
+            logger.error("Failed to list services: %s", exc)
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details("Failed to list services")
+            return modules_pb2.ListServicesResponse()
+
+        response = modules_pb2.ListServicesResponse()
+
+        for record in records:
+            info = response.services.add()
+            info.id = record.id or 0
+            info.service_name = record.service_name or ""
+            info.version = record.version or ""
+            info.admin_topic = record.admin_topic or ""
+            info.ttl_seconds = record.ttl_seconds or 0
+            info.status = record.status or "UNKNOWN"
+            info.created_at = _datetime_to_str(record.created_at)
+            info.updated_at = _datetime_to_str(record.updated_at)
+
+        return response
+
+    async def GetService(
+        self,
+        request: modules_pb2.GetServiceRequest,
+        context: grpc.aio.ServicerContext,
+    ) -> modules_pb2.GetServiceResponse:
+        if not request.service_name.strip():
+            context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+            context.set_details("service_name is required")
+            return modules_pb2.GetServiceResponse()
+
+        try:
+            record = await registry.get_service(request.service_name)
+        except Exception as exc:  # noqa: BLE001
+            logger.error("Failed to fetch service %s: %s", request.service_name, exc)
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details("Failed to fetch service")
+            return modules_pb2.GetServiceResponse()
+
+        if record is None:
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details("Service not found")
+            return modules_pb2.GetServiceResponse()
+
+        info = modules_pb2.ServiceInfo(
+            id=record.id or 0,
+            service_name=record.service_name or "",
+            version=record.version or "",
+            admin_topic=record.admin_topic or "",
+            ttl_seconds=record.ttl_seconds or 0,
+            status=record.status or "UNKNOWN",
+            created_at=_datetime_to_str(record.created_at),
+            updated_at=_datetime_to_str(record.updated_at),
+        )
+
+        return modules_pb2.GetServiceResponse(service=info)
+
 
 async def serve() -> None:
     server = grpc.aio.server()
@@ -142,4 +208,12 @@ async def serve() -> None:
 
 
 __all__ = ["serve", "registry"]
+
+
+def _datetime_to_str(value: datetime | None) -> str:
+    if value is None:
+        return ""
+    if value.tzinfo is None:
+        return value.isoformat() + "Z"
+    return value.isoformat()
 

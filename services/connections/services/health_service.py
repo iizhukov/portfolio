@@ -7,6 +7,7 @@ from datetime import datetime
 from core.config import settings
 from core.logging import get_logger
 from schemas.health_check import HealthCheckResponseSchema
+from services.modules_client_manager import get_client as get_modules_client
 
 logger = get_logger(__name__)
 
@@ -55,5 +56,9 @@ class HealthService:
             return False
 
     async def _check_modules_service(self) -> bool:
-        # TODO: Add it after the service is implemented
-        return False
+        client = get_modules_client()
+        if not client:
+            logger.warning("Modules client is not configured")
+            return False
+
+        return client.is_healthy

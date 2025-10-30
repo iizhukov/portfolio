@@ -58,7 +58,30 @@ class GrpcClientManager:
             logger.error(f"Failed to create connections channel: {e}")
     
     async def _create_modules_channel(self):
-        logger.info("Modules service channel creation skipped - not implemented yet")
+        try:
+            options = [
+                ('grpc.keepalive_time_ms', 30000),
+                ('grpc.keepalive_timeout_ms', 5000),
+                ('grpc.keepalive_permit_without_calls', True),
+            ]
+
+            channel = aio.insecure_channel(
+                f"{settings.MODULES_SERVICE_HOST}:{settings.MODULES_SERVICE_PORT}",
+                options=options,
+            )
+            self.channels["modules"] = channel
+
+            from generated.modules import modules_pb2_grpc
+
+            self.clients["modules"] = modules_pb2_grpc.ModulesServiceStub(channel)
+
+            logger.info(
+                "Modules service channel created: %s:%s",
+                settings.MODULES_SERVICE_HOST,
+                settings.MODULES_SERVICE_PORT,
+            )
+        except Exception as e:  # noqa: BLE001
+            logger.error(f"Failed to create modules channel: {e}")
     
     async def _create_admin_channel(self):
         logger.info("Admin service channel creation skipped - not implemented yet")
@@ -86,7 +109,8 @@ class GrpcClientManager:
     
     async def get_available_services(self) -> Dict[str, str]:
         return {
-            "connections": f"{settings.CONNECTIONS_SERVICE_HOST}:{settings.CONNECTIONS_SERVICE_PORT}"
+            "connections": f"{settings.CONNECTIONS_SERVICE_HOST}:{settings.CONNECTIONS_SERVICE_PORT}",
+            "modules": f"{settings.MODULES_SERVICE_HOST}:{settings.MODULES_SERVICE_PORT}",
         }
     
     async def check_services_health(self) -> Dict[str, bool]:

@@ -19,7 +19,7 @@ class Settings:
             "MESSAGE_BROKERS",
             "ADMIN_CONNECTIONS_TOPIC",
 
-            # "MODULES_SERVICE_URL",
+            "MODULES_SERVICE_URL",
             "GRPC_PORT",
         ]
         
@@ -40,6 +40,7 @@ class Settings:
         self.ADMIN_CONNECTIONS_TOPIC: str = getenv("ADMIN_CONNECTIONS_TOPIC")
         
         self.MODULES_SERVICE_URL: str = getenv("MODULES_SERVICE_URL")
+        self.MODULES_HEARTBEAT_INTERVAL: int = getenv_int("MODULES_HEARTBEAT_INTERVAL", 0)
         
         self.GRPC_PORT: int = getenv_int("GRPC_PORT")
         
@@ -63,6 +64,7 @@ class Settings:
             "ADMIN_CONNECTIONS_TOPIC": self.ADMIN_CONNECTIONS_TOPIC,
 
             "MODULES_SERVICE_URL": self.MODULES_SERVICE_URL,
+            "MODULES_HEARTBEAT_INTERVAL": str(self.MODULES_HEARTBEAT_INTERVAL),
             "GRPC_PORT": str(self.GRPC_PORT)
         }
         print_env_info(env_vars)

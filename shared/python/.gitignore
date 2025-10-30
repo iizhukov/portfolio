@@ -16,3 +16,5 @@ env/
 *.swo
 
 .DS_Store
+
+generated/

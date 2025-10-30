@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Sequence
 
 from sqlalchemy import select
@@ -20,11 +20,11 @@ class ServiceRegistry:
 
     @staticmethod
     def _now() -> datetime:
-        return datetime.utcnow()
+        return datetime.now(timezone.utc)
 
     @staticmethod
     def _is_online(record: ServicesModel) -> bool:
-        last_seen = record.last_seen or record.registered_at or ServiceRegistry._now()
+        last_seen = record.updated_at or record.created_at or ServiceRegistry._now()
         return ServiceRegistry._now() - last_seen <= timedelta(seconds=record.ttl_seconds * 2)
 
     @staticmethod
@@ -42,7 +42,7 @@ class ServiceRegistry:
             try:
                 stmt = select(ServicesModel).where(ServicesModel.service_name == service_name)
                 result = await session.execute(stmt)
-                record: Optional[ServicesModel] = result.scalar_one_or_none()
+                record = result.scalars().first()
 
                 now = self._now()
                 ttl_seconds = ttl or self._default_ttl
@@ -53,8 +53,6 @@ class ServiceRegistry:
                         version=version,
                         admin_topic=admin_topic,
                         ttl_seconds=ttl_seconds,
-                        registered_at=now,
-                        last_seen=now,
                         status="ONLINE",
                         created_at=now,
                         updated_at=now,
@@ -64,11 +62,11 @@ class ServiceRegistry:
                     record.version = version
                     record.admin_topic = admin_topic
                     record.ttl_seconds = ttl_seconds
-                    record.last_seen = now
                     record.updated_at = now
                     record.status = "ONLINE"
 
                 await session.flush()
+                await session.commit()
                 return record
             except SQLAlchemyError as exc:
                 logger.error("Failed to register service %s: %s", service_name, exc)
@@ -88,11 +86,11 @@ class ServiceRegistry:
             if record is None:
                 return None
 
-            record.last_seen = self._now()
-            record.updated_at = record.last_seen
+            record.updated_at = self._now()
             self._apply_status(record)
 
             await session.flush()
+            await session.commit()
             return record
 
     async def deregister(self, instance_id: str) -> bool:
@@ -109,6 +107,7 @@ class ServiceRegistry:
 
             await session.delete(record)
             await session.flush()
+            await session.commit()
             return True
 
         raise RuntimeError("Failed to deregister service")
@@ -120,8 +119,8 @@ class ServiceRegistry:
             now = self._now()
 
             for record in records:
-                if record.last_seen is None:
-                    record.last_seen = record.registered_at or now
+                if record.updated_at is None:
+                    record.updated_at = now
 
                 previous_status = record.status
                 self._apply_status(record)
@@ -130,6 +129,7 @@ class ServiceRegistry:
                     record.updated_at = now
 
             await session.flush()
+            await session.commit()
             return records
         
         raise RuntimeError("Failed to list services")
@@ -138,15 +138,41 @@ class ServiceRegistry:
         async for session in db_manager.get_session():
             stmt = select(ServicesModel).where(ServicesModel.service_name == service_name)
             result = await session.execute(stmt)
-            record = result.scalar_one_or_none()
+            record = result.scalars().first()
 
             if record is None:
                 return None
-            
+
+            if record.updated_at is None:
+                record.updated_at = self._now()
+
             self._apply_status(record)
             if record.status != "ONLINE":
                 return None
 
             await session.flush()
+            await session.commit()
             return record
+
+        raise RuntimeError("Failed to get admin topic")
+
+    async def get_service(self, service_name: str) -> Optional[ServicesModel]:
+        async for session in db_manager.get_session():
+            stmt = select(ServicesModel).where(ServicesModel.service_name == service_name)
+            result = await session.execute(stmt)
+            record = result.scalars().first()
+
+            if record is None:
+                return None
+
+            if record.updated_at is None:
+                record.updated_at = self._now()
+
+            self._apply_status(record)
+
+            await session.flush()
+            await session.commit()
+            return record
+
+        raise RuntimeError("Failed to get service")
 

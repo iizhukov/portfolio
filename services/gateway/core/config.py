@@ -14,6 +14,9 @@ class Settings:
             "CONNECTIONS_SERVICE_HOST",
             "CONNECTIONS_SERVICE_PORT",
 
+            "MODULES_SERVICE_HOST",
+            "MODULES_SERVICE_PORT",
+
             "REDIS_HOST",
             "REDIS_PORT",
             "REDIS_DB",
@@ -35,6 +38,9 @@ class Settings:
 
         self.CONNECTIONS_SERVICE_HOST: str = getenv("CONNECTIONS_SERVICE_HOST")
         self.CONNECTIONS_SERVICE_PORT: int = getenv_int("CONNECTIONS_SERVICE_PORT")
+
+        self.MODULES_SERVICE_HOST: str = getenv("MODULES_SERVICE_HOST")
+        self.MODULES_SERVICE_PORT: int = getenv_int("MODULES_SERVICE_PORT")
 
         self.GRPC_TIMEOUT: int = getenv_int("GRPC_TIMEOUT")
         self.GRPC_MAX_RETRIES: int = getenv_int("GRPC_MAX_RETRIES")
@@ -64,6 +70,9 @@ class Settings:
 
             "CONNECTIONS_SERVICE_HOST": self.CONNECTIONS_SERVICE_HOST,
             "CONNECTIONS_SERVICE_PORT": str(self.CONNECTIONS_SERVICE_PORT),
+
+            "MODULES_SERVICE_HOST": self.MODULES_SERVICE_HOST,
+            "MODULES_SERVICE_PORT": str(self.MODULES_SERVICE_PORT),
 
             "REDIS_HOST": self.REDIS_HOST,
             "REDIS_PORT": str(self.REDIS_PORT),
