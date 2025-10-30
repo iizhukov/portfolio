@@ -58,9 +58,6 @@ class Settings:
         self._print_config_info()
     
     def _print_config_info(self):
-        # Маскируем чувствительные данные
-        sensitive_vars = ["REDIS_PASSWORD"]
-        
         env_vars = {
             "HOST": self.HOST,
             "PORT": str(self.PORT),

@@ -7,7 +7,7 @@ from services.redis_manager import RedisManager
 from services.cache_decorator import cache_response
 from schemas.connections.status import StatusResponse
 
-from generated import connections_pb2
+from generated.connections import connections_pb2
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

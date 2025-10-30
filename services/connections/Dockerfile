@@ -22,14 +22,29 @@ WORKDIR /app/services/connections
 
 RUN poetry install --no-interaction --no-ansi --no-root
 
-RUN echo "Checking for gRPC files..." && \
-    if [ ! -f "generated/connections_pb2.py" ]; then \
-        echo "gRPC files not found, generating..." && \
+RUN set -eux; \
+    required_files="connections/connections_pb2.py \
+        connections/connections_pb2_grpc.py \
+        connections/connections_pb2.pyi \
+        modules/modules_pb2.py \
+        modules/modules_pb2_grpc.py \
+        modules/modules_pb2.pyi"; \
+    missing=0; \
+    for rel in $required_files; do \
+        if [ ! -f "generated/$rel" ]; then \
+            echo "Missing generated/$rel"; \
+            missing=1; \
+        fi; \
+    done; \
+    if [ "$missing" -eq 1 ]; then \
+        echo "Generating gRPC files..."; \
         python scripts/generate_grpc.py; \
     else \
-        echo "gRPC files already exist"; \
-    fi && \
-    echo "Final check:" && \
+        echo "All gRPC files already present"; \
+    fi; \
+    for rel in $required_files; do \
+        [ -f "generated/$rel" ] || (echo "Still missing generated/$rel" && exit 1); \
+    done; \
     ls -la generated/
 
 COPY services/connections/entrypoint.sh ./services/connections/entrypoint.sh

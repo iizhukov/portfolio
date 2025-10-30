@@ -1,6 +1,6 @@
-generated/*.py
-generated/*.pyi
-!generated/__init__.py
+generated/*/*.py
+generated/*/*.pyi
+!generated/*/__init__.py
 
 shared/python/*.py
 !shared/python/__init__.py

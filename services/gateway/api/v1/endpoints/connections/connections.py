@@ -7,7 +7,7 @@ from services.cache_decorator import cache_response
 from schemas.connections.connections import ConnectionResponseSchema
 from core.logging import get_logger
 
-from generated import connections_pb2
+from generated.connections import connections_pb2
 
 
 router = APIRouter()

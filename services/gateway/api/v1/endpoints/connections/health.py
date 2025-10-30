@@ -5,7 +5,7 @@ from services.dependencies import get_grpc_manager
 from services.grpc_client_manager import GrpcClientManager
 from schemas.connections.health import HealthResponse
 
-from generated import connections_pb2
+from generated.connections import connections_pb2
 
 
 router = APIRouter()

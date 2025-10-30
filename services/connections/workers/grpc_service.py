@@ -8,7 +8,7 @@ from core.config import settings
 from core.logging import get_logger
 from pathlib import Path
 
-generated_path = Path(__file__).parent.parent / "generated"
+generated_path = Path(__file__).parent.parent / "generated" / "connections"
 sys.path.insert(0, str(generated_path))
 
 from services.connection_service import ConnectionService
@@ -16,7 +16,7 @@ from services.status_service import StatusService
 from services.working_service import WorkingService
 
 try:
-    from generated import connections_pb2, connections_pb2_grpc
+    from generated.connections import connections_pb2, connections_pb2_grpc
 except ImportError as e:
     logger = get_logger(__name__)
     logger.error(f"Failed to import gRPC files: {e}")

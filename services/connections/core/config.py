@@ -56,7 +56,7 @@ class Settings:
             "POSTGRES_SERVER": self.POSTGRES_SERVER,
             "POSTGRES_PORT": self.POSTGRES_PORT,
             "POSTGRES_USER": self.POSTGRES_USER,
-            "POSTGRES_PASSWORD": self.POSTGRES_PASSWORD,
+            "POSTGRES_PASSWORD": "***" if self.POSTGRES_PASSWORD else None,
             "POSTGRES_DB": self.POSTGRES_DB,
 
             "MESSAGE_BROKERS": self.MESSAGE_BROKERS,

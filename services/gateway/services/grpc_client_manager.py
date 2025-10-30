@@ -50,7 +50,7 @@ class GrpcClientManager:
             )
             self.channels["connections"] = channel
 
-            from generated import connections_pb2_grpc
+            from generated.connections import connections_pb2_grpc
             self.clients["connections"] = connections_pb2_grpc.ConnectionsServiceStub(channel)
             
             logger.info(f"Connections service channel created with pooling: {settings.CONNECTIONS_SERVICE_HOST}:{settings.CONNECTIONS_SERVICE_PORT}")

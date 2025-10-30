@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package modules;
+
+service ModulesService {
+    // Зарегистрировать сервис
+    rpc Register(RegisterRequest) returns (RegisterResponse);
+    // Heartbeat сервиса
+    rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse);
+    // Получить список сервисов и их статусов
+    rpc ListServices(ListServicesRequest) returns (ListServicesResponse);
+    // Получить статус очередей
+    rpc QueueStatus(QueueStatusRequest) returns (QueueStatusResponse);
+}
+
+message RegisterRequest {
+    string service_name = 1;
+    string version = 2;
+    string url = 3;
+    repeated string tags = 4;
+}
+
+message RegisterResponse {
+    bool ok = 1;
+    string instance_id = 2;
+}
+
+message HeartbeatRequest {
+    string instance_id = 1;
+}
+
+message HeartbeatResponse {
+    bool alive = 1;
+}
+
+message ListServicesRequest {}
+message ListServicesResponse {
+    repeated ServiceInfo services = 1;
+}
+
+message ServiceInfo {
+    string service_name = 1;
+    string instance_id = 2;
+    string version = 3;
+    string url = 4;
+    repeated string tags = 5;
+    string last_seen = 6;
+    string status = 7; // "online", "offline","pending" и тп
+}
+
+message QueueStatusRequest {}
+message QueueStatusResponse {
+    repeated QueueInfo queues = 1;
+}
+
+message QueueInfo {
+    string topic = 1;
+    int64 message_count = 2;
+    string status = 3;
+    string description = 4;
+}

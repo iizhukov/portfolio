@@ -7,7 +7,7 @@ from services.grpc_client_manager import GrpcClientManager
 from services.cache_decorator import cache_response
 from schemas.connections.image import ImageResponse
 
-from generated import connections_pb2
+from generated.connections import connections_pb2
 
 
 router = APIRouter()
