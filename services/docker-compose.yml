@@ -5,6 +5,7 @@ services:
       dockerfile: services/modules/Dockerfile
     environment:
       HOST: 0.0.0.0
+      PORT: 8001
       GRPC_PORT: 50051
       POSTGRES_SERVER: postgres
       POSTGRES_PORT: 5432
@@ -14,9 +15,33 @@ services:
       MODULES_DEFAULT_TTL: 30
     ports:
       - "50051:50051"
+      - "8001:8001"
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - portfolio-network
+    restart: unless-stopped
+
+  upload-service:
+    build:
+      context: ../
+      dockerfile: services/upload/Dockerfile
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8003
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: uploads
+      MINIO_SECURE: "false"
+      MINIO_REGION: ""
+      MINIO_EXTERNAL_URL: http://localhost:9000
+    ports:
+      - "8003:8003"
+    depends_on:
+      minio:
+        condition: service_started
     networks:
       - portfolio-network
     restart: unless-stopped
@@ -47,6 +72,10 @@ services:
         condition: service_healthy
       redpanda:
         condition: service_healthy
+      modules-service:
+        condition: service_started
+      upload-service:
+        condition: service_started
     networks:
       - portfolio-network
     restart: unless-stopped
@@ -64,6 +93,7 @@ services:
       CONNECTIONS_SERVICE_PORT: 50052
       MODULES_SERVICE_HOST: modules-service
       MODULES_SERVICE_PORT: 50051
+      MODULES_HTTP_PORT: 8001
       ADMIN_SERVICE_HOST: admin-service
       ADMIN_SERVICE_PORT: 50053
       REDIS_HOST: redis
@@ -79,11 +109,17 @@ services:
       HOST: 0.0.0.0
       PORT: 8000
       LOG_LEVEL: INFO
+      UPLOAD_SERVICE_HOST: upload-service
+      UPLOAD_SERVICE_PORT: 8003
     depends_on:
       connections-service:
         condition: service_started
       redis:
         condition: service_healthy
+      modules-service:
+        condition: service_started
+      upload-service:
+        condition: service_started
     networks:
       - portfolio-network
     restart: unless-stopped
