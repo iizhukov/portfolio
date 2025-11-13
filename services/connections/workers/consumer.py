@@ -11,13 +11,6 @@ logger = get_logger(__name__)
 
 
 class ConnectionsAdminConsumer(BaseAdminConsumer):
-    """
-    Консьюмер административных команд для сервиса connections.
-
-    Обрабатывает команды из топика ADMIN_CONNECTIONS_TOPIC и отправляет
-    ответы в ADMIN_RESPONSE_TOPIC.
-    """
-
     def __init__(self):
         super().__init__(
             brokers=settings.MESSAGE_BROKERS,
@@ -27,12 +20,6 @@ class ConnectionsAdminConsumer(BaseAdminConsumer):
         )
 
     def get_command_handlers(self) -> Dict[str, Callable]:
-        """
-        Возвращает обработчики команд для connections service.
-
-        Returns:
-            Словарь обработчиков команд.
-        """
         return {
             "create_connection": self._handle_create_connection,
             "update_connection": self._handle_update_connection,
