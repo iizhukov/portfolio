@@ -1,5 +1,5 @@
 services:
-  postgres:
+  infra-postgres:
     image: postgres:15
     environment:
       POSTGRES_DB: postgres
@@ -25,7 +25,7 @@ services:
       - portfolio-network
     restart: unless-stopped
 
-  nginx:
+  infra-nginx:
     build:
       context: ./nginx
     ports:
@@ -37,11 +37,11 @@ services:
       - portfolio-network
     restart: unless-stopped
     depends_on:
-      - minio
-      - redis
-      - postgres
+      - infra-minio
+      - infra-redis
+      - infra-postgres
 
-  minio:
+  infra-minio:
     image: minio/minio:latest
     command: server /data --console-address ":9001"
     environment:
@@ -53,7 +53,6 @@ services:
     volumes:
       - minio_data:/data
       - ./minio/minio.conf:/etc/minio/minio.conf:ro
-      - ./minio/init-buckets.sh:/docker-entrypoint-initdb.d/init-buckets.sh:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
@@ -63,7 +62,19 @@ services:
       - portfolio-network
     restart: unless-stopped
 
-  redpanda:
+  init-minio:
+    image: minio/mc:latest
+    depends_on:
+      infra-minio:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "/init-buckets.sh"]
+    volumes:
+      - ./minio/init-buckets.sh:/init-buckets.sh:ro
+    networks:
+      - portfolio-network
+    restart: "no"
+
+  infra-redpanda:
     image: docker.redpanda.com/redpandadata/redpanda:latest
     ports:
       - "9092:9092"   # Kafka API (localhost)
@@ -77,11 +88,11 @@ services:
       - redpanda
       - start
       - --kafka-addr=INSIDE://0.0.0.0:19092,OUTSIDE://0.0.0.0:9092
-      - --advertise-kafka-addr=INSIDE://redpanda:19092,OUTSIDE://localhost:9092
+      - --advertise-kafka-addr=INSIDE://infra-redpanda:19092,OUTSIDE://localhost:9092
       - --pandaproxy-addr=0.0.0.0:8082
       - --schema-registry-addr=0.0.0.0:8081
-      - --rpc-addr=redpanda:33145
-      - --advertise-rpc-addr=redpanda:33145
+      - --rpc-addr=infra-redpanda:33145
+      - --advertise-rpc-addr=infra-redpanda:33145
       - --mode=dev-container
       - --smp=1
       - --memory=1G
@@ -97,7 +108,7 @@ services:
       - portfolio-network
     restart: unless-stopped
 
-  redis:
+  infra-redis:
     image: redis:7-alpine
     command: redis-server /etc/redis/redis.conf
     ports:
@@ -114,7 +125,7 @@ services:
       - portfolio-network
     restart: unless-stopped
 
-  mongodb:
+  infra-mongodb:
     image: mongo:7
     ports:
       - "27017:27017"
