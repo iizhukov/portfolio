@@ -9,7 +9,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.v1.router import router as api_router
 from core.config import settings
 from core.logging import get_logger
-from schemas.upload import UploadResponse
 from services.dependencies import get_storage_service
 from minio.error import S3Error
 

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import Optional
 
 from core.minio_client import create_minio_client

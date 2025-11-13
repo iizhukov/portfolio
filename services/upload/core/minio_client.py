@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from minio import Minio
 
 from core.config import settings

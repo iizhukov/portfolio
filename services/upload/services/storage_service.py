@@ -1,9 +1,8 @@
-from __future__ import annotations
-
 import asyncio
 import io
 import mimetypes
 import uuid
+
 from pathlib import PurePosixPath
 from functools import partial
 
