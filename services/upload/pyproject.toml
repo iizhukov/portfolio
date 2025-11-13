@@ -8,7 +8,6 @@ packages = [
     { include = "core" },
     { include = "schemas" },
     { include = "services" },
-    { include = "generated" },
     { include = "workers" }
 ]
 
