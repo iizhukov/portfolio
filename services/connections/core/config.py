@@ -18,6 +18,7 @@ class Settings:
 
             "MESSAGE_BROKERS",
             "ADMIN_CONNECTIONS_TOPIC",
+            "ADMIN_RESPONSE_TOPIC",
 
             "MODULES_SERVICE_URL",
             "GRPC_PORT",
@@ -38,6 +39,7 @@ class Settings:
 
         self.MESSAGE_BROKERS: str = getenv("MESSAGE_BROKERS")
         self.ADMIN_CONNECTIONS_TOPIC: str = getenv("ADMIN_CONNECTIONS_TOPIC")
+        self.ADMIN_RESPONSE_TOPIC: str = getenv("ADMIN_RESPONSE_TOPIC")
         
         self.MODULES_SERVICE_URL: str = getenv("MODULES_SERVICE_URL")
         self.MODULES_HEARTBEAT_INTERVAL: int = getenv_int("MODULES_HEARTBEAT_INTERVAL", 0)
@@ -62,6 +64,7 @@ class Settings:
 
             "MESSAGE_BROKERS": self.MESSAGE_BROKERS,
             "ADMIN_CONNECTIONS_TOPIC": self.ADMIN_CONNECTIONS_TOPIC,
+            "ADMIN_RESPONSE_TOPIC": self.ADMIN_RESPONSE_TOPIC,
 
             "MODULES_SERVICE_URL": self.MODULES_SERVICE_URL,
             "MODULES_HEARTBEAT_INTERVAL": str(self.MODULES_HEARTBEAT_INTERVAL),

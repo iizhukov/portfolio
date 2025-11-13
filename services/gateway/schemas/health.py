@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Dict
+from typing import Dict, Any
 
 
 class GatewayHealthResponse(BaseModel):
@@ -13,7 +13,7 @@ class GatewayHealthResponse(BaseModel):
 class ApplicationHealthResponse(BaseModel):
     status: str = Field(..., description="Общий статус приложения")
     timestamp: str = Field(..., description="Время проверки")
-    services: Dict[str, Dict[str, any]] = Field(..., description="Health 게이트way сервисов")
+    services: Dict[str, Dict[str, Any]] = Field(..., description="Health 게이트way сервисов")
     infrastructure: Dict[str, bool] = Field(..., description="Health инфраструктуры")
     apps: Dict[str, bool] = Field(..., description="Health приложений")
     

@@ -16,19 +16,29 @@ class ImageService:
 
     async def update_image(self, image_data: ImageUpdateSchema) -> Optional[ImageModel]:
         existing_image = await self.get_image()
-        
-        if not existing_image:
-            return None
-
         update_data = image_data.model_dump(exclude_unset=True)
         
-        if update_data:
-            await self.db.execute(
-                update(ImageModel)
-                .where(ImageModel.id == existing_image.id)
-                .values(**update_data)
-            )
-            
-            await self.db.flush()
+        if not update_data:
+            return existing_image
         
-        return existing_image
+        if not existing_image:
+            new_image = ImageModel(
+                filename=update_data.get("filename", ""),
+                content_type=update_data.get("content_type", ""),
+                url=update_data.get("url", "")
+            )
+            self.db.add(new_image)
+            await self.db.commit()
+            await self.db.refresh(new_image)
+            return new_image
+        
+        await self.db.execute(
+            update(ImageModel)
+            .where(ImageModel.id == existing_image.id)
+            .values(**update_data)
+        )
+        
+        await self.db.commit()
+        
+        image = await self.get_image()
+        return image

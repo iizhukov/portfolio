@@ -19,7 +19,7 @@ async def seed_initial_data() -> bool:
 
         status = StatusModel(status="inactive")
         db.add(status)
-        await db.flush()
+        await db.commit()
         print("   - Status: inactive")
 
         connections = [
@@ -45,7 +45,7 @@ async def seed_initial_data() -> bool:
         db.add(image)
         print("   - Image: profile.jpg")
 
-        await db.flush()
+        await db.commit()
 
     print("Initial data created \033[92msuccessfully\033[0m!")
     return True

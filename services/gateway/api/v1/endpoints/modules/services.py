@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from core.config import settings
 from services.dependencies import get_grpc_manager
 from services.grpc_client_manager import GrpcClientManager
-from schemas.modules import ModuleServiceSchema
+from shared.schemas import ModuleServiceSchema
 
 
 router = APIRouter()

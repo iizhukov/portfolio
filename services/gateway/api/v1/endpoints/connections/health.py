@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException, Depends
 import logging
+
+from fastapi import APIRouter, HTTPException, Depends
 
 from services.dependencies import get_grpc_manager
 from services.grpc_client_manager import GrpcClientManager
-from schemas.connections.health import HealthResponse
+from schemas.connections.health import HealthResponseSchema
 
 from generated.connections import connections_pb2
 
@@ -12,7 +13,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.get("/", response_model=HealthResponse)
+@router.get("/", response_model=HealthResponseSchema)
 async def get_connections_health(
     grpc_manager: GrpcClientManager = Depends(get_grpc_manager),
 ):
@@ -26,7 +27,7 @@ async def get_connections_health(
             timeout=10
         )
         
-        return HealthResponse(
+        return HealthResponseSchema(
             status=response.status,
             timestamp=response.timestamp,
             database=response.database,

@@ -18,6 +18,9 @@ class Settings:
             "MODULES_SERVICE_PORT",
             "MODULES_HTTP_PORT",
 
+            "ADMIN_SERVICE_HOST",
+            "ADMIN_SERVICE_PORT",
+
             "UPLOAD_SERVICE_HOST",
             "UPLOAD_SERVICE_PORT",
 
@@ -49,6 +52,11 @@ class Settings:
 
         self.UPLOAD_SERVICE_HOST: str = getenv("UPLOAD_SERVICE_HOST")
         self.UPLOAD_SERVICE_PORT: int = getenv_int("UPLOAD_SERVICE_PORT")
+
+        self.ADMIN_SERVICE_HOST: str = getenv("ADMIN_SERVICE_HOST")
+        self.ADMIN_SERVICE_PORT: int = getenv_int("ADMIN_SERVICE_PORT")
+        self.ADMIN_HTTP_PORT: int = getenv_int("ADMIN_HTTP_PORT", 8004)
+        self.ADMIN_SERVICE_BASE_URL: str = f"http://{self.ADMIN_SERVICE_HOST}:{self.ADMIN_HTTP_PORT}"
 
         self.GRPC_TIMEOUT: int = getenv_int("GRPC_TIMEOUT")
         self.GRPC_MAX_RETRIES: int = getenv_int("GRPC_MAX_RETRIES")
@@ -85,6 +93,10 @@ class Settings:
 
             "UPLOAD_SERVICE_HOST": self.UPLOAD_SERVICE_HOST,
             "UPLOAD_SERVICE_PORT": str(self.UPLOAD_SERVICE_PORT),
+
+            "ADMIN_SERVICE_HOST": self.ADMIN_SERVICE_HOST,
+            "ADMIN_SERVICE_PORT": str(self.ADMIN_SERVICE_PORT),
+            "ADMIN_HTTP_PORT": str(self.ADMIN_HTTP_PORT),
 
             "REDIS_HOST": self.REDIS_HOST,
             "REDIS_PORT": str(self.REDIS_PORT),

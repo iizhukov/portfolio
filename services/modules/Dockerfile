@@ -1,46 +1,58 @@
-FROM python:3.12-slim
+FROM python:3.12-slim AS base
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+FROM base AS builder
 
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
-    gcc \
+    build-essential \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install poetry==1.8.3
+RUN pip install --no-cache-dir poetry==1.8.3
 RUN poetry config virtualenvs.create false
 
 COPY shared/python ./shared/python
 RUN cd shared/python && poetry install --no-interaction --no-ansi
 
-COPY services/modules/pyproject.toml ./services/modules/
-COPY services/modules/poetry.lock* ./services/modules/
-COPY services/modules ./services/modules
+COPY services/modules/pyproject.toml services/modules/poetry.lock ./services/modules/
 
 WORKDIR /app/services/modules
 
 RUN poetry install --no-interaction --no-ansi --no-root
 
-RUN set -eux; \
-    required_files="modules/modules_pb2.py modules/modules_pb2_grpc.py modules/modules_pb2.pyi"; \
-    missing=0; \
-    for rel in $required_files; do \
-        if [ ! -f "generated/$rel" ]; then \
-            echo "Missing generated/$rel"; \
-            missing=1; \
-        fi; \
-    done; \
-    if [ "$missing" -eq 1 ]; then \
-        python scripts/generate_grpc.py; \
-    else \
-        echo "All gRPC files already present"; \
-    fi; \
+COPY services/modules/ .
+
+RUN poetry run python scripts/generate_grpc.py && \
+    set -eux; \
+    required_files="modules/modules_pb2.py modules/modules_pb2_grpc.py"; \
     for rel in $required_files; do \
         [ -f "generated/$rel" ] || (echo "Still missing generated/$rel" && exit 1); \
     done
 
-COPY services/modules/entrypoint.sh ./entrypoint.sh
-RUN chmod +x ./entrypoint.sh
+RUN chmod +x entrypoint.sh
+
+FROM base AS runtime
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /usr/local /usr/local
+COPY --from=builder /app/shared/python /app/shared/python
+COPY --from=builder /app/services/modules /app/services/modules
+
+RUN useradd --create-home --shell /bin/bash app \
+    && chown -R app:app /app
+
+USER app
+
+WORKDIR /app/services/modules
 
 EXPOSE 50051 8001
 

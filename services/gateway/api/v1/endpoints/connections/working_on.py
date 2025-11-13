@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from services.dependencies import get_grpc_manager
 from services.grpc_client_manager import GrpcClientManager
 from services.cache_decorator import cache_response
-from schemas.connections.working import WorkingResponse
+from schemas.connections.working import WorkingResponseSchema
 
 from generated.connections import connections_pb2
 
@@ -14,7 +14,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.get("/", response_model=WorkingResponse)
+@router.get("/", response_model=WorkingResponseSchema)
 @cache_response(ttl=60)
 async def get_working_on(
     grpc_manager: GrpcClientManager = Depends(get_grpc_manager),
@@ -33,7 +33,7 @@ async def get_working_on(
         if not response.working:
             raise HTTPException(status_code=404, detail="Working status not found")
         
-        return WorkingResponse(
+        return WorkingResponseSchema(
             id=response.working.id,
             working_on=response.working.working_on,
             percentage=response.working.percentage

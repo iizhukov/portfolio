@@ -25,7 +25,7 @@ class WorkingService:
                 .values(working_on=working_on, percentage=percentage)
             )
             
-            await self.db.flush()
+            await self.db.commit()
 
             return existing_working
         else:
@@ -36,6 +36,6 @@ class WorkingService:
 
             self.db.add(new_working)
 
-            await self.db.flush()
+            await self.db.commit()
 
             return new_working

@@ -5,7 +5,7 @@ from services.dependencies import get_grpc_manager, get_redis_manager
 from services.grpc_client_manager import GrpcClientManager
 from services.redis_manager import RedisManager
 from services.cache_decorator import cache_response
-from schemas.connections.status import StatusResponse
+from schemas.connections.status import StatusResponseSchema
 
 from generated.connections import connections_pb2
 
@@ -13,7 +13,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.get("/", response_model=StatusResponse)
+@router.get("/", response_model=StatusResponseSchema)
 @cache_response(ttl=60)
 async def get_status(
     grpc_manager: GrpcClientManager = Depends(get_grpc_manager),
@@ -33,7 +33,7 @@ async def get_status(
         if not response.status:
             raise HTTPException(status_code=404, detail="Status not found")
 
-        return StatusResponse(
+        return StatusResponseSchema(
             id=response.status.id,
             status=response.status.status
         )

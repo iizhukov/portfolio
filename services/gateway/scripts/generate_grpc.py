@@ -12,6 +12,7 @@ def main() -> None:
     targets = [
         ("connections/connections.proto", "connections"),
         ("modules/modules.proto", "modules"),
+        ("admin/admin.proto", "admin"),
     ]
 
     generate_grpc_files(proto_root=proto_root, output_dir=output_dir, targets=targets)

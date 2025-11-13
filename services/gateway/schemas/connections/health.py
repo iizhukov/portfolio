@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Literal
 
 
-class HealthResponse(BaseModel):
+class HealthResponseSchema(BaseModel):
     status: Literal["healthy", "unhealthy"] = Field(..., description="Общий статус сервиса")
     timestamp: str = Field(..., description="Время проверки")
     database: bool = Field(..., description="Статус базы данных")

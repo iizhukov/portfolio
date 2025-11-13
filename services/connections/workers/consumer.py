@@ -4,7 +4,7 @@ import signal
 import asyncio
 
 from typing import Any
-from confluent_kafka import Consumer, KafkaError
+from confluent_kafka import Consumer, KafkaError, Producer
 from confluent_kafka.admin import AdminClient, NewTopic
 
 from core.config import settings
@@ -24,6 +24,7 @@ class AdminConsumer:
         }
         self.consumer = None
         self.running = False
+        self.producer = Producer({'bootstrap.servers': settings.MESSAGE_BROKERS})
     
     def _ensure_topic_exists(self):
         try:
@@ -107,28 +108,50 @@ class AdminConsumer:
                 logger.error(f"Error processing message: {e}")
     
     async def process_command(self, command: dict):
-        command_type = command.get('type')
-        data = command.get('data', {})
+        request_id = command.get('request_id')
+        payload = command.get('payload') or {}
+        file_info = command.get('file')
+        if not isinstance(payload, dict):
+            logger.error("Invalid payload format for request %s: %s", request_id, type(payload))
+            self._send_response(request_id, 'error', error="Invalid payload format")
+            return
+        command_type = payload.get('type')
+        data = payload.get('data', {})
+        if not isinstance(data, dict):
+            logger.error("Invalid data format for request %s: %s", request_id, type(data))
+            self._send_response(request_id, 'error', error="Invalid data format")
+            return
 
-        logger.info(f"Processing command: {command_type}")
+        logger.info(f"Processing command: {command_type} (request {request_id})")
+        if file_info:
+            logger.info(f"File info available: {file_info.get('filename', 'N/A')}")
         
         try:
+            result = None
+
             if command_type == 'create_connection':
-                await self._create_connection(data)
+                result = await self._create_connection(data)
             elif command_type == 'update_connection':
-                await self._update_connection(data)
+                result = await self._update_connection(data)
             elif command_type == 'delete_connection':
-                await self._delete_connection(data)
+                result = await self._delete_connection(data)
             elif command_type == 'update_status':
-                await self._update_status(data)
+                result = await self._update_status(data)
             elif command_type == 'update_working':
-                await self._update_working(data)
+                result = await self._update_working(data)
+            elif command_type == 'update_image':
+                result = await self._update_image(data, file_info)
             elif command_type == 'shutdown_service':
-                await self._shutdown_service(data)
+                result = await self._shutdown_service(data)
             else:
                 logger.warning(f"Unknown command type: {command_type}")
+                self._send_response(request_id, 'error', error=f"Unknown command type: {command_type}")
+                return
+
+            self._send_response(request_id, 'completed', response=result)
         except Exception as e:
             logger.error(f"Error processing command {command_type}: {e}")
+            self._send_response(request_id, 'error', error=str(e))
     
     async def _create_connection(self, data: dict):
         from core.database import db_manager
@@ -140,6 +163,7 @@ class AdminConsumer:
             connection_data = ConnectionCreateSchema(**data)
             connection = await service.create_connection(connection_data)
             logger.info(f"Created connection: {connection.id} - {connection.label}")
+            return connection.to_dict()
     
     async def _update_connection(self, data: dict):
         from core.database import db_manager
@@ -154,8 +178,11 @@ class AdminConsumer:
 
             if connection:
                 logger.info(f"Updated connection: {connection.id} - {connection.label}")
+                result = connection.to_dict()
+                return result
             else:
                 logger.warning(f"Connection {connection_id} not found for update")
+                return None
     
     async def _delete_connection(self, data: dict):
         from core.database import db_manager
@@ -168,8 +195,10 @@ class AdminConsumer:
 
             if success:
                 logger.info(f"Deleted connection: {connection_id}")
+                return {"deleted": True}
             else:
                 logger.warning(f"Connection {connection_id} not found for deletion")
+                return {"deleted": False}
     
     async def _update_status(self, data: dict):
         from core.database import db_manager
@@ -179,6 +208,7 @@ class AdminConsumer:
             service = StatusService(db)
             status = await service.update_status(data.get('status', 'active'))
             logger.info(f"Updated status: {status.status}")
+            return {"status": status.status}
     
     async def _update_working(self, data: dict):
         from core.database import db_manager
@@ -191,6 +221,37 @@ class AdminConsumer:
                 data.get('percentage', 0)
             )
             logger.info(f"Updated working: {working.working_on} - {working.percentage}%")
+            return {
+                "working_on": working.working_on,
+                "percentage": working.percentage
+            }
+    
+    async def _update_image(self, data: dict, file_info: dict | None = None):
+        from core.database import db_manager
+        from schemas.image import ImageUpdateSchema
+        from services.image_service import ImageService
+        
+        if file_info:
+            update_data = {
+                "filename": file_info.get("filename", ""),
+                "content_type": file_info.get("content_type", ""),
+                "url": file_info.get("url", "")
+            }
+        else:
+            update_data = data
+        
+        async for db in db_manager.get_session():
+            service = ImageService(db)
+            image_data = ImageUpdateSchema(**update_data)
+            image = await service.update_image(image_data)
+            
+            if image:
+                logger.info(f"Updated image: {image.id} - {image.filename}")
+                result = image.to_dict()
+                return result
+            else:
+                logger.warning("Image not found for update. Image must exist first.")
+                return None
     
     async def _shutdown_service(self, data: dict):
         import asyncio
@@ -202,6 +263,7 @@ class AdminConsumer:
         
         logger.info("Initiating graceful shutdown...")
         os.kill(os.getpid(), signal.SIGTERM)
+        return {"shutdown": True, "reason": reason}
 
     def stop(self):
         self.running = False
@@ -211,6 +273,35 @@ class AdminConsumer:
                 self.consumer.close()
             except Exception as e:
                 logger.warning(f"Error closing consumer: {e}")
+
+    def _send_response(
+        self,
+        request_id: str | None,
+        status: str,
+        response: dict | None = None,
+        error: str | None = None,
+    ) -> None:
+        if not request_id:
+            logger.warning("Skipping response send because request_id is missing")
+            return
+
+        payload = {
+            "request_id": request_id,
+            "service": "connections",
+            "status": status,
+            "response": response,
+            "error": error,
+        }
+
+        try:
+            self.producer.produce(
+                settings.ADMIN_RESPONSE_TOPIC,
+                json.dumps(payload, default=str).encode('utf-8'),
+            )
+            self.producer.flush()
+            logger.info("Sent admin response for request %s with status %s", request_id, status)
+        except Exception as exc:  # noqa: BLE001
+            logger.error(f"Failed to send admin response: {exc}")
 
 
 admin_consumer = AdminConsumer()

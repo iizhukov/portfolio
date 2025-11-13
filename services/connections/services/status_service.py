@@ -24,7 +24,7 @@ class StatusService:
                 .values(status=status)
             )
 
-            await self.db.flush()
+            await self.db.commit()
 
             return existing_status
         else:
@@ -32,6 +32,6 @@ class StatusService:
 
             self.db.add(new_status)
 
-            await self.db.flush()
+            await self.db.commit()
 
             return new_status

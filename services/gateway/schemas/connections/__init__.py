@@ -1,16 +1,16 @@
 from .connections import ConnectionResponseSchema, ConnectionCreateSchema, ConnectionUpdateSchema
-from .status import StatusResponse
-from .working import WorkingResponse
-from .image import ImageResponse
-from .health import HealthResponse
+from .status import StatusResponseSchema
+from .working import WorkingResponseSchema
+from .image import ImageResponseSchema
+from .health import HealthResponseSchema
 
 __all__ = [
     "ConnectionResponseSchema",
     "ConnectionCreateSchema",
     "ConnectionUpdateSchema",
-    "StatusResponse",
-    "WorkingResponse",
-    "ImageResponse",
-    "HealthResponse"
+    "StatusResponseSchema",
+    "WorkingResponseSchema",
+    "ImageResponseSchema",
+    "HealthResponseSchema"
 ]
 

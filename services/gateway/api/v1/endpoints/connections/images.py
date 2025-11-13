@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from services.dependencies import get_grpc_manager
 from services.grpc_client_manager import GrpcClientManager
 from services.cache_decorator import cache_response
-from schemas.connections.image import ImageResponse
+from schemas.connections.image import ImageResponseSchema
 
 from generated.connections import connections_pb2
 
@@ -14,7 +14,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.get("/", response_model=ImageResponse)
+@router.get("/", response_model=ImageResponseSchema)
 @cache_response(ttl=300)
 async def get_image(
     grpc_manager: GrpcClientManager = Depends(get_grpc_manager),
@@ -32,7 +32,7 @@ async def get_image(
         if not response.image:
             raise HTTPException(status_code=404, detail="Image not found")
         
-        return ImageResponse(
+        return ImageResponseSchema(
             id=response.image.id,
             filename=response.image.filename,
             content_type=response.image.content_type,

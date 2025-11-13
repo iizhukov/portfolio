@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 
 
-class ImageResponse(BaseModel):
+class ImageResponseSchema(BaseModel):
     id: int = Field(..., description="ID изображения")
     filename: str = Field(..., description="Имя файла")
     content_type: str = Field(..., description="Тип контента")

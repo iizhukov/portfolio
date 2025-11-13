@@ -92,6 +92,7 @@ async def application_health_check():
     try:
         connections_client = await grpc_manager.get_client("connections")
         from generated.connections import connections_pb2
+        
         health_response = await grpc_manager.call_grpc_with_retry(
             connections_client,
             connections_client.HealthCheck,

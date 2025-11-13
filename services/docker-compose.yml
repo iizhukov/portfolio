@@ -46,6 +46,38 @@ services:
       - portfolio-network
     restart: unless-stopped
 
+  admin-service:
+    build:
+      context: ../
+      dockerfile: services/admin/Dockerfile
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8004
+      GRPC_PORT: 50053
+      REDPANDA_BROKERS: redpanda:19092
+      UPLOAD_SERVICE_URL: http://upload-service:8003/api/v1/upload
+      MODULES_GRPC_HOST: modules-service
+      MODULES_GRPC_PORT: 50051
+      MONGODB_URI: mongodb://admin:admin@mongodb:27017
+      MONGODB_DATABASE: admin_logs
+      ADMIN_RESPONSE_TOPIC: admin_responses
+      REQUEST_TIMEOUT: 30
+    ports:
+      - "8004:8004"
+      - "50053:50053"
+    depends_on:
+      redpanda:
+        condition: service_healthy
+      modules-service:
+        condition: service_started
+      upload-service:
+        condition: service_started
+      mongodb:
+        condition: service_healthy
+    networks:
+      - portfolio-network
+    restart: unless-stopped
+
   connections-service:
     build:
       context: ../
@@ -61,6 +93,7 @@ services:
       POSTGRES_DB: connections_db
       MESSAGE_BROKERS: redpanda:19092
       ADMIN_CONNECTIONS_TOPIC: admin_connections
+      ADMIN_RESPONSE_TOPIC: admin_responses
       MODULES_SERVICE_URL: modules-service:50051
       GRPC_PORT: 50052
       HOST: 0.0.0.0
@@ -96,6 +129,7 @@ services:
       MODULES_HTTP_PORT: 8001
       ADMIN_SERVICE_HOST: admin-service
       ADMIN_SERVICE_PORT: 50053
+      ADMIN_HTTP_PORT: 8004
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_DB: 0
@@ -119,6 +153,8 @@ services:
       modules-service:
         condition: service_started
       upload-service:
+        condition: service_started
+      admin-service:
         condition: service_started
     networks:
       - portfolio-network
