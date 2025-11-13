@@ -13,7 +13,6 @@ class ModulesClient:
         self.timeout = 30.0
 
     async def notify_connection(self, name: str, connection_type: str, action: str = "connect") -> bool:
-        """Уведомить модули сервиса о подключении/отключении"""
         try:
             payload = {
                 "name": name,
@@ -42,11 +41,9 @@ class ModulesClient:
             return False
 
     async def notify_emergency_disconnect(self, name: str, connection_type: str) -> bool:
-        """Уведомить модули сервиса об аварийном отключении"""
         return await self.notify_connection(name, connection_type, "emergency_disconnect")
 
     async def health_check(self) -> bool:
-        """Проверить доступность модулей сервиса"""
         try:
             async with httpx.AsyncClient(timeout=5.0) as client:
                 response = await client.get(f"{self.base_url}/health")
