@@ -1,19 +1,12 @@
-from __future__ import annotations
-
 import asyncio
+import grpc
+
 from dataclasses import dataclass
 from typing import Optional
 
-import grpc
-
 from shared.logging.utils import get_logger
 
-try:
-    from generated.modules import modules_pb2, modules_pb2_grpc
-except ImportError as exc:  # pragma: no cover - handled at runtime
-    raise ImportError(
-        "generated.modules package is not available. Run the gRPC generation script first."
-    ) from exc
+from generated.modules import modules_pb2, modules_pb2_grpc
 
 
 logger = get_logger(__name__)

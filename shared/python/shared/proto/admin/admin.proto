@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package admin;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+message FilePayload {
+    string name = 1;
+    string extension = 2;
+    string path = 3;
+    bytes content = 4;
+}
+
+message UploadInfo {
+    string filename = 1;
+    string content_type = 2;
+    string url = 3;
+    string bucket = 4;
+    int64 size = 5;
+}
+
+message SubmitCommandRequest {
+    string service = 1;
+    google.protobuf.Struct payload = 2;
+    FilePayload file = 3;
+}
+
+message SubmitCommandResponse {
+    string request_id = 1;
+    string status = 2;
+    string service = 3;
+    google.protobuf.Struct payload = 4;
+    UploadInfo file = 5;
+    google.protobuf.Timestamp created_at = 6;
+    google.protobuf.Timestamp updated_at = 7;
+}
+
+message GetMessageStatusRequest {
+    string request_id = 1;
+}
+
+message MessageStatusResponse {
+    string request_id = 1;
+    string status = 2;
+    string service = 3;
+    google.protobuf.Struct payload = 4;
+    google.protobuf.Struct response = 5;
+    UploadInfo file = 6;
+    google.protobuf.Timestamp created_at = 7;
+    google.protobuf.Timestamp updated_at = 8;
+}
+
+service AdminService {
+    rpc SubmitCommand(SubmitCommandRequest) returns (SubmitCommandResponse);
+    rpc GetMessageStatus(GetMessageStatusRequest) returns (MessageStatusResponse);
+}
+

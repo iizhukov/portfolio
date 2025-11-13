@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-from __future__ import annotations
-
 import asyncio
 import sys
+
 from typing import Awaitable, Callable, Sequence
 
 from sqlalchemy.ext.asyncio import create_async_engine
