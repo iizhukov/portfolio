@@ -114,8 +114,27 @@ services:
       - portfolio-network
     restart: unless-stopped
 
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "mongodb://admin:admin@localhost:27017/admin", "--eval", "db.runCommand({ ping: 1 })"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - portfolio-network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   minio_data:
   redpanda_data:
   redis_data:
+  mongodb_data:
