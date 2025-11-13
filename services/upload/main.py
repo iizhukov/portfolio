@@ -21,11 +21,21 @@ logger = get_logger(__name__)
 async def lifespan(app: FastAPI):
     storage = get_storage_service()
     await storage.ensure_bucket()
-    logger.info("Upload service started")
+    
+    from workers.grpc_service import serve as serve_grpc
+    grpc_task = asyncio.create_task(serve_grpc(storage))
+    
+    logger.info("Upload service started (HTTP and gRPC)")
 
     try:
         yield
     finally:
+        logger.info("Shutting down Upload service...")
+        grpc_task.cancel()
+        try:
+            await grpc_task
+        except asyncio.CancelledError:
+            pass
         logger.info("Upload service stopped")
 
 

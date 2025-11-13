@@ -6,6 +6,7 @@ class Settings:
         required_vars = [
             "HOST",
             "PORT",
+            "GRPC_PORT",
             "MINIO_ENDPOINT",
             "MINIO_ACCESS_KEY",
             "MINIO_SECRET_KEY",
@@ -16,6 +17,7 @@ class Settings:
 
         self.HOST: str = getenv("HOST")
         self.PORT: int = getenv_int("PORT")
+        self.GRPC_PORT: int = getenv_int("GRPC_PORT")
 
         self.MINIO_ENDPOINT: str = getenv("MINIO_ENDPOINT")
         self.MINIO_ACCESS_KEY: str = getenv("MINIO_ACCESS_KEY")
@@ -33,6 +35,7 @@ class Settings:
         info = {
             "HOST": self.HOST,
             "PORT": str(self.PORT),
+            "GRPC_PORT": str(self.GRPC_PORT),
             "MINIO_ENDPOINT": self.MINIO_ENDPOINT,
             "MINIO_BUCKET": self.MINIO_BUCKET,
             "MINIO_REGION": self.MINIO_REGION,

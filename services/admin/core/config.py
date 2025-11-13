@@ -12,7 +12,8 @@ class Settings:
             "HOST",
             "PORT",
             "REDPANDA_BROKERS",
-            "UPLOAD_SERVICE_URL",
+            "UPLOAD_SERVICE_GRPC_HOST",
+            "UPLOAD_SERVICE_GRPC_PORT",
             "MODULES_GRPC_HOST",
             "MODULES_GRPC_PORT",
             "MONGODB_URI",
@@ -28,7 +29,9 @@ class Settings:
         self.GRPC_PORT: int = getenv_int("GRPC_PORT")
 
         self.REDPANDA_BROKERS: str = getenv("REDPANDA_BROKERS")
-        self.UPLOAD_SERVICE_URL: str = getenv("UPLOAD_SERVICE_URL")
+        
+        self.UPLOAD_SERVICE_GRPC_HOST: str = getenv("UPLOAD_SERVICE_GRPC_HOST")
+        self.UPLOAD_SERVICE_GRPC_PORT: int = getenv_int("UPLOAD_SERVICE_GRPC_PORT")
 
         self.MODULES_GRPC_HOST: str = getenv("MODULES_GRPC_HOST")
         self.MODULES_GRPC_PORT: int = getenv_int("MODULES_GRPC_PORT")
@@ -50,7 +53,8 @@ class Settings:
             "HOST": self.HOST,
             "PORT": str(self.PORT),
             "REDPANDA_BROKERS": self.REDPANDA_BROKERS,
-            "UPLOAD_SERVICE_URL": self.UPLOAD_SERVICE_URL,
+            "UPLOAD_SERVICE_GRPC_HOST": self.UPLOAD_SERVICE_GRPC_HOST,
+            "UPLOAD_SERVICE_GRPC_PORT": str(self.UPLOAD_SERVICE_GRPC_PORT),
             "MODULES_GRPC_HOST": self.MODULES_GRPC_HOST,
             "MODULES_GRPC_PORT": str(self.MODULES_GRPC_PORT),
             "GRPC_PORT": str(self.GRPC_PORT),

@@ -7,7 +7,9 @@ packages = [
     { include = "api" },
     { include = "core" },
     { include = "schemas" },
-    { include = "services" }
+    { include = "services" },
+    { include = "generated" },
+    { include = "workers" }
 ]
 
 [tool.poetry.dependencies]
@@ -16,6 +18,8 @@ fastapi = "0.119.0"
 uvicorn = "0.37.0"
 minio = "7.2.3"
 python-multipart = "0.0.9"
+grpcio = ">=1.70.0"
+protobuf = ">=6.0.0"
 
 [tool.poetry.dependencies.portfolio-shared]
 path = "../../shared/python"
@@ -24,6 +28,8 @@ develop = true
 [tool.poetry.group.dev.dependencies]
 pytest = "8.0.0"
 pytest-asyncio = "0.23.0"
+grpcio-tools = ">=1.70.0"
+mypy-protobuf = "^3.6.0"
 
 [tool.poetry.scripts]
 service = "scripts.run_service:main"

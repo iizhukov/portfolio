@@ -29,7 +29,8 @@ COPY services/admin/ .
 RUN poetry run python scripts/generate_grpc.py && \
     set -eux; \
     required_files="admin/admin_pb2.py admin/admin_pb2_grpc.py \
-        modules/modules_pb2.py modules/modules_pb2_grpc.py"; \
+        modules/modules_pb2.py modules/modules_pb2_grpc.py \
+        upload/upload_pb2.py upload/upload_pb2_grpc.py"; \
     for rel in $required_files; do \
         [ -f "generated/$rel" ] || (echo "Still missing generated/$rel" && exit 1); \
     done

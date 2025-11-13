@@ -10,8 +10,6 @@ def main() -> None:
     output_dir = root / "generated"
 
     targets = [
-        ("admin/admin.proto", "admin"),
-        ("modules/modules.proto", "modules"),
         ("upload/upload.proto", "upload"),
     ]
 

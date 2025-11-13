@@ -26,6 +26,13 @@ RUN poetry install --no-interaction --no-ansi --no-root
 
 COPY services/upload/ .
 
+RUN poetry run python scripts/generate_grpc.py && \
+    set -eux; \
+    required_files="upload/upload_pb2.py upload/upload_pb2_grpc.py"; \
+    for rel in $required_files; do \
+        [ -f "generated/$rel" ] || (echo "Still missing generated/$rel" && exit 1); \
+    done
+
 RUN chmod +x entrypoint.sh
 
 FROM base AS runtime
@@ -47,6 +54,6 @@ USER app
 
 WORKDIR /app/services/upload
 
-EXPOSE 8003
+EXPOSE 8003 50054
 
 ENTRYPOINT ["./entrypoint.sh"]
