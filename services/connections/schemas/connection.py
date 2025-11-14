@@ -1,17 +1,16 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 
 
 class ConnectionResponseSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int = Field(..., description="ID подключения")
 
     label: str = Field(..., description="Название подключения")
     type: str = Field(..., description="Тип подключения")
     href: str = Field(..., description="Ссылка")
     value: str = Field(..., description="Значение")
-
-    class Config:
-        from_attributes = True
 
 
 class ConnectionCreateSchema(BaseModel):

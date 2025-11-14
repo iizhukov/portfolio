@@ -1,17 +1,15 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
-from datetime import datetime
 
 
 class ImageResponseSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int = Field(..., description="ID изображения")
 
     filename: str = Field(..., description="Имя файла")
     content_type: str = Field(..., description="Тип контента")
     url: str = Field(..., description="URL изображения")
-    
-    class Config:
-        from_attributes = True
 
 
 class ImageUpdateSchema(BaseModel):

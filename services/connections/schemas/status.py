@@ -1,15 +1,13 @@
-from pydantic import BaseModel, Field
-from typing import Optional, Literal
-from datetime import datetime
+from pydantic import BaseModel, Field, ConfigDict
+from typing import Literal
 
 
 class StatusResponseSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int = Field(..., description="ID статуса")
 
     status: Literal["active", "inactive"] = Field(..., description="Статус пользователя")
-    
-    class Config:
-        from_attributes = True
 
 
 class StatusUpdateSchema(BaseModel):
