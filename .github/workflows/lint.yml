@@ -7,7 +7,50 @@ on:
     branches: [main, develop]
 
 jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      projects: ${{ steps.filter.outputs.projects }}
+      connections: ${{ steps.filter.outputs.connections }}
+      modules: ${{ steps.filter.outputs.modules }}
+      admin: ${{ steps.filter.outputs.admin }}
+      upload: ${{ steps.filter.outputs.upload }}
+      gateway: ${{ steps.filter.outputs.gateway }}
+      shared: ${{ steps.filter.outputs.shared }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed services
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            projects:
+              - 'services/projects/**'
+              - 'shared/python/**'
+            connections:
+              - 'services/connections/**'
+              - 'shared/python/**'
+            modules:
+              - 'services/modules/**'
+              - 'shared/python/**'
+            admin:
+              - 'services/admin/**'
+              - 'shared/python/**'
+            upload:
+              - 'services/upload/**'
+              - 'shared/python/**'
+            gateway:
+              - 'services/gateway/**'
+              - 'shared/python/**'
+            shared:
+              - 'shared/python/**'
+
   lint:
+    needs: detect-changes
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -21,6 +64,35 @@ jobs:
       fail-fast: false
 
     steps:
+      - name: Check if service changed
+        id: check-changed
+        run: |
+          case "${{ matrix.service }}" in
+            projects)
+              changed="${{ needs.detect-changes.outputs.projects }}"
+              ;;
+            connections)
+              changed="${{ needs.detect-changes.outputs.connections }}"
+              ;;
+            modules)
+              changed="${{ needs.detect-changes.outputs.modules }}"
+              ;;
+            admin)
+              changed="${{ needs.detect-changes.outputs.admin }}"
+              ;;
+            upload)
+              changed="${{ needs.detect-changes.outputs.upload }}"
+              ;;
+            gateway)
+              changed="${{ needs.detect-changes.outputs.gateway }}"
+              ;;
+          esac
+          echo "changed=$changed" >> $GITHUB_OUTPUT
+          if [ "$changed" != "true" ]; then
+            echo "Service ${{ matrix.service }} was not changed, skipping lint"
+            exit 0
+          fi
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -36,28 +108,14 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
 
-      - name: Load cached venv for shared
-        id: cached-shared-venv
-        uses: actions/cache@v4
-        with:
-          path: shared/python/.venv
-          key: venv-${{ runner.os }}-shared-${{ hashFiles('shared/python/poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-shared-
-
       - name: Load cached venv
         id: cached-poetry-dependencies
         uses: actions/cache@v4
         with:
           path: services/${{ matrix.service }}/.venv
-          key: venv-${{ runner.os }}-${{ matrix.service }}-${{ hashFiles('services/${{ matrix.service }}/poetry.lock') }}
+          key: venv-${{ runner.os }}-${{ matrix.service }}-${{ hashFiles('services/${{ matrix.service }}/poetry.lock') }}-${{ hashFiles('shared/python/poetry.lock') }}
           restore-keys: |
             venv-${{ runner.os }}-${{ matrix.service }}-
-
-      - name: Install shared dependencies
-        working-directory: shared/python
-        run: |
-          poetry install --no-interaction --no-ansi
 
       - name: Install dependencies for ${{ matrix.service }}
         working-directory: services/${{ matrix.service }}
