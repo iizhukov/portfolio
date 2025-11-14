@@ -1,10 +1,12 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional, List
 
 from models.file_type import FileType, VALID_FILE_TYPES
 
 
 class ProjectResponseSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int = Field(..., description="ID проекта")
     name: str = Field(..., description="Название проекта")
     type: str = Field(..., description="Тип: 'folder' или 'file'")
@@ -14,9 +16,6 @@ class ProjectResponseSchema(BaseModel):
     children: Optional[List["ProjectResponseSchema"]] = Field(default_factory=list, description="Вложенные проекты")
     created_at: Optional[str] = Field(None, description="Дата создания")
     updated_at: Optional[str] = Field(None, description="Дата обновления")
-
-    class Config:
-        from_attributes = True
 
 
 class ProjectCreateSchema(BaseModel):
