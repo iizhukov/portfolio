@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package projects;
+
+service ProjectsService {
+  rpc GetProjects(GetProjectsRequest) returns (GetProjectsResponse);
+  rpc GetProjectById(GetProjectByIdRequest) returns (GetProjectByIdResponse);
+  rpc GetProjectTree(GetProjectTreeRequest) returns (GetProjectTreeResponse);
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message Project {
+  int32 id = 1;
+  string name = 2;
+  string type = 3;
+  string icon = 4;
+  optional string file_type = 5;
+  optional int32 parent_id = 6;
+  optional string url = 7;
+  repeated Project children = 8;
+  string created_at = 9;
+  string updated_at = 10;
+}
+
+message GetProjectsRequest {
+  optional int32 parent_id = 1;
+}
+
+message GetProjectsResponse {
+  repeated Project projects = 1;
+}
+
+message GetProjectByIdRequest {
+  int32 id = 1;
+}
+
+message GetProjectByIdResponse {
+  optional Project project = 1;
+}
+
+message GetProjectTreeRequest {
+  optional int32 root_id = 1;
+}
+
+message GetProjectTreeResponse {
+  repeated Project projects = 1;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  string status = 1;
+  string timestamp = 2;
+  bool database = 3;
+  bool redpanda = 4;
+  bool modules_service = 5;
+}
+
