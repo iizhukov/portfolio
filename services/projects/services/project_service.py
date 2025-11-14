@@ -83,7 +83,6 @@ class ProjectService:
         new_project = ProjectModel(
             name=project_data.name,
             type=project_data.type,
-            icon=project_data.icon,
             file_type=project_data.file_type,
             parent_id=project_data.parent_id,
             url=project_data.url,

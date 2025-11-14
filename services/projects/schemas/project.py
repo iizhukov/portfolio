@@ -8,7 +8,6 @@ class ProjectResponseSchema(BaseModel):
     id: int = Field(..., description="ID проекта")
     name: str = Field(..., description="Название проекта")
     type: str = Field(..., description="Тип: 'folder' или 'file'")
-    icon: str = Field(..., description="Иконка (emoji или путь)")
     file_type: Optional[str] = Field(None, description="Тип файла")
     parent_id: Optional[int] = Field(None, description="ID родительского проекта")
     url: Optional[str] = Field(None, description="URL файла в MinIO или внешняя ссылка")
@@ -23,7 +22,6 @@ class ProjectResponseSchema(BaseModel):
 class ProjectCreateSchema(BaseModel):
     name: str = Field(..., description="Название проекта")
     type: str = Field(..., description="Тип: 'folder' или 'file'")
-    icon: str = Field(..., description="Иконка (emoji или путь)")
     file_type: Optional[str] = Field(None, description="Тип файла: readme, architecture, demo, github, database, swagger")
     parent_id: Optional[int] = Field(None, description="ID родительского проекта")
     url: Optional[str] = Field(None, description="URL файла в MinIO или внешняя ссылка")
@@ -49,7 +47,6 @@ class ProjectCreateSchema(BaseModel):
 class ProjectUpdateSchema(BaseModel):
     name: Optional[str] = Field(None, description="Название проекта")
     type: Optional[str] = Field(None, description="Тип: 'folder' или 'file'")
-    icon: Optional[str] = Field(None, description="Иконка (emoji или путь)")
     file_type: Optional[str] = Field(None, description="Тип файла: readme, architecture, demo, github, database, swagger")
     parent_id: Optional[int] = Field(None, description="ID родительского проекта")
     url: Optional[str] = Field(None, description="URL файла в MinIO или внешняя ссылка")

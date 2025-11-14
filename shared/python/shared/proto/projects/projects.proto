@@ -13,13 +13,12 @@ message Project {
   int32 id = 1;
   string name = 2;
   string type = 3;
-  string icon = 4;
-  optional string file_type = 5;
-  optional int32 parent_id = 6;
-  optional string url = 7;
-  repeated Project children = 8;
-  string created_at = 9;
-  string updated_at = 10;
+  optional string file_type = 4;
+  optional int32 parent_id = 5;
+  optional string url = 6;
+  repeated Project children = 7;
+  string created_at = 8;
+  string updated_at = 9;
 }
 
 message GetProjectsRequest {

@@ -30,7 +30,6 @@ def project_model_to_proto(project_model, proto_project):
     proto_project.id = project_model.id
     proto_project.name = project_model.name
     proto_project.type = project_model.type
-    proto_project.icon = project_model.icon
     if project_model.file_type:
         proto_project.file_type = project_model.file_type
     if project_model.parent_id:

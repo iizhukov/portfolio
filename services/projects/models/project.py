@@ -11,7 +11,6 @@ class ProjectModel(Base):
     id = mapped_column(Integer, primary_key=True, index=True)
     name = mapped_column(String, nullable=False)
     type = mapped_column(String, nullable=False)
-    icon = mapped_column(String, nullable=False)
     file_type = mapped_column(String, nullable=True)
     parent_id = mapped_column(Integer, ForeignKey("projects.id"), nullable=True, index=True)
     url = mapped_column(String, nullable=True, comment="URL файла в MinIO или внешняя ссылка")
@@ -29,7 +28,6 @@ class ProjectModel(Base):
             "id": self.id,
             "name": self.name,
             "type": self.type,
-            "icon": self.icon,
             "file_type": self.file_type,
             "parent_id": self.parent_id,
             "url": self.url,

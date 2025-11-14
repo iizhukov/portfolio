@@ -6,7 +6,6 @@ class ProjectResponseSchema(BaseModel):
     id: int = Field(..., description="ID проекта")
     name: str = Field(..., description="Название проекта")
     type: str = Field(..., description="Тип: 'folder' или 'file'")
-    icon: str = Field(..., description="Иконка (emoji или путь)")
     file_type: Optional[str] = Field(None, description="Тип файла")
     parent_id: Optional[int] = Field(None, description="ID родительского проекта")
     url: Optional[str] = Field(None, description="URL файла в MinIO или внешняя ссылка")

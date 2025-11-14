@@ -11,7 +11,6 @@ def proto_project_to_schema(proto_project) -> ProjectResponseSchema:
         id=proto_project.id,
         name=proto_project.name,
         type=proto_project.type,
-        icon=proto_project.icon,
         file_type=proto_project.file_type if proto_project.HasField("file_type") else None,
         parent_id=proto_project.parent_id if proto_project.HasField("parent_id") else None,
         url=proto_project.url if proto_project.HasField("url") else None,
