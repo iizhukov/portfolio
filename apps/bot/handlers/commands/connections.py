@@ -75,9 +75,16 @@ def get_commands_keyboard() -> InlineKeyboardMarkup:
 # Create Connection
 @router.callback_query(F.data == "cmd:connections:create_connection")
 async def callback_create_connection(callback: CallbackQuery, state: FSMContext):
-    await state.update_data(command_type="create_connection", data={})
+    await state.update_data(
+        command_type="create_connection",
+        data={},
+        step=1,
+        total_steps=4,
+        bot_message_id=callback.message.message_id,
+    )
     await callback.message.edit_text(
-        "➕ Создание соединения\n\nВведите название (label):",
+        "➕ Создание соединения\n\n"
+        "Шаг 1/4: Введите название (label):",
         reply_markup=get_cancel_keyboard(),
     )
     await state.set_state(ConnectionsStates.waiting_label)
@@ -86,11 +93,27 @@ async def callback_create_connection(callback: CallbackQuery, state: FSMContext)
 
 @router.message(ConnectionsStates.waiting_label)
 async def process_label(message: Message, state: FSMContext):
+    if not message.text or not message.text.strip():
+        await message.answer("❌ Название не может быть пустым. Попробуйте еще раз:")
+        return
+    
+    try:
+        await message.edit_text(f"✅ Label: {message.text.strip()}")
+    except Exception:
+        await message.delete()
+    
     data = await state.get_data()
-    ensure_data_dict(data)["label"] = message.text
-    await state.update_data(data=data)
-    await message.answer(
-        "Введите тип соединения (social/email):",
+    ensure_data_dict(data)["label"] = message.text.strip()
+    await state.update_data(data=data, step=2)
+    
+    from handlers.commands.base import edit_or_send_message
+    await edit_or_send_message(
+        message.bot,
+        state,
+        message.chat.id,
+        "➕ Создание соединения\n\n"
+        f"✅ Label: {message.text.strip()}\n\n"
+        "Шаг 2/4: Введите тип соединения (social/email):",
         reply_markup=get_cancel_keyboard(),
     )
     await state.set_state(ConnectionsStates.waiting_type)
@@ -102,27 +125,94 @@ async def process_type(message: Message, state: FSMContext):
         await message.answer("❌ Тип должен быть 'social' или 'email'. Попробуйте еще раз:")
         return
 
+    try:
+        await message.edit_text(f"✅ Type: {message.text}")
+    except Exception:
+        await message.delete()
+
     data = await state.get_data()
     ensure_data_dict(data)["type"] = message.text
-    await state.update_data(data=data)
-    await message.answer("Введите ссылку (href):", reply_markup=get_cancel_keyboard())
+    await state.update_data(data=data, step=3)
+    
+    from handlers.commands.base import edit_or_send_message
+    cmd_data = data.get("data", {})
+    await edit_or_send_message(
+        message.bot,
+        state,
+        message.chat.id,
+        "➕ Создание соединения\n\n"
+        f"✅ Label: {cmd_data.get('label')}\n"
+        f"✅ Type: {message.text}\n\n"
+        "Шаг 3/4: Введите ссылку (href):",
+        reply_markup=get_cancel_keyboard(),
+    )
     await state.set_state(ConnectionsStates.waiting_href)
 
 
 @router.message(ConnectionsStates.waiting_href)
 async def process_href(message: Message, state: FSMContext):
+    if not message.text or not message.text.strip():
+        await message.answer("❌ Ссылка не может быть пустой. Попробуйте еще раз:")
+        return
+    
+    try:
+        await message.edit_text(f"✅ Href: {message.text.strip()}")
+    except Exception:
+        await message.delete()
+    
     data = await state.get_data()
-    ensure_data_dict(data)["href"] = message.text
-    await state.update_data(data=data)
-    await message.answer("Введите значение (value):", reply_markup=get_cancel_keyboard())
+    ensure_data_dict(data)["href"] = message.text.strip()
+    await state.update_data(data=data, step=4)
+    
+    from handlers.commands.base import edit_or_send_message
+    cmd_data = data.get("data", {})
+    await edit_or_send_message(
+        message.bot,
+        state,
+        message.chat.id,
+        "➕ Создание соединения\n\n"
+        f"✅ Label: {cmd_data.get('label')}\n"
+        f"✅ Type: {cmd_data.get('type')}\n"
+        f"✅ Href: {message.text.strip()}\n\n"
+        "Шаг 4/4: Введите значение (value):",
+        reply_markup=get_cancel_keyboard(),
+    )
     await state.set_state(ConnectionsStates.waiting_value)
 
 
 @router.message(ConnectionsStates.waiting_value)
 async def process_value(message: Message, state: FSMContext):
+    if not message.text or not message.text.strip():
+        await message.answer("❌ Значение не может быть пустым. Попробуйте еще раз:")
+        return
+    
+    try:
+        await message.edit_text(f"✅ Value: {message.text.strip()}")
+    except Exception:
+        await message.delete()
+    
     data = await state.get_data()
-    ensure_data_dict(data)["value"] = message.text
+    ensure_data_dict(data)["value"] = message.text.strip()
     await state.update_data(data=data)
+    
+    from handlers.commands.base import edit_or_send_message
+    cmd_data = data.get("data", {})
+    preview_text = (
+        "📋 Предпросмотр данных:\n\n"
+        f"📝 Label: {cmd_data.get('label')}\n"
+        f"🏷️ Type: {cmd_data.get('type')}\n"
+        f"🔗 Href: {cmd_data.get('href')}\n"
+        f"📌 Value: {cmd_data.get('value')}\n\n"
+        "⏳ Отправляю команду..."
+    )
+    
+    await edit_or_send_message(
+        message.bot,
+        state,
+        message.chat.id,
+        preview_text,
+        reply_markup=None,
+    )
     await send_command(message, state)
 
 

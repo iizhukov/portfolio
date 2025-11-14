@@ -1,5 +1,6 @@
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.context import FSMContext
+from aiogram import Bot
 
 from services.admin_client import AdminClient
 from services.history_service import HistoryService
@@ -13,6 +14,37 @@ def get_cancel_keyboard() -> InlineKeyboardMarkup:
             [InlineKeyboardButton(text="❌ Отменить", callback_data="cmd:cancel")],
         ]
     )
+
+
+async def edit_or_send_message(
+    bot: Bot,
+    state: FSMContext,
+    chat_id: int,
+    text: str,
+    reply_markup: InlineKeyboardMarkup | None = None,
+) -> int:
+    data = await state.get_data()
+    bot_message_id = data.get("bot_message_id")
+    
+    try:
+        if bot_message_id:
+            await bot.edit_message_text(
+                chat_id=chat_id,
+                message_id=bot_message_id,
+                text=text,
+                reply_markup=reply_markup,
+            )
+            return bot_message_id
+    except Exception:
+        pass
+
+    sent_message = await bot.send_message(
+        chat_id=chat_id,
+        text=text,
+        reply_markup=reply_markup,
+    )
+    await state.update_data(bot_message_id=sent_message.message_id)
+    return sent_message.message_id
 
 
 async def send_command(message: Message, state: FSMContext):
