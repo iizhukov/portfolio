@@ -532,6 +532,7 @@ files = []
 develop = true
 
 [package.dependencies]
+confluent-kafka = ">=2.3.0"
 pydantic = ">=2.0.0"
 sqlalchemy = ">=2.0.0"
 
@@ -829,6 +830,24 @@ pygments = ">=2.7.2"
 dev = ["argcomplete", "attrs (>=19.2)", "hypothesis (>=3.56)", "mock", "requests", "setuptools", "xmlschema"]
 
 [[package]]
+name = "pytest-asyncio"
+version = "0.23.0"
+description = "Pytest support for asyncio"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "pytest-asyncio-0.23.0.tar.gz", hash = "sha256:236e89745b8be43b3b473640b523f26fe3c62a2afa7548e38532e9f201d22fc3"},
+    {file = "pytest_asyncio-0.23.0-py3-none-any.whl", hash = "sha256:91ef405536331eb9971511aeb08225869985d800cf491015f7407044e7d1d7f8"},
+]
+
+[package.dependencies]
+pytest = ">=7.0.0"
+
+[package.extras]
+docs = ["sphinx (>=5.3)", "sphinx-rtd-theme (>=1.0)"]
+testing = ["coverage (>=6.2)", "hypothesis (>=5.7.1)"]
+
+[[package]]
 name = "python-multipart"
 version = "0.0.9"
 description = "A streaming multipart parser for Python"
@@ -1042,4 +1061,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "08bd8700335b3a72b471eb14bc194e67643fb692b936f3b3f0387732e0d4e289"
+content-hash = "fa062642d76cf68fc227e615fa5402abfca3ac0096732623b09542b878dc23b6"
