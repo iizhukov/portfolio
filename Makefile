@@ -1,4 +1,4 @@
-.PHONY: help dev dev-build dev-logs dev-down clean test lint format dev-setup dev-gateway dev-connections dev-docker dev-infra python-base
+.PHONY: help up build logs down clean status restart python-base
 
 help:
 	@echo "Portfolio Project - Available commands:"
@@ -27,6 +27,7 @@ status:
 
 restart:
 	docker-compose restart
+
 
 python-base:
 	docker build -f shared/python/Dockerfile -t portfolio-python-base .
