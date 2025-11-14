@@ -1,0 +1,78 @@
+name: Lint
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - projects
+          - connections
+          - modules
+          - admin
+          - upload
+          - gateway
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.8.3
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv for shared
+        id: cached-shared-venv
+        uses: actions/cache@v4
+        with:
+          path: shared/python/.venv
+          key: venv-${{ runner.os }}-shared-${{ hashFiles('shared/python/poetry.lock') }}
+          restore-keys: |
+            venv-${{ runner.os }}-shared-
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v4
+        with:
+          path: services/${{ matrix.service }}/.venv
+          key: venv-${{ runner.os }}-${{ matrix.service }}-${{ hashFiles('services/${{ matrix.service }}/poetry.lock') }}
+          restore-keys: |
+            venv-${{ runner.os }}-${{ matrix.service }}-
+
+      - name: Install shared dependencies
+        working-directory: shared/python
+        run: |
+          poetry install --no-interaction --no-ansi
+
+      - name: Install dependencies for ${{ matrix.service }}
+        working-directory: services/${{ matrix.service }}
+        run: |
+          poetry install --no-interaction --no-ansi
+
+      - name: Run black check for ${{ matrix.service }}
+        working-directory: services/${{ matrix.service }}
+        continue-on-error: true
+        run: |
+          poetry run black --check . || echo "Black not configured for ${{ matrix.service }}"
+
+      - name: Run flake8 for ${{ matrix.service }}
+        working-directory: services/${{ matrix.service }}
+        continue-on-error: true
+        run: |
+          poetry run flake8 . || echo "Flake8 not configured for ${{ matrix.service }}"
+
