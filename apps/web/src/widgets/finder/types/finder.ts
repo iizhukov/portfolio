@@ -5,7 +5,7 @@ export interface Project {
   icon: string
   fileType?: FileType
   children?: Project[]
-  action?: () => void
+  url?: string
 }
 
 export interface NavigationState {
@@ -25,16 +25,9 @@ export interface FinderState {
 export type FileType =
   | 'folder'
   | 'folder-filled'
-  | 'github'
+  | 'readme'
+  | 'architecture'
   | 'demo'
-  | 'diagram'
-  | 'schema'
-  | 'docs'
-  | 'deployment'
-  | 'config'
-  | 'test'
-  | 'package'
-  | 'build'
-  | 'component'
-  | 'page'
-  | 'util'
+  | 'github'
+  | 'database'
+  | 'swagger'

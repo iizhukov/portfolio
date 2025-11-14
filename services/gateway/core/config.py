@@ -14,6 +14,9 @@ class Settings:
             "CONNECTIONS_SERVICE_HOST",
             "CONNECTIONS_SERVICE_PORT",
 
+            "PROJECTS_SERVICE_HOST",
+            "PROJECTS_SERVICE_PORT",
+
             "MODULES_SERVICE_HOST",
             "MODULES_SERVICE_PORT",
             "MODULES_HTTP_PORT",
@@ -45,6 +48,9 @@ class Settings:
 
         self.CONNECTIONS_SERVICE_HOST: str = getenv("CONNECTIONS_SERVICE_HOST")
         self.CONNECTIONS_SERVICE_PORT: int = getenv_int("CONNECTIONS_SERVICE_PORT")
+
+        self.PROJECTS_SERVICE_HOST: str = getenv("PROJECTS_SERVICE_HOST")
+        self.PROJECTS_SERVICE_PORT: int = getenv_int("PROJECTS_SERVICE_PORT")
 
         self.MODULES_SERVICE_HOST: str = getenv("MODULES_SERVICE_HOST")
         self.MODULES_SERVICE_PORT: int = getenv_int("MODULES_SERVICE_PORT")
@@ -86,6 +92,9 @@ class Settings:
 
             "CONNECTIONS_SERVICE_HOST": self.CONNECTIONS_SERVICE_HOST,
             "CONNECTIONS_SERVICE_PORT": str(self.CONNECTIONS_SERVICE_PORT),
+
+            "PROJECTS_SERVICE_HOST": self.PROJECTS_SERVICE_HOST,
+            "PROJECTS_SERVICE_PORT": str(self.PROJECTS_SERVICE_PORT),
 
             "MODULES_SERVICE_HOST": self.MODULES_SERVICE_HOST,
             "MODULES_SERVICE_PORT": str(self.MODULES_SERVICE_PORT),

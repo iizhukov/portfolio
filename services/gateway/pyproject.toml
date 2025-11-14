@@ -3,7 +3,6 @@ name = "portfolio-gateway"
 version = "0.1.0"
 description = "API Gateway Service"
 authors = ["iizhukov <iizhukov@icloud.com>"]
-readme = "README.md"
 packages = [
     { include = "api" },
     { include = "core" },

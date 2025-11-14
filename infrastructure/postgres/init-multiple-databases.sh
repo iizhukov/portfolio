@@ -47,6 +47,7 @@ echo "Starting database initialization..."
 
 create_database_and_user "connections_db" "connections_user" "connections_password"
 create_database_and_user "modules_db" "modules_user" "modules_password"
+create_database_and_user "projects_db" "projects_user" "projects_password"
 create_database_and_user "bot_db" "bot_user" "bot_password"
 
 echo "All databases initialized successfully!"

@@ -1,3 +1,5 @@
+x-python-base-image: &python-base-image portfolio-python-base:latest
+
 services:
   app-web:
     build:
@@ -10,8 +12,9 @@ services:
 
   app-bot:
     build:
-      context: ../
-      dockerfile: apps/bot/Dockerfile
+      context: bot/
+      args:
+        PYTHON_BASE_IMAGE: *python-base-image
     environment:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       ADMIN_SERVICE_URL: http://service-gateway:8000

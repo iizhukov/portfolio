@@ -5,42 +5,19 @@ export const FILE_ICON_MAP: Record<FileType, string> = {
   folder: '/assets/icons/folder.ico',
   'folder-filled': '/assets/icons/wpaper_folder.ico',
 
-  // GitHub and repositories
+  // Documentation
+  readme: '/assets/icons/docs.ico',
+
+  // Diagrams and architecture
+  architecture: '/assets/icons/diagram.ico',
+  database: '/assets/icons/schema.ico',
+
+  // Links
+  demo: '/assets/icons/demo.ico',
   github: '/assets/icons/github.ico',
 
-  // Demos and live sites
-  demo: '/assets/icons/demo.ico',
-
-  // Diagrams and schemas
-  diagram: '/assets/icons/diagram.ico',
-  schema: '/assets/icons/schema.ico',
-
-  // Documentation
-  docs: '/assets/icons/docs.ico',
-
-  // Deployment and infrastructure
-  deployment: '/assets/icons/deployment.ico',
-
-  // Configuration files
-  config: '/assets/icons/config.ico',
-
-  // Testing
-  test: '/assets/icons/test.ico',
-
-  // Package management
-  package: '/assets/icons/package.ico',
-
-  // Build tools
-  build: '/assets/icons/build.ico',
-
-  // Frontend components
-  component: '/assets/icons/component.ico',
-
-  // Pages
-  page: '/assets/icons/page.ico',
-
-  // Utilities
-  util: '/assets/icons/util.ico',
+  // API Documentation
+  swagger: '/assets/icons/postman.ico',
 }
 
 export const getFileIcon = (fileType: FileType): string => {
@@ -54,77 +31,47 @@ export const getFolderIcon = (hasChildren: boolean): string => {
 export const getFileTypeFromName = (name: string): FileType => {
   const lowerName = name.toLowerCase()
 
+  // README files
+  if (lowerName.includes('readme') || lowerName === 'readme.md') {
+    return 'readme'
+  }
+
+  // Architecture diagrams (excalidraw)
+  if (
+    lowerName.includes('architecture') ||
+    lowerName.includes('arch') ||
+    lowerName.includes('excalidraw')
+  ) {
+    return 'architecture'
+  }
+
+  // Database diagrams (dbdiagram)
+  if (
+    lowerName.includes('database') ||
+    lowerName.includes('db') ||
+    lowerName.includes('dbdiagram') ||
+    lowerName.includes('schema')
+  ) {
+    return 'database'
+  }
+
   // GitHub repositories
-  if (lowerName.includes('github') || lowerName.includes('repository')) {
+  if (lowerName.includes('github') || lowerName.includes('repository') || lowerName.includes('repo')) {
     return 'github'
   }
 
-  // Demos and live sites
-  if (lowerName.includes('demo') || lowerName.includes('live')) {
+  // Demo links
+  if (lowerName.includes('demo') || lowerName.includes('live') || lowerName.includes('preview')) {
     return 'demo'
   }
 
-  // Diagrams
-  if (lowerName.includes('diagram') || lowerName.includes('architecture')) {
-    return 'diagram'
-  }
-
-  // Schemas
-  if (lowerName.includes('schema') || lowerName.includes('database')) {
-    return 'schema'
-  }
-
-  // Documentation
-  if (lowerName.includes('doc') || lowerName.includes('readme') || lowerName.includes('guide')) {
-    return 'docs'
-  }
-
-  // Deployment
-  if (lowerName.includes('deployment') || lowerName.includes('deploy')) {
-    return 'deployment'
-  }
-
-  // Configuration
+  // Swagger documentation
   if (
-    lowerName.includes('config') ||
-    lowerName.includes('package.json') ||
-    lowerName.includes('settings')
+    lowerName.includes('swagger') ||
+    lowerName.includes('api-docs') ||
+    lowerName.includes('openapi')
   ) {
-    return 'config'
-  }
-
-  // Tests
-  if (lowerName.includes('test') || lowerName.includes('spec')) {
-    return 'test'
-  }
-
-  // Package files
-  if (
-    lowerName.includes('package') ||
-    lowerName.includes('yarn.lock') ||
-    lowerName.includes('package-lock')
-  ) {
-    return 'package'
-  }
-
-  // Build files
-  if (lowerName.includes('build') || lowerName.includes('webpack') || lowerName.includes('vite')) {
-    return 'build'
-  }
-
-  // Components
-  if (lowerName.includes('component') || lowerName.includes('ui')) {
-    return 'component'
-  }
-
-  // Pages
-  if (lowerName.includes('page') || lowerName.includes('route')) {
-    return 'page'
-  }
-
-  // Utilities
-  if (lowerName.includes('util') || lowerName.includes('helper') || lowerName.includes('lib')) {
-    return 'util'
+    return 'swagger'
   }
 
   // Default to folder for unknown types

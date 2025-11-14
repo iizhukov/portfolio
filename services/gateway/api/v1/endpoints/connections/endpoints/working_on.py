@@ -1,13 +1,14 @@
 import logging
 
-from fastapi import APIRouter, HTTPException, Depends
-
-from services.dependencies import get_grpc_manager
-from services.grpc_client_manager import GrpcClientManager
-from services.cache_decorator import cache_response
-from schemas.connections.working import WorkingResponseSchema
+from fastapi import APIRouter, Depends, HTTPException
 
 from generated.connections import connections_pb2
+from schemas.connections.working import WorkingResponseSchema
+from services.cache_decorator import cache_response
+from services.dependencies import get_grpc_manager
+from services.grpc_client_manager import GrpcClientManager
+
+from ..utils import proto_to_working
 
 
 router = APIRouter()
@@ -21,24 +22,20 @@ async def get_working_on(
 ):
     try:
         connections_client = await grpc_manager.get_client("connections")
-        
+
         request = connections_pb2.GetWorkingRequest()
         response = await grpc_manager.call_grpc_with_retry(
             connections_client,
             connections_client.GetWorking,
             request,
-            timeout=30
+            timeout=30,
         )
-        
+
         if not response.working:
             raise HTTPException(status_code=404, detail="Working status not found")
-        
-        return WorkingResponseSchema(
-            id=response.working.id,
-            working_on=response.working.working_on,
-            percentage=response.working.percentage
-        )
-        
-    except Exception as e:
-        logger.error(f"Error getting working status: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get working status")
+
+        return proto_to_working(response.working)
+
+    except Exception as exc:  # noqa: BLE001
+        logger.error("Error getting working status: %s", exc)
+        raise HTTPException(status_code=500, detail="Failed to get working status") from exc

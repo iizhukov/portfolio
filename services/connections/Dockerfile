@@ -1,7 +1,5 @@
-FROM python:3.12-slim AS base
-
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+ARG PYTHON_BASE_IMAGE=portfolio-python-base:latest
+FROM ${PYTHON_BASE_IMAGE} AS base
 
 FROM base AS builder
 
@@ -12,19 +10,15 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir poetry==1.8.3
-RUN poetry config virtualenvs.create false
-
-COPY shared/python ./shared/python
-RUN cd shared/python && poetry install --no-interaction --no-ansi
-
-COPY services/connections/pyproject.toml services/connections/poetry.lock ./services/connections/
+RUN mkdir -p /app/services/connections
 
 WORKDIR /app/services/connections
 
+COPY pyproject.toml poetry.lock ./
+
 RUN poetry install --no-interaction --no-ansi --no-root
 
-COPY services/connections/ .
+COPY . .
 
 RUN poetry run python scripts/generate_grpc.py && \
     set -eux; \
@@ -40,12 +34,7 @@ FROM base AS runtime
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
 COPY --from=builder /usr/local /usr/local
-COPY --from=builder /app/shared/python /app/shared/python
 COPY --from=builder /app/services/connections /app/services/connections
 
 RUN useradd --create-home --shell /bin/bash app \

@@ -11,6 +11,7 @@ def main() -> None:
 
     targets = [
         ("connections/connections.proto", "connections"),
+        ("projects/projects.proto", "projects"),
         ("modules/modules.proto", "modules"),
         ("admin/admin.proto", "admin"),
     ]

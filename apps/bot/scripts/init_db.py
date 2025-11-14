@@ -9,12 +9,12 @@ from models import CommandHistory
 logger = get_logger(__name__)
 
 
-async def init_db():
+async def main():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         logger.info("Database tables created successfully")
 
 
 if __name__ == "__main__":
-    asyncio.run(init_db())
+    asyncio.run(main())
 

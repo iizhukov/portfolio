@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import { type Project, type FinderState } from '../types/finder'
 import { PROJECTS_DATA } from '../models/projects'
+import { handleFileOpen } from '../utils/file-handlers'
 
 const initialState: FinderState = {
   navigation: {
@@ -55,8 +56,9 @@ export const useFinder = () => {
       if (item.type === 'folder' && item.children) {
         const newPath = [...state.navigation.currentPath, item.id]
         navigateTo(newPath)
-      } else if (item.action) {
-        item.action()
+      } else {
+        // Обрабатываем файлы через утилиту
+        handleFileOpen(item)
       }
     },
     [state.navigation.currentPath, navigateTo]

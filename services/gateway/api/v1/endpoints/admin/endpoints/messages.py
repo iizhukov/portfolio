@@ -35,3 +35,4 @@ async def get_admin_message(
             detail="Failed to fetch admin message",
         ) from exc
 
+

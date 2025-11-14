@@ -1,8 +1,11 @@
+x-python-base-image: &python-base-image portfolio-python-base:latest
+
 services:
   service-modules:
     build:
-      context: ../
-      dockerfile: services/modules/Dockerfile
+      context: modules/
+      args:
+        PYTHON_BASE_IMAGE: *python-base-image
     environment:
       HOST: 0.0.0.0
       PORT: 8001
@@ -22,8 +25,9 @@ services:
 
   service-upload:
     build:
-      context: ../
-      dockerfile: services/upload/Dockerfile
+      context: upload/
+      args:
+        PYTHON_BASE_IMAGE: *python-base-image
     environment:
       HOST: 0.0.0.0
       PORT: 8003
@@ -44,8 +48,9 @@ services:
 
   service-admin:
     build:
-      context: ../
-      dockerfile: services/admin/Dockerfile
+      context: admin/
+      args:
+        PYTHON_BASE_IMAGE: *python-base-image
     environment:
       HOST: 0.0.0.0
       PORT: 8004
@@ -74,8 +79,9 @@ services:
 
   service-connections:
     build:
-      context: ../
-      dockerfile: services/connections/Dockerfile
+      context: connections/
+      args:
+        PYTHON_BASE_IMAGE: *python-base-image
     environment:
       POSTGRES_SERVER: infra-postgres
       POSTGRES_PORT: 5432
@@ -104,10 +110,42 @@ services:
       - portfolio-network
     restart: unless-stopped
 
+  service-projects:
+    build:
+      context: projects/
+      args:
+        PYTHON_BASE_IMAGE: *python-base-image
+    environment:
+      POSTGRES_SERVER: infra-postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: projects_user
+      POSTGRES_PASSWORD: projects_password
+      POSTGRES_DB: projects_db
+      MESSAGE_BROKERS: infra-redpanda:19092
+      ADMIN_PROJECTS_TOPIC: admin_projects
+      ADMIN_RESPONSE_TOPIC: admin_responses
+      MODULES_SERVICE_URL: service-modules:50051
+      GRPC_PORT: 50054
+      HOST: 0.0.0.0
+      PORT: 8004
+      VERSION: "1.0.0"
+      API_V1_STR: "/api/v1"
+    depends_on:
+      infra-postgres:
+        condition: service_healthy
+      infra-redpanda:
+        condition: service_healthy
+      service-modules:
+        condition: service_started
+    networks:
+      - portfolio-network
+    restart: unless-stopped
+
   service-gateway:
     build:
-      context: ../
-      dockerfile: services/gateway/Dockerfile
+      context: gateway/
+      args:
+        PYTHON_BASE_IMAGE: *python-base-image
     ports:
       - "8000:8000"
     environment:
@@ -115,6 +153,8 @@ services:
       API_V1_STR: "/api/v1"
       CONNECTIONS_SERVICE_HOST: service-connections
       CONNECTIONS_SERVICE_PORT: 50052
+      PROJECTS_SERVICE_HOST: service-projects
+      PROJECTS_SERVICE_PORT: 50054
       MODULES_SERVICE_HOST: service-modules
       MODULES_SERVICE_PORT: 50051
       MODULES_HTTP_PORT: 8001
@@ -138,6 +178,8 @@ services:
       UPLOAD_SERVICE_PORT: 8003
     depends_on:
       service-connections:
+        condition: service_started
+      service-projects:
         condition: service_started
       infra-redis:
         condition: service_healthy

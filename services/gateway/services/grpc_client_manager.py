@@ -24,6 +24,7 @@ class GrpcClientManager:
         logger.info("Initializing gRPC clients...")
 
         await self._create_connections_channel()
+        await self._create_projects_channel()
         await self._create_modules_channel()
         await self._create_admin_channel()
         
@@ -56,6 +57,33 @@ class GrpcClientManager:
             logger.info(f"Connections service channel created with pooling: {settings.CONNECTIONS_SERVICE_HOST}:{settings.CONNECTIONS_SERVICE_PORT}")
         except Exception as e:
             logger.error(f"Failed to create connections channel: {e}")
+    
+    async def _create_projects_channel(self):
+        try:
+            options = [
+                ('grpc.keepalive_time_ms', 30000),
+                ('grpc.keepalive_timeout_ms', 5000),
+                ('grpc.keepalive_permit_without_calls', True),
+                ('grpc.http2.max_pings_without_data', 0),
+                ('grpc.http2.min_time_between_pings_ms', 10000),
+                ('grpc.http2.min_ping_interval_without_data_ms', 300000),
+                ('grpc.max_connection_idle_ms', 30000),
+                ('grpc.max_connection_age_ms', 300000),
+                ('grpc.max_connection_age_grace_ms', 5000),
+            ]
+            
+            channel = aio.insecure_channel(
+                f"{settings.PROJECTS_SERVICE_HOST}:{settings.PROJECTS_SERVICE_PORT}",
+                options=options
+            )
+            self.channels["projects"] = channel
+
+            from generated.projects import projects_pb2_grpc
+            self.clients["projects"] = projects_pb2_grpc.ProjectsServiceStub(channel)
+            
+            logger.info(f"Projects service channel created: {settings.PROJECTS_SERVICE_HOST}:{settings.PROJECTS_SERVICE_PORT}")
+        except Exception as e:
+            logger.error(f"Failed to create projects channel: {e}")
     
     async def _create_modules_channel(self):
         try:
@@ -132,6 +160,7 @@ class GrpcClientManager:
     async def get_available_services(self) -> Dict[str, str]:
         return {
             "connections": f"{settings.CONNECTIONS_SERVICE_HOST}:{settings.CONNECTIONS_SERVICE_PORT}",
+            "projects": f"{settings.PROJECTS_SERVICE_HOST}:{settings.PROJECTS_SERVICE_PORT}",
             "modules": f"{settings.MODULES_SERVICE_HOST}:{settings.MODULES_SERVICE_PORT}",
             "admin": f"{settings.ADMIN_SERVICE_HOST}:{settings.ADMIN_SERVICE_PORT}",
         }
