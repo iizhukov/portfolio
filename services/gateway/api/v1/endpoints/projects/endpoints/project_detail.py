@@ -1,5 +1,6 @@
 import grpc
 from fastapi import APIRouter, Depends, HTTPException
+from tenacity import RetryError
 
 from core.logging import get_logger
 from generated.projects import projects_pb2
@@ -41,6 +42,13 @@ async def get_project_by_id(
 
     except HTTPException:
         raise
+    except RetryError as retry_exc:
+        last_exc = retry_exc.last_attempt.exception()
+        if isinstance(last_exc, grpc.RpcError) and last_exc.code() == grpc.StatusCode.NOT_FOUND:
+            logger.info("Project %s not found via gRPC after retries", project_id)
+            raise HTTPException(status_code=404, detail="Project not found") from last_exc
+        logger.error("Retry exhausted getting project %s: %s", project_id, retry_exc)
+        raise HTTPException(status_code=502, detail="Projects service unavailable") from retry_exc
     except grpc.RpcError as grpc_exc:
         if grpc_exc.code() == grpc.StatusCode.NOT_FOUND:
             logger.info("Project %s not found via gRPC", project_id)
