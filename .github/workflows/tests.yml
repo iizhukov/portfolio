@@ -2,7 +2,7 @@ name: Tests
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
     branches: [main, develop]
 
@@ -36,45 +36,51 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
 
-      - name: Load cached venv for shared
-        id: cached-shared-venv
-        uses: actions/cache@v4
-        with:
-          path: shared/python/.venv
-          key: venv-${{ runner.os }}-shared-${{ hashFiles('shared/python/poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-shared-
-
       - name: Load cached venv
         id: cached-poetry-dependencies
         uses: actions/cache@v4
         with:
           path: services/${{ matrix.service }}/.venv
-          key: venv-${{ runner.os }}-${{ matrix.service }}-${{ hashFiles('services/${{ matrix.service }}/poetry.lock') }}
+          key: venv-${{ runner.os }}-${{ matrix.service }}-${{ hashFiles('services/${{ matrix.service }}/poetry.lock') }}-${{ hashFiles('shared/python/poetry.lock') }}
           restore-keys: |
             venv-${{ runner.os }}-${{ matrix.service }}-
-
-      - name: Install shared dependencies
-        working-directory: shared/python
-        run: |
-          poetry install --no-interaction --no-ansi
-
-      - name: Generate gRPC files for ${{ matrix.service }}
-        working-directory: services/${{ matrix.service }}
-        continue-on-error: true
-        run: |
-          if [ -f "scripts/generate_grpc.py" ]; then
-            poetry run python scripts/generate_grpc.py
-          elif poetry run generate-grpc 2>/dev/null; then
-            poetry run generate-grpc
-          else
-            echo "No gRPC generation script found for ${{ matrix.service }}"
-          fi
 
       - name: Install dependencies for ${{ matrix.service }}
         working-directory: services/${{ matrix.service }}
         run: |
-          poetry install --no-interaction --no-ansi
+          poetry install --no-interaction --no-ansi --with dev
+
+      - name: Generate gRPC files for ${{ matrix.service }}
+        working-directory: services/${{ matrix.service }}
+        run: |
+          if [ -f "scripts/generate_grpc.py" ]; then
+            echo "Running gRPC generation script..."
+            poetry run python scripts/generate_grpc.py
+            if [ $? -ne 0 ]; then
+              echo "Error: gRPC generation failed"
+              exit 1
+            fi
+          elif command -v poetry &> /dev/null && poetry run generate-grpc 2>/dev/null; then
+            echo "Running gRPC generation via poetry script..."
+            poetry run generate-grpc
+            if [ $? -ne 0 ]; then
+              echo "Error: gRPC generation failed"
+              exit 1
+            fi
+          else
+            echo "No gRPC generation script found for ${{ matrix.service }}, skipping..."
+          fi
+
+      - name: List generated files
+        working-directory: services/${{ matrix.service }}
+        if: always()
+        run: |
+          if [ -d "generated" ]; then
+            echo "Generated files:"
+            find generated -type f -name "*.py" | head -20
+          else
+            echo "No generated directory found"
+          fi
 
       - name: Check if tests exist
         id: check-tests
