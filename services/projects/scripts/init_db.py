@@ -1,20 +1,24 @@
 #!/usr/bin/env python3
-import asyncio
-
-from core.database import db_manager
-from core.logging import get_logger
-from models.project import ProjectModel
+from core.config import settings
 from models.base import Base
 
-logger = get_logger(__name__)
+from shared.scripts.db_init import run_initializer
 
 
-async def main():
-    async with db_manager.engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-        logger.info("Database tables created successfully")
+async def seed_initial_data() -> bool:
+    return True
+
+
+def main() -> None:
+    run_initializer(
+        service_name="Projects",
+        database_url=settings.DATABASE_URL,
+        base=Base,
+        tables=["projects"],
+        initialiser=seed_initial_data,
+    )
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
 

@@ -12,7 +12,7 @@ class ProjectModel(Base):
     name = mapped_column(String, nullable=False)
     type = mapped_column(String, nullable=False)
     file_type = mapped_column(String, nullable=True)
-    parent_id = mapped_column(Integer, ForeignKey("projects.id"), nullable=True, index=True)
+    parent_id = mapped_column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=True, index=True)
     url = mapped_column(String, nullable=True, comment="URL файла в MinIO или внешняя ссылка")
     created_at = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at = mapped_column(DateTime(timezone=True), onupdate=func.now())
