@@ -45,9 +45,24 @@ EOSQL
 
 echo "Starting database initialization..."
 
-create_database_and_user "connections_db" "connections_user" "connections_password"
-create_database_and_user "modules_db" "modules_user" "modules_password"
-create_database_and_user "projects_db" "projects_user" "projects_password"
-create_database_and_user "bot_db" "bot_user" "bot_password"
+create_database_and_user \
+  "${POSTGRES_CONNECTIONS_DB:-connections_db}" \
+  "${POSTGRES_CONNECTIONS_USER:-connections_user}" \
+  "${POSTGRES_CONNECTIONS_PASSWORD:-connections_password}"
+
+create_database_and_user \
+  "${POSTGRES_MODULES_DB:-modules_db}" \
+  "${POSTGRES_MODULES_USER:-modules_user}" \
+  "${POSTGRES_MODULES_PASSWORD:-modules_password}"
+
+create_database_and_user \
+  "${POSTGRES_PROJECTS_DB:-projects_db}" \
+  "${POSTGRES_PROJECTS_USER:-projects_user}" \
+  "${POSTGRES_PROJECTS_PASSWORD:-projects_password}"
+
+create_database_and_user \
+  "${POSTGRES_BOT_DB:-bot_db}" \
+  "${POSTGRES_BOT_USER:-bot_user}" \
+  "${POSTGRES_BOT_PASSWORD:-bot_password}"
 
 echo "All databases initialized successfully!"

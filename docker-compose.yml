@@ -3,6 +3,9 @@ include:
   - apps/docker-compose.yml
   - services/docker-compose.yml
 
+x-common-variables: &common-variables
+  COMPOSE_PROJECT_DIR: ${COMPOSE_PROJECT_DIR:-.}
+
 networks:
   portfolio-network:
     driver: bridge

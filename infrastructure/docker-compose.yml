@@ -1,16 +1,18 @@
 services:
   infra-postgres:
     image: postgres:15
+    env_file:
+      - ${COMPOSE_PROJECT_DIR:-.}/.env
     environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
-      - ./postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+      - ${COMPOSE_PROJECT_DIR:-.}/infrastructure/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ${COMPOSE_PROJECT_DIR:-.}/infrastructure/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
     command: >
       postgres
       -c config_file=/etc/postgresql/postgresql.conf
@@ -29,27 +31,47 @@ services:
     depends_on:
       infra-postgres:
         condition: service_healthy
+    env_file:
+      - ${COMPOSE_PROJECT_DIR:-.}/.env
     environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       PGHOST: infra-postgres
       PGPORT: 5432
+      POSTGRES_MODULES_USER: ${POSTGRES_MODULES_USER:-modules_user}
+      POSTGRES_MODULES_PASSWORD: ${POSTGRES_MODULES_PASSWORD:-modules_password}
+      POSTGRES_MODULES_DB: ${POSTGRES_MODULES_DB:-modules_db}
+      POSTGRES_CONNECTIONS_USER: ${POSTGRES_CONNECTIONS_USER:-connections_user}
+      POSTGRES_CONNECTIONS_PASSWORD: ${POSTGRES_CONNECTIONS_PASSWORD:-connections_password}
+      POSTGRES_CONNECTIONS_DB: ${POSTGRES_CONNECTIONS_DB:-connections_db}
+      POSTGRES_PROJECTS_USER: ${POSTGRES_PROJECTS_USER:-projects_user}
+      POSTGRES_PROJECTS_PASSWORD: ${POSTGRES_PROJECTS_PASSWORD:-projects_password}
+      POSTGRES_PROJECTS_DB: ${POSTGRES_PROJECTS_DB:-projects_db}
+      POSTGRES_BOT_USER: ${POSTGRES_BOT_USER:-bot_user}
+      POSTGRES_BOT_PASSWORD: ${POSTGRES_BOT_PASSWORD:-bot_password}
+      POSTGRES_BOT_DB: ${POSTGRES_BOT_DB:-bot_db}
     entrypoint: ["/bin/bash", "/init-multiple-databases.sh"]
     volumes:
-      - ./postgres/init-multiple-databases.sh:/init-multiple-databases.sh:ro
+      - ${COMPOSE_PROJECT_DIR:-.}/infrastructure/postgres/init-multiple-databases.sh:/init-multiple-databases.sh:ro
     networks:
       - portfolio-network
     restart: "no"
 
   infra-nginx:
     build:
-      context: ./nginx
+      context: ${COMPOSE_PROJECT_DIR:-.}/infrastructure/nginx
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ${COMPOSE_PROJECT_DIR:-.}/infrastructure/nginx/nginx.conf.template:/etc/nginx/nginx.conf.template:ro
+      - ${COMPOSE_PROJECT_DIR:-.}/infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ${COMPOSE_PROJECT_DIR:-.}/infrastructure/nginx/ssl:/etc/nginx/ssl:ro
+    env_file:
+      - ${COMPOSE_PROJECT_DIR:-.}/.env
+    environment:
+      NGINX_SERVER_NAME: ${NGINX_SERVER_NAME:-_}
     networks:
       - portfolio-network
     restart: unless-stopped
@@ -61,15 +83,17 @@ services:
   infra-minio:
     image: minio/minio:latest
     command: server /data --console-address ":9001"
+    env_file:
+      - ${COMPOSE_PROJECT_DIR:-.}/.env
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
     ports:
       - "9000:9000"
       - "9001:9001"
     volumes:
       - minio_data:/data
-      - ./minio/minio.conf:/etc/minio/minio.conf:ro
+      - ${COMPOSE_PROJECT_DIR:-.}/infrastructure/minio/minio.conf:/etc/minio/minio.conf:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
@@ -86,7 +110,7 @@ services:
         condition: service_healthy
     entrypoint: ["/bin/sh", "/init-buckets.sh"]
     volumes:
-      - ./minio/init-buckets.sh:/init-buckets.sh:ro
+      - ${COMPOSE_PROJECT_DIR:-.}/infrastructure/minio/init-buckets.sh:/init-buckets.sh:ro
     networks:
       - portfolio-network
     restart: "no"
@@ -132,7 +156,7 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
-      - ./redis/redis.conf:/etc/redis/redis.conf:ro
+      - ${COMPOSE_PROJECT_DIR:-.}/infrastructure/redis/redis.conf:/etc/redis/redis.conf:ro
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -146,13 +170,15 @@ services:
     image: mongo:7
     ports:
       - "27017:27017"
+    env_file:
+      - ${COMPOSE_PROJECT_DIR:-.}/.env
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: admin
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-admin}
     volumes:
       - mongodb_data:/data/db
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "mongodb://admin:admin@localhost:27017/admin", "--eval", "db.runCommand({ ping: 1 })"]
+      test: ["CMD-SHELL", "mongosh --quiet mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD:-admin}@localhost:27017/admin --eval 'db.runCommand({ ping: 1 })'"]
       interval: 30s
       timeout: 10s
       retries: 5

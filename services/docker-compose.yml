@@ -3,18 +3,20 @@ x-python-base-image: &python-base-image portfolio-python-base:latest
 services:
   service-modules:
     build:
-      context: modules/
+      context: ${COMPOSE_PROJECT_DIR:-.}/services/modules
       args:
         PYTHON_BASE_IMAGE: *python-base-image
+    env_file:
+      - ${COMPOSE_PROJECT_DIR:-.}/.env
     environment:
       HOST: 0.0.0.0
       PORT: 8001
       GRPC_PORT: 50051
       POSTGRES_SERVER: infra-postgres
       POSTGRES_PORT: 5432
-      POSTGRES_USER: modules_user
-      POSTGRES_PASSWORD: modules_password
-      POSTGRES_DB: modules_db
+      POSTGRES_USER: ${POSTGRES_MODULES_USER:-modules_user}
+      POSTGRES_PASSWORD: ${POSTGRES_MODULES_PASSWORD:-modules_password}
+      POSTGRES_DB: ${POSTGRES_MODULES_DB:-modules_db}
       MODULES_DEFAULT_TTL: 30
     depends_on:
       infra-postgres:
@@ -25,16 +27,18 @@ services:
 
   service-upload:
     build:
-      context: upload/
+      context: ${COMPOSE_PROJECT_DIR:-.}/services/upload
       args:
         PYTHON_BASE_IMAGE: *python-base-image
+    env_file:
+      - ${COMPOSE_PROJECT_DIR:-.}/.env
     environment:
       HOST: 0.0.0.0
       PORT: 8003
       GRPC_PORT: 50054
       MINIO_ENDPOINT: infra-minio:9000
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
       MINIO_BUCKET: uploads
       MINIO_SECURE: "false"
       MINIO_REGION: ""
@@ -48,9 +52,11 @@ services:
 
   service-admin:
     build:
-      context: admin/
+      context: ${COMPOSE_PROJECT_DIR:-.}/services/admin
       args:
         PYTHON_BASE_IMAGE: *python-base-image
+    env_file:
+      - ${COMPOSE_PROJECT_DIR:-.}/.env
     environment:
       HOST: 0.0.0.0
       PORT: 8004
@@ -60,7 +66,7 @@ services:
       UPLOAD_SERVICE_GRPC_PORT: 50054
       MODULES_GRPC_HOST: service-modules
       MODULES_GRPC_PORT: 50051
-      MONGODB_URI: mongodb://admin:admin@infra-mongodb:27017
+      MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD:-admin}@infra-mongodb:27017
       MONGODB_DATABASE: admin_logs
       ADMIN_RESPONSE_TOPIC: admin_responses
       REQUEST_TIMEOUT: 30
@@ -79,15 +85,17 @@ services:
 
   service-connections:
     build:
-      context: connections/
+      context: ${COMPOSE_PROJECT_DIR:-.}/services/connections
       args:
         PYTHON_BASE_IMAGE: *python-base-image
+    env_file:
+      - ${COMPOSE_PROJECT_DIR:-.}/.env
     environment:
       POSTGRES_SERVER: infra-postgres
       POSTGRES_PORT: 5432
-      POSTGRES_USER: connections_user
-      POSTGRES_PASSWORD: connections_password
-      POSTGRES_DB: connections_db
+      POSTGRES_USER: ${POSTGRES_CONNECTIONS_USER:-connections_user}
+      POSTGRES_PASSWORD: ${POSTGRES_CONNECTIONS_PASSWORD:-connections_password}
+      POSTGRES_DB: ${POSTGRES_CONNECTIONS_DB:-connections_db}
       MESSAGE_BROKERS: infra-redpanda:19092
       ADMIN_CONNECTIONS_TOPIC: admin_connections
       ADMIN_RESPONSE_TOPIC: admin_responses
@@ -112,15 +120,17 @@ services:
 
   service-projects:
     build:
-      context: projects/
+      context: ${COMPOSE_PROJECT_DIR:-.}/services/projects
       args:
         PYTHON_BASE_IMAGE: *python-base-image
+    env_file:
+      - ${COMPOSE_PROJECT_DIR:-.}/.env
     environment:
       POSTGRES_SERVER: infra-postgres
       POSTGRES_PORT: 5432
-      POSTGRES_USER: projects_user
-      POSTGRES_PASSWORD: projects_password
-      POSTGRES_DB: projects_db
+      POSTGRES_USER: ${POSTGRES_PROJECTS_USER:-projects_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PROJECTS_PASSWORD:-projects_password}
+      POSTGRES_DB: ${POSTGRES_PROJECTS_DB:-projects_db}
       MESSAGE_BROKERS: infra-redpanda:19092
       ADMIN_PROJECTS_TOPIC: admin_projects
       ADMIN_RESPONSE_TOPIC: admin_responses
@@ -143,11 +153,13 @@ services:
 
   service-gateway:
     build:
-      context: gateway/
+      context: ${COMPOSE_PROJECT_DIR:-.}/services/gateway
       args:
         PYTHON_BASE_IMAGE: *python-base-image
     ports:
       - "8000:8000"
+    env_file:
+      - ${COMPOSE_PROJECT_DIR:-.}/.env
     environment:
       VERSION: "1.0.0"
       API_V1_STR: "/api/v1"
@@ -164,7 +176,7 @@ services:
       REDIS_HOST: infra-redis
       REDIS_PORT: 6379
       REDIS_DB: 0
-      REDIS_PASSWORD: ""
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
       GRPC_TIMEOUT: 30
       GRPC_MAX_RETRIES: 3
       CACHE_TTL_DEFAULT: 300
