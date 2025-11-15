@@ -1,20 +1,25 @@
 #!/usr/bin/env python3
-import asyncio
-
-from core.database import engine, Base
-from core.logging import get_logger
-
+from core.config import settings
+from core.database import Base
 from models import CommandHistory
 
-logger = get_logger(__name__)
+from shared.scripts.db_init import run_initializer
 
 
-async def main():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-        logger.info("Database tables created successfully")
+async def seed_initial_data() -> bool:
+    return True
+
+
+def main() -> None:
+    run_initializer(
+        service_name="Telegram Bot",
+        database_url=settings.DATABASE_URL,
+        base=Base,
+        tables=["command_history"],
+        initialiser=seed_initial_data,
+    )
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
 

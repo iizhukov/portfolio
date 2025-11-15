@@ -283,14 +283,14 @@ async def process_file(message: Message, state: FSMContext):
     if message.document:
         file = await message.bot.get_file(message.document.file_id)
         file_bytes = await message.bot.download_file(file.file_path)
-        file_content = await file_bytes.read()
+        file_content = file_bytes.read()
         extension = message.document.file_name.split(".")[-1] if message.document.file_name else "bin"
         content_type = message.document.mime_type or "application/octet-stream"
     elif message.photo:
         photo = message.photo[-1]
         file = await message.bot.get_file(photo.file_id)
         file_bytes = await message.bot.download_file(file.file_path)
-        file_content = await file_bytes.read()
+        file_content = file_bytes.read()
         extension = "jpg"
         content_type = "image/jpeg"
     else:

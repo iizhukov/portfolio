@@ -4,6 +4,9 @@ services:
   app-web:
     build:
       context: ./web
+    environment:
+      VITE_API_URL: "127.0.0.1"
+      VITE_API_PROTOCOL: "http"
     expose:
       - "80"
     networks:

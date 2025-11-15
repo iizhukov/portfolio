@@ -442,7 +442,7 @@ async def process_image_file(message: Message, state: FSMContext):
     file = await message.bot.get_file(photo.file_id)
     file_bytes = await message.bot.download_file(file.file_path)
 
-    image_bytes = await file_bytes.read()
+    image_bytes = file_bytes.read()
     base64_content = base64.b64encode(image_bytes).decode("utf-8")
 
     extension = "jpg"
