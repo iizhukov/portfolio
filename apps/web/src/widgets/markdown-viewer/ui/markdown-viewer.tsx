@@ -11,7 +11,7 @@ interface MarkdownViewerProps {
   title?: string
 }
 
-export const MarkdownViewer = ({ url, title }: MarkdownViewerProps) => {
+export const MarkdownViewer = ({ url }: MarkdownViewerProps) => {
   const [content, setContent] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -66,9 +66,6 @@ export const MarkdownViewer = ({ url, title }: MarkdownViewerProps) => {
   return (
     <div className="h-full w-full overflow-auto bg-window-bg">
       <div className="max-w-4xl mx-auto p-8">
-        {title && (
-          <h1 className="text-3xl font-bold mb-6 text-window-text">{title}</h1>
-        )}
         <div className="markdown-content">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
