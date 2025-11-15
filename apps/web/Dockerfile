@@ -2,7 +2,7 @@ FROM node:25-alpine AS builder
 
 WORKDIR /app
 
-ENV NODE_OPTIONS="--max-old-space-size=768"
+ENV NODE_OPTIONS="--max-old-space-size=350"
 ENV NODE_ENV=production
 ENV CI=true
 
@@ -10,11 +10,16 @@ COPY package.json yarn.lock ./
 
 RUN yarn install --frozen-lockfile --network-timeout 100000 --production=false && \
     yarn cache clean && \
-    rm -rf /tmp/*
+    rm -rf /tmp/* && \
+    rm -rf /var/cache/apk/* && \
+    apk cache clean || true
 
 COPY . .
 
-RUN yarn build && \
+RUN NODE_OPTIONS="--max-old-space-size=350" yarn tsc -b --incremental false && \
+    sync && \
+    echo 3 > /proc/sys/vm/drop_caches 2>/dev/null || true && \
+    NODE_OPTIONS="--max-old-space-size=350" yarn vite build && \
     rm -rf node_modules && \
     rm -rf .yarn && \
     rm -rf src && \
@@ -22,7 +27,8 @@ RUN yarn build && \
     rm -rf .vite && \
     rm -rf .cache && \
     rm -f tsconfig*.json vite.config.ts tailwind.config.ts postcss.config.ts eslint.config.js package.json yarn.lock && \
-    rm -rf /tmp/*
+    rm -rf /tmp/* && \
+    rm -rf /var/cache/apk/*
 
 FROM nginx:alpine AS production
 

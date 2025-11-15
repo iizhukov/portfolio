@@ -16,12 +16,27 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 1000,
+    minify: 'esbuild',
+    target: 'es2015',
+    cssMinify: true,
+    sourcemap: false,
+    reportCompressedSize: false,
     rollupOptions: {
+      maxParallelFileOps: 2,
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'router-vendor': ['atomic-router', 'atomic-router-react', '@atomic-router/react'],
-          'ui-vendor': ['@excalidraw/excalidraw', 'swagger-ui-react', 'mermaid'],
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react-vendor';
+            }
+            if (id.includes('atomic-router')) {
+              return 'router-vendor';
+            }
+            if (id.includes('@excalidraw') || id.includes('swagger-ui') || id.includes('mermaid')) {
+              return 'ui-vendor';
+            }
+            return 'vendor';
+          }
         },
       },
     },
