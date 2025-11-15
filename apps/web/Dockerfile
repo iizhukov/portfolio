@@ -2,13 +2,27 @@ FROM node:25-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json yarn.lock ./
+ENV NODE_OPTIONS="--max-old-space-size=768"
+ENV NODE_ENV=production
+ENV CI=true
 
-RUN yarn install --frozen-lockfile
+COPY package.json yarn.lock ./
+
+RUN yarn install --frozen-lockfile --network-timeout 100000 --production=false && \
+    yarn cache clean && \
+    rm -rf /tmp/*
 
 COPY . .
 
-RUN yarn build
+RUN yarn build && \
+    rm -rf node_modules && \
+    rm -rf .yarn && \
+    rm -rf src && \
+    rm -rf public && \
+    rm -rf .vite && \
+    rm -rf .cache && \
+    rm -f tsconfig*.json vite.config.ts tailwind.config.ts postcss.config.ts eslint.config.js package.json yarn.lock && \
+    rm -rf /tmp/*
 
 FROM nginx:alpine AS production
 

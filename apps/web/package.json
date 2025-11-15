@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:optimized": "NODE_OPTIONS='--max-old-space-size=768' tsc -b && NODE_OPTIONS='--max-old-space-size=768' vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
