@@ -3,6 +3,10 @@ import { useWindowSize } from '../hooks/use-window-size'
 import { Connections } from '@widgets/connections'
 import { Settings } from '@widgets/settings'
 import { Finder } from '@widgets/finder'
+import { MarkdownViewer } from '@widgets/markdown-viewer'
+import { DatabaseViewer } from '@widgets/database-viewer'
+import { ArchitectureViewer } from '@widgets/architecture-viewer'
+import { SwaggerViewer } from '@widgets/swagger-viewer'
 
 export type WindowSize =
   | 'standard' // (800x600px)
@@ -15,6 +19,10 @@ interface App {
   name: string
   icon: string
   type: string
+  url?: string
+  dbml?: string
+  excalidraw?: string
+  swagger?: string
 }
 
 interface WindowProps {
@@ -57,8 +65,7 @@ export const Window = ({
         top: dimensions.top || '50%',
         left: dimensions.left || '50%',
         transform: 'translate(-50%, -50%)',
-        transition:
-          'width 0.4s ease-out, height 0.4s ease-out, opacity 0.3s ease-out, transform 0.3s ease-out',
+        transition: 'width 0.4s ease-out, height 0.4s ease-out, opacity 0.3s ease-out, transform 0.3s ease-out',
         willChange: 'width, height, transform',
       }}
     >
@@ -99,6 +106,16 @@ export const Window = ({
             <Settings />
           ) : app.type === 'finder' ? (
             <Finder />
+          ) : app.type === 'connections' ? (
+            <Connections />
+          ) : app.type === 'markdown-viewer' ? (
+            <MarkdownViewer url={app.url || ''} title={app.name} />
+          ) : app.type === 'database' ? (
+            <DatabaseViewer url={app.dbml || ''} title={app.name} />
+          ) : app.type === 'architecture' ? (
+            <ArchitectureViewer url={app.excalidraw || ''} title={app.name} />
+          ) : app.type === 'swagger' ? (
+            <SwaggerViewer url={app.swagger || ''} title={app.name} />
           ) : (
             <Connections />
           )}

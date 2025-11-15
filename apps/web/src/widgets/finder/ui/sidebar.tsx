@@ -8,7 +8,7 @@ interface SidebarProps {
 
 export const Sidebar = ({ currentPath, onNavigateTo }: SidebarProps) => {
   return (
-    <div className="w-64 bg-finder-sidebar border-r border-finder-border">
+    <div className="w-56 bg-finder-sidebar border-r border-finder-border">
       <div className="p-4">
         <h3 className="text-sm font-semibold text-finder-text-secondary mb-4">Favorites</h3>
         <nav className="space-y-1">
@@ -27,7 +27,6 @@ export const Sidebar = ({ currentPath, onNavigateTo }: SidebarProps) => {
                 alt={favorite.name}
                 className="w-5 h-5 mr-3"
                 onError={e => {
-                  // Fallback to emoji if image fails
                   const target = e.target as HTMLImageElement
                   target.style.display = 'none'
                   const parent = target.parentElement

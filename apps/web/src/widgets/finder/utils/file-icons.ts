@@ -1,27 +1,42 @@
 import { type FileType } from '../types/finder'
 
 export const FILE_ICON_MAP: Record<FileType, string> = {
-  // Folders
   folder: '/assets/icons/folder.ico',
   'folder-filled': '/assets/icons/wpaper_folder.ico',
-
-  // Documentation
   readme: '/assets/icons/docs.ico',
-
-  // Diagrams and architecture
   architecture: '/assets/icons/diagram.ico',
   database: '/assets/icons/schema.ico',
-
-  // Links
   demo: '/assets/icons/demo.ico',
   github: '/assets/icons/github.ico',
-
-  // API Documentation
-  swagger: '/assets/icons/postman.ico',
+  swagger: '/assets/icons/swagger.ico',
 }
 
-export const getFileIcon = (fileType: FileType): string => {
-  return FILE_ICON_MAP[fileType] || FILE_ICON_MAP.folder
+export const getFileIcon = (
+  type: 'folder' | 'file',
+  fileType?: string | null
+): string => {
+  if (type === 'folder') {
+    return FILE_ICON_MAP.folder
+  }
+
+  if (fileType && fileType in FILE_ICON_MAP) {
+    return FILE_ICON_MAP[fileType as FileType]
+  }
+
+  if (fileType) {
+    const fileTypeLower = fileType.toLowerCase()
+    if (fileTypeLower.includes('readme')) return FILE_ICON_MAP.readme
+    if (fileTypeLower.includes('arch') || fileTypeLower.includes('excalidraw'))
+      return FILE_ICON_MAP.architecture
+    if (fileTypeLower.includes('db') || fileTypeLower.includes('schema'))
+      return FILE_ICON_MAP.database
+    if (fileTypeLower.includes('github')) return FILE_ICON_MAP.github
+    if (fileTypeLower.includes('demo')) return FILE_ICON_MAP.demo
+    if (fileTypeLower.includes('swagger') || fileTypeLower.includes('openapi'))
+      return FILE_ICON_MAP.swagger
+  }
+
+  return FILE_ICON_MAP.folder
 }
 
 export const getFolderIcon = (hasChildren: boolean): string => {
@@ -31,12 +46,10 @@ export const getFolderIcon = (hasChildren: boolean): string => {
 export const getFileTypeFromName = (name: string): FileType => {
   const lowerName = name.toLowerCase()
 
-  // README files
   if (lowerName.includes('readme') || lowerName === 'readme.md') {
     return 'readme'
   }
 
-  // Architecture diagrams (excalidraw)
   if (
     lowerName.includes('architecture') ||
     lowerName.includes('arch') ||
@@ -45,7 +58,6 @@ export const getFileTypeFromName = (name: string): FileType => {
     return 'architecture'
   }
 
-  // Database diagrams (dbdiagram)
   if (
     lowerName.includes('database') ||
     lowerName.includes('db') ||
@@ -55,17 +67,14 @@ export const getFileTypeFromName = (name: string): FileType => {
     return 'database'
   }
 
-  // GitHub repositories
   if (lowerName.includes('github') || lowerName.includes('repository') || lowerName.includes('repo')) {
     return 'github'
   }
 
-  // Demo links
   if (lowerName.includes('demo') || lowerName.includes('live') || lowerName.includes('preview')) {
     return 'demo'
   }
 
-  // Swagger documentation
   if (
     lowerName.includes('swagger') ||
     lowerName.includes('api-docs') ||
@@ -74,6 +83,5 @@ export const getFileTypeFromName = (name: string): FileType => {
     return 'swagger'
   }
 
-  // Default to folder for unknown types
   return 'folder'
 }

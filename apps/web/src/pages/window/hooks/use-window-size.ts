@@ -2,13 +2,12 @@ import { useState, useEffect } from 'react'
 import { WINDOW_SIZES } from '../model/window'
 import type { WindowSize } from '../ui/window'
 
-// Базовые размеры экрана MacBook Air M1 13"
 const BASE_SCREEN = {
   width: 1440,
   height: 900,
 }
 
-const SCREEN_BREAKPOINT = 1440 // px
+const SCREEN_BREAKPOINT = 1440
 
 type WindowDimensions = {
   width: string
@@ -19,77 +18,57 @@ type WindowDimensions = {
   left?: string
 }
 
-export const useWindowSize = (size: WindowSize) => {
-  const [dimensions, setDimensions] = useState<WindowDimensions>(() => {
-    const baseSize = WINDOW_SIZES[size]
+const computeDimensions = (size: WindowSize): WindowDimensions => {
+  const baseSize = WINDOW_SIZES[size]
 
-    if (size === 'fullscreen') {
-      return {
-        width: baseSize.width,
-        height: baseSize.height,
-        maxWidth: baseSize.width,
-        maxHeight: baseSize.height,
-        top: '50%',
-        left: '50%',
-      }
-    }
-
+  if (size === 'fullscreen' || typeof window === 'undefined') {
     return {
       width: baseSize.width,
       height: baseSize.height,
-      maxWidth: size === 'vertical' ? '70vw' : '95vw',
-      maxHeight: '90vh',
+      maxWidth: baseSize.width,
+      maxHeight: baseSize.height,
+      top: size === 'fullscreen' ? '50%' : undefined,
+      left: size === 'fullscreen' ? '50%' : undefined,
+    }
+  }
+
+  const screenWidth = window.innerWidth
+  const screenHeight = window.innerHeight
+
+  if (screenWidth < SCREEN_BREAKPOINT || screenHeight < BASE_SCREEN.height) {
+    const scaleX = screenWidth / BASE_SCREEN.width
+    const scaleY = screenHeight / BASE_SCREEN.height
+    const scale = Math.min(scaleX, scaleY, 1)
+
+    const scaledWidth = Math.round(parseInt(baseSize.width) * scale)
+    const scaledHeight = Math.round(parseInt(baseSize.height) * scale)
+
+    return {
+      width: `${scaledWidth}px`,
+      height: `${scaledHeight}px`,
+      maxWidth: `${scaledWidth}px`,
+      maxHeight: `${scaledHeight}px`,
       top: undefined,
       left: undefined,
     }
-  })
+  }
+
+  return {
+    width: baseSize.width,
+    height: baseSize.height,
+    maxWidth: baseSize.width,
+    maxHeight: baseSize.height,
+    top: undefined,
+    left: undefined,
+  }
+}
+
+export const useWindowSize = (size: WindowSize) => {
+  const [dimensions, setDimensions] = useState<WindowDimensions>(() => computeDimensions(size))
 
   useEffect(() => {
     const updateDimensions = () => {
-      const baseSize = WINDOW_SIZES[size]
-
-      if (size === 'fullscreen') {
-        setDimensions({
-          width: baseSize.width,
-          height: baseSize.height,
-          maxWidth: baseSize.width,
-          maxHeight: baseSize.height,
-          top: '50%',
-          left: '50%',
-        })
-        return
-      }
-
-      const screenWidth = window.innerWidth
-      const screenHeight = window.innerHeight
-
-      if (screenWidth < SCREEN_BREAKPOINT || screenHeight < BASE_SCREEN.height) {
-        const scaleX = screenWidth / BASE_SCREEN.width
-        const scaleY = screenHeight / BASE_SCREEN.height
-        const scale = Math.min(scaleX, scaleY, 1)
-
-        const scaledWidth = Math.round(parseInt(baseSize.width) * scale)
-        const scaledHeight = Math.round(parseInt(baseSize.height) * scale)
-
-        setDimensions({
-          width: `${scaledWidth}px`,
-          height: `${scaledHeight}px`,
-          maxWidth: '95vw',
-          maxHeight: '90vh',
-          top: undefined,
-          left: undefined,
-        })
-      } else {
-        // Для больших экранов используем базовые размеры
-        setDimensions({
-          width: baseSize.width,
-          height: baseSize.height,
-          maxWidth: size === 'vertical' ? '70vw' : '95vw',
-          maxHeight: '90vh',
-          top: undefined,
-          left: undefined,
-        })
-      }
+      setDimensions(computeDimensions(size))
     }
 
     updateDimensions()

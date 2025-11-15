@@ -1,0 +1,40 @@
+.swagger-viewer {
+  color: #0f172a;
+}
+
+.swagger-viewer .swagger-ui {
+  background: #fff;
+  padding: 1.5rem;
+}
+
+.swagger-viewer .swagger-ui .topbar {
+  display: none;
+}
+.swagger-viewer .swagger-ui .auth-wrapper,
+.swagger-viewer .swagger-ui .information-container .authorization__btn,
+.swagger-viewer .swagger-ui .try-out,
+.swagger-viewer .swagger-ui .btn.try-out__btn,
+.swagger-viewer .swagger-ui .execute-wrapper,
+.swagger-viewer .swagger-ui .btn.execute,
+.swagger-viewer .swagger-ui .response-controls,
+.swagger-viewer .swagger-ui .btn-group {
+  display: none !important;
+}
+.swagger-viewer .swagger-ui .opblock-body {
+  padding-bottom: 0;
+}
+
+.swagger-viewer .swagger-ui .info {
+  margin-bottom: 1.5rem;
+}
+
+.swagger-viewer .swagger-ui .opblock-summary {
+  border-radius: 0.75rem;
+}
+
+.swagger-viewer .swagger-ui .opblock {
+  border-radius: 0.75rem;
+  box-shadow: none;
+  border: 1px solid #e2e8f0;
+}
+

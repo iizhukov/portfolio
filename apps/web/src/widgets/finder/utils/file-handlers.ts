@@ -1,12 +1,19 @@
 import { type Project } from '../types/finder'
+import { notifyLocationChange } from '@shared/utils/location'
 
-/**
- * Обработка открытия файлов разных типов.
- * Все файлы хранятся в MinIO, используется только URL.
- */
+let currentFinderPath: string[] = []
+
+export const setCurrentFinderPath = (path: string[]): void => {
+  currentFinderPath = path
+}
+
+export const getCurrentFinderPath = (): string[] => {
+  return currentFinderPath
+}
+
 export const handleFileOpen = (project: Project): void => {
   if (project.type === 'folder') {
-    return // Папки обрабатываются отдельно
+    return
   }
 
   if (!project.url) {
@@ -15,9 +22,17 @@ export const handleFileOpen = (project: Project): void => {
     return
   }
 
-  const fileType = project.fileType || 'folder'
+  let fileType = project.fileType
+  if (!fileType && project.name) {
+    const nameLower = project.name.toLowerCase()
+    if (nameLower.includes('readme') || nameLower.endsWith('.md')) {
+      fileType = 'readme'
+    }
+  }
+  
+  const finalFileType = fileType || 'folder'
 
-  switch (fileType) {
+  switch (finalFileType) {
     case 'readme':
       handleReadme(project)
       break
@@ -37,80 +52,108 @@ export const handleFileOpen = (project: Project): void => {
       handleSwagger(project)
       break
     default:
-      // Для неизвестных типов просто открываем URL
       window.open(project.url, '_blank')
   }
 }
 
-/**
- * Обработка README файла.
- * В будущем: открыть модальное окно с markdown контентом из URL.
- */
 const handleReadme = (project: Project): void => {
-  // TODO: Загрузить markdown из URL и открыть модальное окно с markdown viewer
   if (project.url) {
-    // Временная заглушка: открываем URL в новой вкладке
-    // В будущем: загрузить контент и показать в модальном окне
-    window.open(project.url, '_blank')
+    console.log('Opening README:', project.name, project.url)
+    const finderPath = getCurrentFinderPath()
+    const pathParam = finderPath.join(',')
+
+    const query: Record<string, string> = {
+    url: project.url,
+    title: project.name,
+    }
+    if (pathParam) {
+      query.returnPath = pathParam
+    }
+
+    const params = new URLSearchParams(query)
+    const fullPath = `/window?${params.toString()}`
+    window.history.pushState(null, '', fullPath)
+    notifyLocationChange()
+  } else {
+    console.warn('No URL for README file:', project.name)
   }
 }
 
-/**
- * Обработка файла архитектуры (excalidraw).
- * В будущем: открыть embedded excalidraw viewer из URL.
- */
 const handleArchitecture = (project: Project): void => {
-  // TODO: Загрузить excalidraw данные из URL и открыть embedded viewer
-  if (project.url) {
-    // Временная заглушка: открываем URL в новой вкладке
-    // В будущем: загрузить excalidraw данные и показать в embedded viewer
-    window.open(project.url, '_blank')
+  if (!project.url) {
+    console.warn('No Excalidraw URL for architecture file')
+    return
   }
+
+  const finderPath = getCurrentFinderPath()
+  const pathParam = finderPath.join(',')
+
+  const params = new URLSearchParams({
+    app: 'architecture',
+    excalidraw: project.url,
+  })
+  if (pathParam) {
+    params.set('returnPath', pathParam)
+  }
+
+  const fullPath = `/window?${params.toString()}`
+  window.history.pushState(null, '', fullPath)
+  notifyLocationChange()
 }
 
-/**
- * Обработка ссылки на демо.
- * Открывает демо в новой вкладке.
- */
 const handleDemo = (project: Project): void => {
   if (project.url) {
     window.open(project.url, '_blank')
   }
 }
 
-/**
- * Обработка ссылки на GitHub.
- * Открывает репозиторий в новой вкладке.
- */
 const handleGithub = (project: Project): void => {
   if (project.url) {
     window.open(project.url, '_blank')
   }
 }
 
-/**
- * Обработка диаграммы базы данных (dbdiagram).
- * В будущем: открыть embedded dbdiagram viewer из URL.
- */
 const handleDatabase = (project: Project): void => {
-  // TODO: Загрузить dbdiagram данные из URL и открыть embedded viewer
-  if (project.url) {
-    // Временная заглушка: открываем URL в новой вкладке
-    // В будущем: загрузить dbdiagram данные и показать в embedded viewer
-    window.open(project.url, '_blank')
+  if (!project.url) {
+    console.warn('No DBML url for database file')
+    return
   }
+
+  const finderPath = getCurrentFinderPath()
+  const pathParam = finderPath.join(',')
+
+  const params = new URLSearchParams({
+    dbml: project.url,
+    app: 'database',
+  })
+  if (pathParam) {
+    params.set('returnPath', pathParam)
+  }
+
+  const fullPath = `/window?${params.toString()}`
+  window.history.pushState(null, '', fullPath)
+  notifyLocationChange()
 }
 
-/**
- * Обработка Swagger документации.
- * В будущем: открыть упрощенный swagger viewer (только просмотр, без возможности запускать запросы).
- */
 const handleSwagger = (project: Project): void => {
-  // TODO: Загрузить swagger/openapi spec из URL и открыть read-only viewer
-  if (project.url) {
-    // Временная заглушка: открываем URL в новой вкладке
-    // В будущем: загрузить swagger spec и показать в read-only viewer
-    window.open(project.url, '_blank')
+  if (!project.url) {
+    console.warn('No Swagger URL for documentation file')
+    return
   }
+
+  const finderPath = getCurrentFinderPath()
+  const pathParam = finderPath.join(',')
+
+  const params = new URLSearchParams({
+    app: 'swagger',
+    swagger: project.url,
+  })
+  if (pathParam) {
+    params.set('returnPath', pathParam)
+  }
+
+  const fullPath = `/window?${params.toString()}`
+  window.history.pushState(null, '', fullPath)
+  notifyLocationChange()
 }
 

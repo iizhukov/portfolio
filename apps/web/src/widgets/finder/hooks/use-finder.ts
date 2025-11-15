@@ -1,7 +1,9 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { type Project, type FinderState } from '../types/finder'
-import { PROJECTS_DATA } from '../models/projects'
-import { handleFileOpen } from '../utils/file-handlers'
+import { useProjectTree } from '../api/hooks'
+import { adaptApiProjectToFinder } from '../utils/project-adapter'
+import { handleFileOpen, setCurrentFinderPath } from '../utils/file-handlers'
+import { notifyLocationChange } from '@shared/utils/location'
 
 const initialState: FinderState = {
   navigation: {
@@ -17,9 +19,60 @@ const initialState: FinderState = {
 
 export const useFinder = () => {
   const [state, setState] = useState<FinderState>(initialState)
+  const { projects: apiProjects, loading, error } = useProjectTree()
+  const finderProjects = apiProjects.map(adaptApiProjectToFinder)
+
+  const restorePathFromUrl = useCallback(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('app') !== 'finder') {
+      return
+    }
+    const pathParam = params.get('path')
+    if (pathParam) {
+      const path = pathParam.split(',').filter(Boolean)
+      if (path.length > 0) {
+        setState(prev => ({
+          ...prev,
+          navigation: {
+            currentPath: path,
+            history: [path],
+            historyIndex: 0,
+          },
+          selectedItems: [],
+        }))
+        setCurrentFinderPath(path)
+      }
+    }
+  }, [setState])
+
+  useEffect(() => {
+    restorePathFromUrl()
+  }, [restorePathFromUrl])
+
+  useEffect(() => {
+    setCurrentFinderPath(state.navigation.currentPath)
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('app') !== 'finder') {
+      return
+    }
+    params.set('app', 'finder')
+    if (state.navigation.currentPath.length > 0) {
+      params.set('path', state.navigation.currentPath.join(','))
+    } else {
+      params.delete('path')
+    }
+    const queryString = params.toString()
+    const newUrl = queryString ? `/window?${queryString}` : '/window'
+    window.history.replaceState(null, '', newUrl)
+    notifyLocationChange()
+  }, [state.navigation.currentPath])
 
   const getCurrentItems = useCallback((): Project[] => {
-    let current = PROJECTS_DATA
+    if (loading || error || finderProjects.length === 0) {
+      return []
+    }
+
+    let current = finderProjects
 
     for (const pathId of state.navigation.currentPath) {
       const found = current.find(item => item.id === pathId)
@@ -31,7 +84,7 @@ export const useFinder = () => {
     }
 
     return current
-  }, [state.navigation.currentPath])
+  }, [state.navigation.currentPath, finderProjects, loading, error])
 
   const navigateTo = useCallback((path: string[]) => {
     setState(prev => {
@@ -53,11 +106,12 @@ export const useFinder = () => {
 
   const navigateToItem = useCallback(
     (item: Project) => {
-      if (item.type === 'folder' && item.children) {
-        const newPath = [...state.navigation.currentPath, item.id]
-        navigateTo(newPath)
+      if (item.type === 'folder') {
+        if (item.children && item.children.length > 0) {
+          const newPath = [...state.navigation.currentPath, item.id]
+          navigateTo(newPath)
+        }
       } else {
-        // Обрабатываем файлы через утилиту
         handleFileOpen(item)
       }
     },
@@ -76,7 +130,7 @@ export const useFinder = () => {
         selectedItems: [],
       }))
     }
-  }, [state.navigation.historyIndex, state.navigation.history])
+  }, [state.navigation.historyIndex])
 
   const goForward = useCallback(() => {
     if (state.navigation.historyIndex < state.navigation.history.length - 1) {
@@ -90,7 +144,7 @@ export const useFinder = () => {
         selectedItems: [],
       }))
     }
-  }, [state.navigation.historyIndex, state.navigation.history])
+  }, [state.navigation.historyIndex, state.navigation.history.length])
 
   const goToRoot = useCallback(() => {
     navigateTo([])
@@ -146,6 +200,7 @@ export const useFinder = () => {
   return {
     state,
     currentItems: getCurrentItems(),
+    allProjects: finderProjects,
     navigateToItem,
     navigateTo,
     goBack,
@@ -159,5 +214,7 @@ export const useFinder = () => {
     getPathString,
     canGoBack,
     canGoForward,
+    loading,
+    error,
   }
 }

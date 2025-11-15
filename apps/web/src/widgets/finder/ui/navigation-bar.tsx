@@ -20,15 +20,26 @@ export const NavigationBar = ({
   projects,
   onGoBack,
   onGoForward,
-  // onGoToRoot,
   onNavigateToPath,
 }: NavigationBarProps) => {
-  // Build breadcrumb items from current path
+  const findProjectInTree = (projects: Project[], targetId: string): Project | null => {
+    for (const project of projects) {
+      if (project.id === targetId) {
+        return project
+      }
+      if (project.children) {
+        const found = findProjectInTree(project.children, targetId)
+        if (found) {
+          return found
+        }
+      }
+    }
+    return null
+  }
+
   const getBreadcrumbItems = () => {
     const items = []
-    let current = projects
 
-    // Add root item
     items.push({
       id: 'root',
       name: 'Projects',
@@ -36,10 +47,10 @@ export const NavigationBar = ({
       icon: getFileIcon('folder'),
     })
 
-    // Add path items
+    let currentLevel = projects
     for (let i = 0; i < currentPath.length; i++) {
       const pathId = currentPath[i]
-      const item = current.find(p => p.id === pathId)
+      const item = findProjectInTree(currentLevel, pathId)
 
       if (item) {
         items.push({
@@ -49,12 +60,16 @@ export const NavigationBar = ({
           icon:
             item.type === 'folder'
               ? getFolderIcon(!!item.children && item.children.length > 0)
-              : getFileIcon(item.fileType || 'folder'),
+              : getFileIcon(item.type, item.fileType),
         })
 
-        if (item.children) {
-          current = item.children
+        if (item.children && item.children.length > 0) {
+          currentLevel = item.children
+        } else {
+          break
         }
+      } else {
+        break
       }
     }
 
@@ -64,7 +79,6 @@ export const NavigationBar = ({
   const breadcrumbItems = getBreadcrumbItems()
   return (
     <div className="flex items-center gap-2 p-3 bg-finder-toolbar border-b border-finder-border">
-      {/* Navigation Buttons */}
       <div className="flex gap-1">
         <Button
           variant="ghost"
@@ -95,7 +109,6 @@ export const NavigationBar = ({
         </Button>
       </div>
 
-      {/* Path Breadcrumb */}
       <div className="flex-1 flex items-center">
         {breadcrumbItems.map((item, index) => (
           <div key={item.id} className="flex items-center">
@@ -110,7 +123,6 @@ export const NavigationBar = ({
                   alt={item.name}
                   className="w-4 h-4"
                   onError={e => {
-                    // Fallback to folder icon if image fails
                     const target = e.target as HTMLImageElement
                     target.src = getFileIcon('folder')
                   }}

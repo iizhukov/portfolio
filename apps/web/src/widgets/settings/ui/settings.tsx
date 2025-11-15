@@ -224,7 +224,6 @@ export const Settings = () => {
 
   return (
     <div className="flex h-full bg-settings-bg">
-      {/* Sidebar */}
       <div className="w-64 bg-settings-sidebar-bg border-r border-settings-border">
         <div className="p-4">
           <h2 className="text-xl font-bold text-settings-text mb-6">Settings</h2>
@@ -246,8 +245,6 @@ export const Settings = () => {
           </nav>
         </div>
       </div>
-
-      {/* Main Content */}
       <div className="flex-1 p-6 overflow-y-auto">
         <div className="max-w-2xl">
           <h1 className="text-2xl font-bold text-settings-text mb-2">
