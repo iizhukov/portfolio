@@ -37,6 +37,7 @@ ENV_DEFAULTS = {
     "CACHE_TTL_MODULES": "180",
     "CACHE_TTL_ADMIN": "60",
     "LOG_LEVEL": "INFO",
+    "ADMIN_API_TOKEN": "test-admin-token",
 }
 
 for key, value in ENV_DEFAULTS.items():
@@ -93,6 +94,7 @@ settings.CACHE_TTL_CONNECTIONS = 60
 settings.CACHE_TTL_MODULES = 180
 settings.CACHE_TTL_ADMIN = 60
 settings.LOG_LEVEL = "INFO"
+settings.ADMIN_API_TOKEN = os.environ["ADMIN_API_TOKEN"]
 
 
 class FakeProjectsClient:
@@ -430,6 +432,7 @@ def app(fake_grpc_manager, fake_admin_client, fake_redis_manager):
 @pytest_asyncio.fixture
 async def client(app):
     transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://testserver") as http_client:
+    headers = {"Authorization": f"Bearer {settings.ADMIN_API_TOKEN}"}
+    async with AsyncClient(transport=transport, base_url="http://testserver", headers=headers) as http_client:
         yield http_client
 

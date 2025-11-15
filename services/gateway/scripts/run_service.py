@@ -2,8 +2,11 @@
 import sys
 import os
 
+from scripts.admin_token import ensure_admin_token
+
 
 def main():
+    token = ensure_admin_token()
     print("=" * 60)
     print("🚀 Starting API Gateway Service")
     print("=" * 60)
@@ -11,6 +14,9 @@ def main():
     print("Server will be available at:")
     print("   - API: http://0.0.0.0:8000")
     print("   - Docs: http://0.0.0.0:8000/docs")
+    print()
+    print("Admin API token (add to Authorization header as 'Bearer <token>'):")
+    print(f"   {token}")
     print()
     print("Press Ctrl+C to stop")
     print("=" * 60)

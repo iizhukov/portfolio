@@ -13,6 +13,8 @@ class Settings(BaseSettings):
 
     TELEGRAM_BOT_TOKEN: str
     ADMIN_SERVICE_URL: str = "http://localhost:8000"
+    ADMIN_API_TOKEN: str = ""
+    ADMIN_TOKEN_FILE: str = ""
     ALLOWED_USER_IDS: Union[str, list[int]] = Field(default_factory=list)
     
     POSTGRES_SERVER: str = "localhost"

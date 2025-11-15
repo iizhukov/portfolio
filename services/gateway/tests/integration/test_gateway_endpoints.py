@@ -152,3 +152,30 @@ async def test_get_admin_message_not_found(client, fake_admin_client):
     assert response.status_code == 404
     assert response.json()["detail"] == "Message not found"
 
+
+async def test_admin_command_requires_token(client):
+    payload = {
+        "service": "connections",
+        "payload": {"action": "restart"},
+    }
+    response = await client.post(
+        "/api/v1/admin/commands",
+        json=payload,
+        headers={"Authorization": ""},
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid or missing admin token"
+
+
+async def test_admin_command_rejects_invalid_token(client):
+    payload = {
+        "service": "connections",
+        "payload": {"action": "restart"},
+    }
+    response = await client.post(
+        "/api/v1/admin/commands",
+        json=payload,
+        headers={"Authorization": "Bearer wrong"},
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid or missing admin token"

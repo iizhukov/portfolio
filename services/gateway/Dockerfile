@@ -40,11 +40,6 @@ WORKDIR /app
 COPY --from=builder /usr/local /usr/local
 COPY --from=builder /app/services/gateway /app/services/gateway
 
-RUN useradd --create-home --shell /bin/bash app \
-    && chown -R app:app /app
-
-USER app
-
 WORKDIR /app/services/gateway
 
 EXPOSE 8000

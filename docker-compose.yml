@@ -6,3 +6,6 @@ include:
 networks:
   portfolio-network:
     driver: bridge
+
+volumes:
+  admin-token:

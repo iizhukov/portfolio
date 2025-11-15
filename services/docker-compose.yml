@@ -176,6 +176,7 @@ services:
       LOG_LEVEL: INFO
       UPLOAD_SERVICE_HOST: service-upload
       UPLOAD_SERVICE_PORT: 8003
+      ADMIN_TOKEN_FILE: /shared/admin/token
     depends_on:
       service-connections:
         condition: service_started
@@ -192,3 +193,5 @@ services:
     networks:
       - portfolio-network
     restart: unless-stopped
+    volumes:
+      - admin-token:/shared/admin

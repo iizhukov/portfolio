@@ -27,6 +27,7 @@ services:
       POSTGRES_USER: bot_user
       POSTGRES_PASSWORD: bot_password
       POSTGRES_DB: bot_db
+      ADMIN_TOKEN_FILE: /shared/admin/token
     depends_on:
       infra-postgres:
         condition: service_healthy
@@ -35,3 +36,5 @@ services:
     networks:
       - portfolio-network
     restart: unless-stopped
+    volumes:
+      - admin-token:/shared/admin

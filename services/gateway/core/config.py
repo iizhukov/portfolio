@@ -37,7 +37,8 @@ class Settings:
             "CACHE_TTL_DEFAULT",
             "CACHE_TTL_CONNECTIONS",
 
-            "LOG_LEVEL"
+            "LOG_LEVEL",
+            "ADMIN_API_TOKEN",
         ]
         
         validate_required_env_vars(required_vars)
@@ -82,6 +83,7 @@ class Settings:
         self.PORT: int = getenv_int("PORT")
         
         self.LOG_LEVEL: str = getenv("LOG_LEVEL")
+        self.ADMIN_API_TOKEN: str = getenv("ADMIN_API_TOKEN")
         
         self._print_config_info()
     
@@ -117,7 +119,8 @@ class Settings:
             "CACHE_TTL_DEFAULT": str(self.CACHE_TTL_DEFAULT),
             "CACHE_TTL_CONNECTIONS": str(self.CACHE_TTL_CONNECTIONS),
 
-            "LOG_LEVEL": self.LOG_LEVEL
+            "LOG_LEVEL": self.LOG_LEVEL,
+            "ADMIN_API_TOKEN": self.ADMIN_API_TOKEN,
         }
         print_env_info(env_vars)
 
