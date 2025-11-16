@@ -2,7 +2,7 @@ FROM node:25-alpine AS builder
 
 WORKDIR /app
 
-ENV NODE_OPTIONS="--max-old-space-size=1536"
+ENV NODE_OPTIONS="--max-old-space-size=3000"
 ENV NODE_ENV=production
 ENV CI=true
 
@@ -16,9 +16,9 @@ RUN yarn install --frozen-lockfile --network-timeout 100000 --production=false &
 
 COPY . .
 
-RUN NODE_OPTIONS="--max-old-space-size=1536" yarn tsc -b --incremental false && \
+RUN NODE_OPTIONS="--max-old-space-size=3000" yarn tsc -b --incremental false && \
     sync && \
-    NODE_OPTIONS="--max-old-space-size=1536" yarn vite build && \
+    NODE_OPTIONS="--max-old-space-size=3000" yarn vite build && \
     rm -rf node_modules && \
     rm -rf .yarn && \
     rm -rf src && \

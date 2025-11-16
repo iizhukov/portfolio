@@ -66,7 +66,6 @@ services:
       - "443:443"
     volumes:
       - ${COMPOSE_PROJECT_DIR:-.}/infrastructure/nginx/nginx.conf.template:/etc/nginx/nginx.conf.template:ro
-      - ${COMPOSE_PROJECT_DIR:-.}/infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ${COMPOSE_PROJECT_DIR:-.}/infrastructure/nginx/ssl:/etc/nginx/ssl:ro
     env_file:
       - ${COMPOSE_PROJECT_DIR:-.}/.env

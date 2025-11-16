@@ -22,11 +22,17 @@ class RedisManager:
         try:
             logger.info("Initializing Redis connection...")
             
+            redis_kwargs = {
+                "encoding": "utf-8",
+                "decode_responses": True
+            }
+            
+            if settings.REDIS_PASSWORD:
+                redis_kwargs["password"] = settings.REDIS_PASSWORD
+            
             self.redis = redis.from_url(
                 settings.REDIS_URL,
-                password=settings.REDIS_PASSWORD,
-                encoding="utf-8",
-                decode_responses=True
+                **redis_kwargs
             )
             
             await self.redis.ping()
