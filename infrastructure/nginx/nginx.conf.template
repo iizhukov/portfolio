@@ -23,7 +23,7 @@ http {
         }
         
         location / {
-            return 301 https://${NGINX_SERVER_NAME:-$host}$request_uri;
+            return 301 https://$host$request_uri;
         }
     }
 

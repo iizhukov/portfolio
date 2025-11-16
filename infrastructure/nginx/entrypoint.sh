@@ -23,12 +23,10 @@ elif [ -f /etc/nginx/nginx.conf.template ]; then
     
     if [ "$NGINX_SERVER_NAME" = "_" ]; then
         sed -e 's/\${NGINX_SERVER_NAME:-_}/_/g' \
-            -e 's/\${NGINX_SERVER_NAME:-\$host}/\$host/g' \
             /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf 2>/dev/null
     else
         SERVER_NAME_ESCAPED=$(echo "$NGINX_SERVER_NAME" | sed 's/[[\.*^$()+?{|]/\\&/g')
         sed -e "s/\${NGINX_SERVER_NAME:-_}/${SERVER_NAME_ESCAPED}/g" \
-            -e "s/\${NGINX_SERVER_NAME:-\$host}/${SERVER_NAME_ESCAPED}/g" \
             /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf 2>/dev/null
     fi
     
