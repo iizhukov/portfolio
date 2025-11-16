@@ -1,0 +1,71 @@
+x-python-base-image: &python-base-image portfolio-python-base:latest
+
+services:
+  service-connections:
+    build:
+      context: ${COMPOSE_PROJECT_DIR:-.}/services/applications/connections
+      args:
+        PYTHON_BASE_IMAGE: *python-base-image
+    env_file:
+      - ${COMPOSE_PROJECT_DIR:-.}/.env
+    environment:
+      POSTGRES_SERVER: infra-postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_CONNECTIONS_USER:-connections_user}
+      POSTGRES_PASSWORD: ${POSTGRES_CONNECTIONS_PASSWORD:-connections_password}
+      POSTGRES_DB: ${POSTGRES_CONNECTIONS_DB:-connections_db}
+      MESSAGE_BROKERS: infra-redpanda:19092
+      ADMIN_CONNECTIONS_TOPIC: admin_connections
+      ADMIN_RESPONSE_TOPIC: admin_responses
+      MODULES_SERVICE_URL: service-modules:50051
+      GRPC_PORT: 50052
+      HOST: 0.0.0.0
+      PORT: 8002
+      VERSION: "1.0.0"
+      API_V1_STR: "/api/v1"
+    depends_on:
+      infra-postgres:
+        condition: service_healthy
+      infra-redpanda:
+        condition: service_healthy
+      service-modules:
+        condition: service_started
+      service-upload:
+        condition: service_started
+    networks:
+      - portfolio-network
+    restart: unless-stopped
+
+  service-projects:
+    build:
+      context: ${COMPOSE_PROJECT_DIR:-.}/services/applications/projects
+      args:
+        PYTHON_BASE_IMAGE: *python-base-image
+    env_file:
+      - ${COMPOSE_PROJECT_DIR:-.}/.env
+    environment:
+      POSTGRES_SERVER: infra-postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_PROJECTS_USER:-projects_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PROJECTS_PASSWORD:-projects_password}
+      POSTGRES_DB: ${POSTGRES_PROJECTS_DB:-projects_db}
+      MESSAGE_BROKERS: infra-redpanda:19092
+      ADMIN_PROJECTS_TOPIC: admin_projects
+      ADMIN_RESPONSE_TOPIC: admin_responses
+      MODULES_SERVICE_URL: service-modules:50051
+      GRPC_PORT: 50054
+      HOST: 0.0.0.0
+      PORT: 8004
+      VERSION: "1.0.0"
+      API_V1_STR: "/api/v1"
+    depends_on:
+      infra-postgres:
+        condition: service_healthy
+      infra-redpanda:
+        condition: service_healthy
+      service-modules:
+        condition: service_started
+    networks:
+      - portfolio-network
+    restart: unless-stopped
+

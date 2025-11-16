@@ -29,22 +29,22 @@ jobs:
         with:
           filters: |
             projects:
-              - 'services/projects/**'
+              - 'services/applications/projects/**'
               - 'shared/python/**'
             connections:
-              - 'services/connections/**'
+              - 'services/applications/connections/**'
               - 'shared/python/**'
             modules:
-              - 'services/modules/**'
+              - 'services/basis/modules/**'
               - 'shared/python/**'
             admin:
-              - 'services/admin/**'
+              - 'services/basis/admin/**'
               - 'shared/python/**'
             upload:
-              - 'services/upload/**'
+              - 'services/basis/upload/**'
               - 'shared/python/**'
             gateway:
-              - 'services/gateway/**'
+              - 'services/basis/gateway/**'
               - 'shared/python/**'
             shared:
               - 'shared/python/**'
@@ -108,28 +108,43 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
 
+      - name: Determine service path
+        id: service-path
+        run: |
+          case "${{ matrix.service }}" in
+            projects)
+              echo "path=services/applications/projects" >> $GITHUB_OUTPUT
+              ;;
+            connections)
+              echo "path=services/applications/connections" >> $GITHUB_OUTPUT
+              ;;
+            modules|admin|upload|gateway)
+              echo "path=services/basis/${{ matrix.service }}" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
       - name: Load cached venv
         id: cached-poetry-dependencies
         uses: actions/cache@v4
         with:
-          path: services/${{ matrix.service }}/.venv
-          key: venv-${{ runner.os }}-${{ matrix.service }}-${{ hashFiles('services/${{ matrix.service }}/poetry.lock') }}-${{ hashFiles('shared/python/poetry.lock') }}
+          path: ${{ steps.service-path.outputs.path }}/.venv
+          key: venv-${{ runner.os }}-${{ matrix.service }}-${{ hashFiles(format('{0}/poetry.lock', steps.service-path.outputs.path)) }}-${{ hashFiles('shared/python/poetry.lock') }}
           restore-keys: |
             venv-${{ runner.os }}-${{ matrix.service }}-
 
       - name: Install dependencies for ${{ matrix.service }}
-        working-directory: services/${{ matrix.service }}
+        working-directory: ${{ steps.service-path.outputs.path }}
         run: |
           poetry install --no-interaction --no-ansi
 
       - name: Run black check for ${{ matrix.service }}
-        working-directory: services/${{ matrix.service }}
+        working-directory: ${{ steps.service-path.outputs.path }}
         continue-on-error: true
         run: |
           poetry run black --check . || echo "Black not configured for ${{ matrix.service }}"
 
       - name: Run flake8 for ${{ matrix.service }}
-        working-directory: services/${{ matrix.service }}
+        working-directory: ${{ steps.service-path.outputs.path }}
         continue-on-error: true
         run: |
           poetry run flake8 . || echo "Flake8 not configured for ${{ matrix.service }}"

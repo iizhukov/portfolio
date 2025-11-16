@@ -7,7 +7,7 @@ interface BackgroundProps {
 }
 
 export const Background = ({
-  wallpaper = '/wallpaper.jpg',
+  wallpaper = '/assets/wallpapers/wallpaper.jpg',
   blur = true,
   className,
 }: BackgroundProps) => {

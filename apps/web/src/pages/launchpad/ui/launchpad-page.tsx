@@ -43,7 +43,9 @@ export const LaunchpadPage = () => {
           },
         ]
 
-        setApps(allApps)
+        const sortedApps = allApps.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
+
+        setApps(sortedApps)
       } catch (error) {
         console.error('Failed to fetch apps:', error)
         setApps([

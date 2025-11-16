@@ -4,9 +4,17 @@ export const Connections = () => {
   const { connections, loading: connectionsLoading } = useConnections()
   const { status, loading: statusLoading } = useStatus()
   const { working, loading: workingLoading } = useWorking()
-  const { image, loading: imageLoading } = useImage()
+  const { image, loading: imageLoading, error: imageError } = useImage()
 
   const loading = connectionsLoading || statusLoading || workingLoading || imageLoading
+  const defaultProfileImage = '/assets/default/profile.jpg'
+  const profileImageUrl = image?.url && !imageError ? image.url : defaultProfileImage
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    if (e.currentTarget.src !== defaultProfileImage) {
+      e.currentTarget.src = defaultProfileImage
+    }
+  }
 
   return (
     <div className="w-full h-full bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500">
@@ -15,9 +23,10 @@ export const Connections = () => {
           <div className="flex flex-col items-center space-y-4">
             <div className="relative">
               <img
-                src={image?.url || '/profile.jpg'}
+                src={profileImageUrl}
                 alt="Connections"
                 className="w-36 h-36 rounded-full border-[5px] border-connections shadow-2xl"
+                onError={handleImageError}
               />
               <span
                 className={`absolute bottom-1 right-1 w-9 h-9 rounded-full border-[5px] border-connections ${

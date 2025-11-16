@@ -151,8 +151,6 @@ services:
   infra-redis:
     image: redis:7-alpine
     command: redis-server /etc/redis/redis.conf
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
       - ${COMPOSE_PROJECT_DIR:-.}/infrastructure/redis/redis.conf:/etc/redis/redis.conf:ro

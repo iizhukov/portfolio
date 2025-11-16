@@ -11,7 +11,7 @@ appStarted()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Layout wallpaper="/wallpaper.jpg" blur={true}>
+    <Layout wallpaper="/assets/wallpapers/wallpaper.jpg" blur={true}>
       <RouterProvider router={router}>
         <Pages />
       </RouterProvider>

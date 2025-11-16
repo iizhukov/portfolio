@@ -1,5 +1,6 @@
 .PHONY: help up build logs down clean status restart python-base
 
+
 help:
 	@echo "Portfolio Project - Available commands:"
 	@echo ""
@@ -7,27 +8,29 @@ help:
 
 
 up: python-base
-	docker-compose up -d
+	docker compose up -d
 
 build: python-base
-	docker-compose up -d --build
+	docker compose up -d --build
 
 logs:
-	docker-compose logs -f
+	docker compose logs -f
 
 down:
-	docker-compose down
+	docker compose down
 
 clean:
-	docker-compose down -v --remove-orphans
+	docker compose down -v --remove-orphans
 	docker system prune -f
 
 status:
-	docker-compose ps
+	docker compose ps
 
 restart:
-	docker-compose restart
+	docker compose restart
 
+admin-token:
+	@./scripts/get-admin-token.sh
 
 python-base:
 	docker build -f shared/python/Dockerfile -t portfolio-python-base .
