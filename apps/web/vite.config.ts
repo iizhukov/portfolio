@@ -32,8 +32,14 @@ export default defineConfig({
             if (id.includes('atomic-router')) {
               return 'router-vendor';
             }
-            if (id.includes('@excalidraw') || id.includes('swagger-ui') || id.includes('mermaid')) {
-              return 'ui-vendor';
+            if (id.includes('@excalidraw')) {
+              return 'excalidraw-vendor';
+            }
+            if (id.includes('swagger-ui')) {
+              return 'swagger-vendor';
+            }
+            if (id.includes('mermaid')) {
+              return 'mermaid-vendor';
             }
             return 'vendor';
           }
