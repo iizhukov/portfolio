@@ -36,12 +36,10 @@ class ProjectsAdminConsumer(BaseAdminConsumer):
 
         data_copy = data.copy()
         
-        # Устанавливаем URL из file_info (приоритет) или из data
         if file_info and file_info.get('url'):
             data_copy['url'] = file_info['url']
             logger.info(f"Using uploaded file URL: {file_info['url']}")
         elif 'url' not in data_copy:
-            # Если URL не передан, оставляем None
             data_copy.pop('url', None)
 
         async for db in db_manager.get_session():
@@ -61,11 +59,9 @@ class ProjectsAdminConsumer(BaseAdminConsumer):
         data_copy = data.copy()
         project_id = data_copy.pop('id')
         
-        # Устанавливаем URL из file_info (приоритет) или из data
         if file_info and file_info.get('url'):
             data_copy['url'] = file_info['url']
             logger.info(f"Using uploaded file URL: {file_info['url']}")
-        # Если url не передан в data и нет file_info, оставляем существующий URL
 
         async for db in db_manager.get_session():
             service = ProjectService(db)

@@ -2,6 +2,13 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
+if (process.env.VITE_API_PROTOCOL) {
+  console.log('Vite config - VITE_API_PROTOCOL:', process.env.VITE_API_PROTOCOL)
+}
+if (process.env.VITE_API_IP) {
+  console.log('Vite config - VITE_API_IP:', process.env.VITE_API_IP)
+}
+
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -16,7 +23,7 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 1000,
-    minify: 'esbuild',
+    minify: 'esbuild' as const,
     target: 'es2015',
     cssMinify: true,
     sourcemap: false,

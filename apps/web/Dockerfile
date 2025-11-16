@@ -21,9 +21,13 @@ RUN yarn install --frozen-lockfile --network-timeout 100000 --production=false &
 
 COPY . .
 
-RUN NODE_OPTIONS="--max-old-space-size=3000" yarn tsc -b --incremental false && \
+RUN echo "VITE_API_PROTOCOL=${VITE_API_PROTOCOL}" > .env && \
+    echo "VITE_API_IP=${VITE_API_IP}" >> .env && \
+    cat .env && \
+    NODE_OPTIONS="--max-old-space-size=3000" yarn tsc -b --incremental false && \
     sync && \
     NODE_OPTIONS="--max-old-space-size=3000" yarn vite build && \
+    test -d dist && echo "dist directory created successfully" || (echo "ERROR: dist directory not found!" && exit 1) && \
     rm -rf node_modules && \
     rm -rf .yarn && \
     rm -rf src && \

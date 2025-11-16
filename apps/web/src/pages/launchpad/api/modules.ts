@@ -1,7 +1,9 @@
 import axios from 'axios'
 import type { AxiosInstance } from 'axios'
 
-const GATEWAY_URL = import.meta.env.VITE_GATEWAY_URL || 'http://localhost:8000'
+const API_PROTOCOL = import.meta.env.VITE_API_PROTOCOL || 'http'
+const API_IP = import.meta.env.VITE_API_IP || 'localhost'
+const GATEWAY_URL = `${API_PROTOCOL}://${API_IP}:8000`
 
 const apiClient: AxiosInstance = axios.create({
   baseURL: `${GATEWAY_URL}/api/v1`,
