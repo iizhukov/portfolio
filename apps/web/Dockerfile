@@ -2,6 +2,11 @@ FROM node:25-alpine AS builder
 
 WORKDIR /app
 
+ARG VITE_API_PROTOCOL=http
+ARG VITE_API_IP=localhost
+
+ENV VITE_API_PROTOCOL=${VITE_API_PROTOCOL}
+ENV VITE_API_IP=${VITE_API_IP}
 ENV NODE_OPTIONS="--max-old-space-size=3000"
 ENV NODE_ENV=production
 ENV CI=true

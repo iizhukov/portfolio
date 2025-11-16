@@ -4,9 +4,14 @@ services:
   app-web:
     build:
       context: ${COMPOSE_PROJECT_DIR:-.}/apps/web
+      args:
+        VITE_API_PROTOCOL: ${VITE_API_PROTOCOL:-http}
+        VITE_API_IP: ${VITE_API_IP:-localhost}
+    env_file:
+      - ${COMPOSE_PROJECT_DIR:-.}/.env
     environment:
-      VITE_API_URL: "127.0.0.1"
-      VITE_API_PROTOCOL: "http"
+      VITE_API_PROTOCOL: ${VITE_API_PROTOCOL:-http}
+      VITE_API_IP: ${VITE_API_IP:-localhost}
     expose:
       - "80"
     networks:
