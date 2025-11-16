@@ -675,7 +675,7 @@ sqlalchemy = ">=2.0.0"
 
 [package.source]
 type = "directory"
-url = "../../shared/python"
+url = "../../../shared/python"
 
 [[package]]
 name = "protobuf"
@@ -1181,4 +1181,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.6.3)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "55ced324c57ecd705e8bd86292782f5fa5e2ffddaa54ec72887d4e69b7805698"
+content-hash = "1924be01e64d8de9d19a4e5f5ffd5d3fa83fd3c1bcd914bf70764923b3e9be30"
