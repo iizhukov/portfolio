@@ -1,14 +1,17 @@
-import { useEffect, useState } from 'react'
-import type { ComponentProps } from 'react'
-import { Excalidraw } from '@excalidraw/excalidraw'
-import '@excalidraw/excalidraw/index.css'
+import { useEffect, useState, lazy, Suspense } from 'react'
+
+const Excalidraw = lazy(async () => {
+  await import('@excalidraw/excalidraw/index.css')
+  const module = await import('@excalidraw/excalidraw')
+  return { default: module.Excalidraw }
+})
 
 interface ArchitectureViewerProps {
   url: string
   title?: string
 }
 
-type ExcalidrawInitialData = NonNullable<ComponentProps<typeof Excalidraw>['initialData']>
+type ExcalidrawInitialData = any
 
 export const ArchitectureViewer = ({ url, title }: ArchitectureViewerProps) => {
   const [initialData, setInitialData] = useState<ExcalidrawInitialData | null>(null)
@@ -79,22 +82,28 @@ export const ArchitectureViewer = ({ url, title }: ArchitectureViewerProps) => {
         </div>
       )}
       <div className="flex-1">
-        <Excalidraw
-          initialData={initialData}
-          viewModeEnabled
-          zenModeEnabled
-          UIOptions={{
-            canvasActions: {
-              changeViewBackgroundColor: false,
-              clearCanvas: false,
-              export: false,
-              loadScene: false,
-              saveToActiveFile: false,
-              toggleTheme: false,
-            },
-          }}
-          renderTopRightUI={() => null}
-        />
+        <Suspense fallback={
+          <div className="w-full h-full flex items-center justify-center bg-window-bg text-window-text-secondary">
+            Loading Excalidraw...
+          </div>
+        }>
+          <Excalidraw
+            initialData={initialData}
+            viewModeEnabled
+            zenModeEnabled
+            UIOptions={{
+              canvasActions: {
+                changeViewBackgroundColor: false,
+                clearCanvas: false,
+                export: false,
+                loadScene: false,
+                saveToActiveFile: false,
+                toggleTheme: false,
+              },
+            }}
+            renderTopRightUI={() => null}
+          />
+        </Suspense>
       </div>
     </div>
   )

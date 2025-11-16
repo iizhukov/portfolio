@@ -23,28 +23,6 @@ export default defineConfig({
     reportCompressedSize: false,
     rollupOptions: {
       maxParallelFileOps: 2,
-      output: {
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'react-vendor';
-            }
-            if (id.includes('atomic-router')) {
-              return 'router-vendor';
-            }
-            if (id.includes('@excalidraw')) {
-              return 'excalidraw-vendor';
-            }
-            if (id.includes('swagger-ui')) {
-              return 'swagger-vendor';
-            }
-            if (id.includes('mermaid')) {
-              return 'mermaid-vendor';
-            }
-            return 'vendor';
-          }
-        },
-      },
     },
   },
 })
