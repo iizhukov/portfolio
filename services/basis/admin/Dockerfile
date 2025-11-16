@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN mkdir -p /app/services/admin
 
-WORKDIR /app/services/admin
+WORKDIR /app/services/basis/admin
 
 COPY pyproject.toml poetry.lock ./
 
@@ -36,14 +36,14 @@ FROM base AS runtime
 WORKDIR /app
 
 COPY --from=builder /usr/local /usr/local
-COPY --from=builder /app/services/admin /app/services/admin
+COPY --from=builder /app/services/basis/admin /app/services/basis/admin
 
 RUN useradd --create-home --shell /bin/bash app \
     && chown -R app:app /app
 
 USER app
 
-WORKDIR /app/services/admin
+WORKDIR /app/services/basis/admin
 
 EXPOSE 8004 50053
 

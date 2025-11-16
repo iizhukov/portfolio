@@ -10,9 +10,9 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /app/services/gateway
+RUN mkdir -p /app/services/basis/gateway
 
-WORKDIR /app/services/gateway
+WORKDIR /app/services/basis/gateway
 
 COPY pyproject.toml poetry.lock ./
 
@@ -38,9 +38,9 @@ FROM base AS runtime
 WORKDIR /app
 
 COPY --from=builder /usr/local /usr/local
-COPY --from=builder /app/services/gateway /app/services/gateway
+COPY --from=builder /app/services/basis/gateway /app/services/basis/gateway
 
-WORKDIR /app/services/gateway
+WORKDIR /app/services/basis/gateway
 
 EXPOSE 8000
 

@@ -6,7 +6,7 @@ from shared.scripts.generate_grpc import generate_grpc_files
 
 def main() -> None:
     root = Path(__file__).parent.parent
-    proto_root = root.parent.parent / "shared" / "python" / "shared" / "proto"
+    proto_root = root.parent.parent.parent / "shared" / "python" / "shared" / "proto"   
     output_dir = root / "generated"
 
     targets = [
