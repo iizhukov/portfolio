@@ -75,8 +75,4 @@ class StorageService:
         return str(object_path)
 
     def _build_file_url(self, object_name: str) -> str:
-        if settings.MINIO_EXTERNAL_URL:
-            base = settings.MINIO_EXTERNAL_URL.rstrip("/")
-            return f"{base}/{self.bucket}/{object_name}"
-        scheme = "https" if settings.MINIO_SECURE else "http"
-        return f"{scheme}://{settings.MINIO_ENDPOINT}/{self.bucket}/{object_name}"
+        return f"/storage/{self.bucket}/{object_name}"

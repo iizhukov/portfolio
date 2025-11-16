@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeRaw from 'rehype-raw'
+import { getFileUrl } from '@shared/utils/url'
 import '../styles/github-dark.css'
 import './markdown-viewer.css'
 
@@ -21,7 +22,8 @@ export const MarkdownViewer = ({ url }: MarkdownViewerProps) => {
       try {
         setLoading(true)
         setError(null)
-        const response = await fetch(url)
+        const fileUrl = getFileUrl(url)
+        const response = await fetch(fileUrl)
         
         if (!response.ok) {
           throw new Error(`Failed to fetch markdown: ${response.statusText}`)

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import SwaggerUI from 'swagger-ui-react'
+import { getFileUrl } from '@shared/utils/url'
 import 'swagger-ui-react/swagger-ui.css'
 import '../styles/swagger-viewer.css'
 
@@ -13,8 +14,13 @@ export const SwaggerViewer = ({ url, title }: SwaggerViewerProps) => {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    setSpecUrl(url || null)
-    setError(url ? null : 'Swagger spec URL is missing')
+    if (url) {
+      setSpecUrl(getFileUrl(url))
+      setError(null)
+    } else {
+      setSpecUrl(null)
+      setError('Swagger spec URL is missing')
+    }
   }, [url])
 
   if (error || !specUrl) {

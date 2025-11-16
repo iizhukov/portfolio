@@ -1,4 +1,5 @@
 import { useEffect, useState, lazy, Suspense } from 'react'
+import { getFileUrl } from '@shared/utils/url'
 
 const Excalidraw = lazy(async () => {
   await import('@excalidraw/excalidraw/index.css')
@@ -26,7 +27,8 @@ export const ArchitectureViewer = ({ url, title }: ArchitectureViewerProps) => {
         setLoading(true)
         setError(null)
 
-        const response = await fetch(url)
+        const fileUrl = getFileUrl(url)
+        const response = await fetch(fileUrl)
         if (!response.ok) {
           throw new Error(`Failed to load scene: ${response.statusText}`)
         }

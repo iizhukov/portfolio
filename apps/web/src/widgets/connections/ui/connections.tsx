@@ -1,4 +1,5 @@
 import { useConnections, useStatus, useWorking, useImage } from '../api/hooks'
+import { getFileUrl } from '@shared/utils/url'
 
 export const Connections = () => {
   const { connections, loading: connectionsLoading } = useConnections()
@@ -8,7 +9,7 @@ export const Connections = () => {
 
   const loading = connectionsLoading || statusLoading || workingLoading || imageLoading
   const defaultProfileImage = '/assets/default/profile.jpg'
-  const profileImageUrl = image?.url && !imageError ? image.url : defaultProfileImage
+  const profileImageUrl = image?.url && !imageError ? getFileUrl(image.url) : defaultProfileImage
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     if (e.currentTarget.src !== defaultProfileImage) {

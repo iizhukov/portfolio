@@ -1,5 +1,6 @@
 import { type Project } from '../types/finder'
 import { notifyLocationChange } from '@shared/utils/location'
+import { getFileUrl } from '@shared/utils/url'
 
 let currentFinderPath: string[] = []
 
@@ -52,7 +53,7 @@ export const handleFileOpen = (project: Project): void => {
       handleSwagger(project)
       break
     default:
-      window.open(project.url, '_blank')
+      window.open(getFileUrl(project.url), '_blank')
   }
 }
 
@@ -103,13 +104,13 @@ const handleArchitecture = (project: Project): void => {
 
 const handleDemo = (project: Project): void => {
   if (project.url) {
-    window.open(project.url, '_blank')
+    window.open(getFileUrl(project.url), '_blank')
   }
 }
 
 const handleGithub = (project: Project): void => {
   if (project.url) {
-    window.open(project.url, '_blank')
+    window.open(getFileUrl(project.url), '_blank')
   }
 }
 

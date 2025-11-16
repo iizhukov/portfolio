@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import mermaid from 'mermaid'
+import { getFileUrl } from '@shared/utils/url'
 
 mermaid.initialize({
   startOnLoad: false,
@@ -121,7 +122,8 @@ export const DatabaseViewer = ({ url, title }: DatabaseViewerProps) => {
       try {
         setLoading(true)
         setError(null)
-        const response = await fetch(url)
+        const fileUrl = getFileUrl(url)
+        const response = await fetch(fileUrl)
         if (!response.ok) {
           throw new Error(`Failed to load DBML: ${response.statusText}`)
         }
