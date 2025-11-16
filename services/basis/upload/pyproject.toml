@@ -21,7 +21,7 @@ grpcio = ">=1.70.0"
 protobuf = ">=6.0.0"
 
 [tool.poetry.dependencies.portfolio-shared]
-path = "../../shared/python"
+path = "../../../shared/python"
 develop = true
 
 [tool.poetry.group.dev.dependencies]

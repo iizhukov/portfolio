@@ -3,7 +3,7 @@ import type { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axio
 
 const API_PROTOCOL = import.meta.env.VITE_API_PROTOCOL || 'http'
 const API_IP = import.meta.env.VITE_API_IP || 'localhost'
-const GATEWAY_URL = `${API_PROTOCOL}://${API_IP}:8000`
+const GATEWAY_URL = `${API_PROTOCOL}://${API_IP}`
 
 console.log('API Configuration:', { API_PROTOCOL, API_IP, GATEWAY_URL })
 console.log('VITE_API_PROTOCOL:', import.meta.env.VITE_API_PROTOCOL)

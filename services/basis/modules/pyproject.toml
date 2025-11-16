@@ -22,7 +22,7 @@ uvicorn = "^0.38.0"
 fastapi = "^0.120.3"
 
 [tool.poetry.dependencies.portfolio-shared]
-path = "../../shared/python"
+path = "../../../shared/python"
 develop = true
 
 [tool.poetry.group.dev.dependencies]
