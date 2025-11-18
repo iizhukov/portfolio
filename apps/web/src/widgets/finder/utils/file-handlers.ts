@@ -1,25 +1,12 @@
 import { type Project } from '../types/finder'
-import { notifyLocationChange } from '@shared/utils/location'
 import { getFileUrl } from '@shared/utils/url'
+import { ApiErrorHandler } from '@shared/api/error-handler'
+import { SERVICE_APP_MAPPING } from '@pages/launchpad/api/modules'
+import { navigateToWindow } from '@shared/utils/navigation'
+import type { WindowQueryParams } from '@pages/window/types'
 
-let currentFinderPath: string[] = []
-
-export const setCurrentFinderPath = (path: string[]): void => {
-  currentFinderPath = path
-}
-
-export const getCurrentFinderPath = (): string[] => {
-  return currentFinderPath
-}
-
-export const handleFileOpen = (project: Project): void => {
+export const handleFileOpen = (project: Project, currentPath: string[] = []): void => {
   if (project.type === 'folder') {
-    return
-  }
-
-  if (!project.url) {
-    console.warn(`No URL for file: ${project.name}`)
-    alert(`[Заглушка] Файл ${project.name} не имеет URL`)
     return
   }
 
@@ -35,71 +22,107 @@ export const handleFileOpen = (project: Project): void => {
 
   switch (finalFileType) {
     case 'readme':
-      handleReadme(project)
+      if (!project.url) {
+        ApiErrorHandler.handleError(new Error(`File ${project.name} does not have a URL`))
+        return
+      }
+      handleReadme(project, currentPath)
       break
     case 'architecture':
-      handleArchitecture(project)
+      if (!project.url) {
+        ApiErrorHandler.handleError(new Error(`File ${project.name} does not have a URL`))
+        return
+      }
+      handleArchitecture(project, currentPath)
       break
     case 'demo':
+      if (!project.url) {
+        ApiErrorHandler.handleError(new Error(`File ${project.name} does not have a URL`))
+        return
+      }
       handleDemo(project)
       break
     case 'github':
+      if (!project.url) {
+        ApiErrorHandler.handleError(new Error(`File ${project.name} does not have a URL`))
+        return
+      }
       handleGithub(project)
       break
     case 'database':
-      handleDatabase(project)
+      if (!project.url) {
+        ApiErrorHandler.handleError(new Error(`File ${project.name} does not have a URL`))
+        return
+      }
+      handleDatabase(project, currentPath)
       break
     case 'swagger':
-      handleSwagger(project)
+      if (!project.url) {
+        ApiErrorHandler.handleError(new Error(`File ${project.name} does not have a URL`))
+        return
+      }
+      handleSwagger(project, currentPath)
       break
     default:
-      window.open(getFileUrl(project.url), '_blank')
+      if (project.url) {
+        window.open(getFileUrl(project.url), '_blank')
+      } else {
+        const appName = project.name.toLowerCase()
+        const appMapping = Object.entries(SERVICE_APP_MAPPING).find(
+          ([, mapping]) => mapping.name.toLowerCase() === appName
+        )
+        if (appMapping) {
+          handleAppOpen(appMapping[0], currentPath)
+        } else {
+          ApiErrorHandler.handleError(new Error(`Cannot open ${project.name}: no URL or app mapping found`))
+        }
+      }
   }
 }
 
-const handleReadme = (project: Project): void => {
-  if (project.url) {
-    console.log('Opening README:', project.name, project.url)
-    const finderPath = getCurrentFinderPath()
-    const pathParam = finderPath.join(',')
-
-    const query: Record<string, string> = {
-    url: project.url,
-    title: project.name,
-    }
-    if (pathParam) {
-      query.returnPath = pathParam
-    }
-
-    const params = new URLSearchParams(query)
-    const fullPath = `/window?${params.toString()}`
-    window.history.pushState(null, '', fullPath)
-    notifyLocationChange()
-  } else {
-    console.warn('No URL for README file:', project.name)
+const handleAppOpen = (appId: string, currentPath: string[]): void => {
+  const pathParam = currentPath.join(',')
+  const params: WindowQueryParams = {
+    app: appId,
   }
+  if (pathParam) {
+    params.returnPath = pathParam
+  }
+  navigateToWindow(params)
 }
 
-const handleArchitecture = (project: Project): void => {
+const handleReadme = (project: Project, currentPath: string[]): void => {
   if (!project.url) {
-    console.warn('No Excalidraw URL for architecture file')
+    ApiErrorHandler.handleError(new Error(`No URL for README file: ${project.name}`))
     return
   }
 
-  const finderPath = getCurrentFinderPath()
-  const pathParam = finderPath.join(',')
-
-  const params = new URLSearchParams({
-    app: 'architecture',
-    excalidraw: project.url,
-  })
+  const pathParam = currentPath.join(',')
+  const params: WindowQueryParams = {
+    url: project.url,
+    title: project.name,
+  }
   if (pathParam) {
-    params.set('returnPath', pathParam)
+    params.returnPath = pathParam
+  }
+  navigateToWindow(params)
+}
+
+const handleArchitecture = (project: Project, currentPath: string[]): void => {
+  if (!project.url) {
+    ApiErrorHandler.handleError(new Error('No Excalidraw URL for architecture file'))
+    return
   }
 
-  const fullPath = `/window?${params.toString()}`
-  window.history.pushState(null, '', fullPath)
-  notifyLocationChange()
+  const pathParam = currentPath.join(',')
+  const params: WindowQueryParams = {
+    app: 'architecture',
+    excalidraw: project.url,
+  }
+  if (pathParam) {
+    params.returnPath = pathParam
+  }
+  navigateToWindow(params)
 }
 
 const handleDemo = (project: Project): void => {
@@ -114,47 +137,37 @@ const handleGithub = (project: Project): void => {
   }
 }
 
-const handleDatabase = (project: Project): void => {
+const handleDatabase = (project: Project, currentPath: string[]): void => {
   if (!project.url) {
-    console.warn('No DBML url for database file')
+    ApiErrorHandler.handleError(new Error('No DBML URL for database file'))
     return
   }
 
-  const finderPath = getCurrentFinderPath()
-  const pathParam = finderPath.join(',')
-
-  const params = new URLSearchParams({
+  const pathParam = currentPath.join(',')
+  const params: WindowQueryParams = {
     dbml: project.url,
     app: 'database',
-  })
-  if (pathParam) {
-    params.set('returnPath', pathParam)
   }
-
-  const fullPath = `/window?${params.toString()}`
-  window.history.pushState(null, '', fullPath)
-  notifyLocationChange()
+  if (pathParam) {
+    params.returnPath = pathParam
+  }
+  navigateToWindow(params)
 }
 
-const handleSwagger = (project: Project): void => {
+const handleSwagger = (project: Project, currentPath: string[]): void => {
   if (!project.url) {
-    console.warn('No Swagger URL for documentation file')
+    ApiErrorHandler.handleError(new Error('No Swagger URL for documentation file'))
     return
   }
 
-  const finderPath = getCurrentFinderPath()
-  const pathParam = finderPath.join(',')
-
-  const params = new URLSearchParams({
+  const pathParam = currentPath.join(',')
+  const params: WindowQueryParams = {
     app: 'swagger',
     swagger: project.url,
-  })
-  if (pathParam) {
-    params.set('returnPath', pathParam)
   }
-
-  const fullPath = `/window?${params.toString()}`
-  window.history.pushState(null, '', fullPath)
-  notifyLocationChange()
+  if (pathParam) {
+    params.returnPath = pathParam
+  }
+  navigateToWindow(params)
 }
 

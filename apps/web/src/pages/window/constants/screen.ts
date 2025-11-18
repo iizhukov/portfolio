@@ -1,0 +1,6 @@
+export const SCREEN_DIMENSIONS = {
+  BASE_WIDTH: 1440,
+  BASE_HEIGHT: 900,
+  BREAKPOINT: 1440,
+} as const
+

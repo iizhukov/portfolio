@@ -1,15 +1,14 @@
 import apiClient from './config'
+import type { AxiosResponse, AxiosRequestConfig } from 'axios'
 import type { ServiceInfo } from './types/modules'
 
 export const modulesApi = {
-  listServices: async (): Promise<ServiceInfo[]> => {
-    const response = await apiClient.get<ServiceInfo[]>('/modules/services')
-    return response.data
+  listServices: async (config?: AxiosRequestConfig): Promise<AxiosResponse<ServiceInfo[]>> => {
+    return apiClient.get<ServiceInfo[]>('/modules/services', config)
   },
 
-  getServiceDetails: async (serviceName: string): Promise<ServiceInfo> => {
-    const response = await apiClient.get<ServiceInfo>(`/modules/services/${serviceName}`)
-    return response.data
+  getServiceDetails: async (serviceName: string, config?: AxiosRequestConfig): Promise<AxiosResponse<ServiceInfo>> => {
+    return apiClient.get<ServiceInfo>(`/modules/services/${serviceName}`, config)
   },
 }
 

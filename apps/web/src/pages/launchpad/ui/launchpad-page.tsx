@@ -1,8 +1,9 @@
 import { Launchpad } from './launchpad'
-import { router } from '@shared/router'
-import { useEffect, useState } from 'react'
-import { modulesApi, SERVICE_APP_MAPPING } from '../api/modules'
-import { notifyLocationChange } from '@shared/utils/location'
+import { useMemo } from 'react'
+import { SERVICE_APP_MAPPING } from '../api/modules'
+import { useModules } from '@shared/api/hooks/use-modules'
+import { navigateToWindow } from '@shared/utils/navigation'
+import type { WindowQueryParams } from '@pages/window/types'
 
 interface AppIcon {
   id: string
@@ -12,71 +13,52 @@ interface AppIcon {
 }
 
 export const LaunchpadPage = () => {
-  const [apps, setApps] = useState<AppIcon[]>([])
-  const [loading, setLoading] = useState(true)
+  const { services, loading, error } = useModules()
 
-  useEffect(() => {
-    const fetchApps = async () => {
-      try {
-        setLoading(true)
-        const services = await modulesApi.listServices()
-        
-        const appsFromServices: AppIcon[] = services
-          .filter(service => SERVICE_APP_MAPPING[service.service_name])
-          .map(service => {
-            const mapping = SERVICE_APP_MAPPING[service.service_name]
-            return {
-              id: service.service_name,
-              name: mapping.name,
-              icon: mapping.icon,
-              type: mapping.type,
-            }
-          })
+  const apps = useMemo(() => {
+    const appsFromServices: AppIcon[] = services
+      .filter(service => SERVICE_APP_MAPPING[service.service_name])
+      .map(service => {
+        const mapping = SERVICE_APP_MAPPING[service.service_name]
+        return {
+          id: service.service_name,
+          name: mapping.name,
+          icon: mapping.icon,
+          type: mapping.type,
+        }
+      })
 
-        const allApps: AppIcon[] = [
-          ...appsFromServices,
-          {
-            id: 'settings',
-            name: 'Settings',
-            icon: '/assets/icons/settings.ico',
-            type: 'settings',
-          },
-        ]
+    const allApps: AppIcon[] = [
+      ...appsFromServices,
+      {
+        id: 'settings',
+        name: 'Settings',
+        icon: '/assets/icons/settings.ico',
+        type: 'settings',
+      },
+    ]
 
-        const sortedApps = allApps.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
-
-        setApps(sortedApps)
-      } catch (error) {
-        console.error('Failed to fetch apps:', error)
-        setApps([
-          {
-            id: 'settings',
-            name: 'Settings',
-            icon: '/assets/icons/settings.ico',
-            type: 'settings',
-          },
-        ])
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchApps()
-  }, [])
+    return allApps.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
+  }, [services])
 
   const handleAppClick = (appId: string) => {
-    const params = new URLSearchParams({ app: appId })
-    const fullPath = `/window?${params.toString()}`
-    router
-      .push({ path: fullPath, params: {}, query: {}, method: 'push' })
-      .then(() => notifyLocationChange())
-      .catch(() => {
-        window.location.href = fullPath
-      })
+    const params: WindowQueryParams = { app: appId }
+    navigateToWindow(params)
   }
 
-  if (loading) {
+  if (loading && apps.length === 0) {
     return <div className="fixed inset-0 flex items-center justify-center text-white">Loading...</div>
+  }
+
+  if (error && apps.length === 0) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center text-white">
+        <div className="text-center">
+          <p className="text-red-400 mb-2">Failed to load apps</p>
+          <p className="text-sm text-gray-400">{error.message}</p>
+        </div>
+      </div>
+    )
   }
 
   return <Launchpad apps={apps} onAppClick={handleAppClick} />

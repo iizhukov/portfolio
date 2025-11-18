@@ -1,16 +1,10 @@
 import axios from 'axios'
-import type { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios'
-
-const API_PROTOCOL = import.meta.env.VITE_API_PROTOCOL || 'http'
-const API_IP = import.meta.env.VITE_API_IP || 'localhost'
-const GATEWAY_URL = `${API_PROTOCOL}://${API_IP}`
-
-console.log('API Configuration:', { API_PROTOCOL, API_IP, GATEWAY_URL })
-console.log('VITE_API_PROTOCOL:', import.meta.env.VITE_API_PROTOCOL)
-console.log('VITE_API_IP:', import.meta.env.VITE_API_IP)
+import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios'
+import { env } from '@shared/config/env'
+import { ApiErrorHandler } from './error-handler'
 
 export const apiClient: AxiosInstance = axios.create({
-  baseURL: `${GATEWAY_URL}/api/v1`,
+  baseURL: `${env.GATEWAY_URL}/api/v1`,
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -21,21 +15,18 @@ apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     return config
   },
-  (error: AxiosError) => {
+  (error) => {
+    if (import.meta.env.DEV) {
+      console.error('[API Request Error]', error)
+    }
     return Promise.reject(error)
   }
 )
 
 apiClient.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
-    if (error.response) {
-      console.error('API Error:', error.response.status, error.response.data)
-    } else if (error.request) {
-      console.error('Network Error:', error.request)
-    } else {
-      console.error('Error:', error.message)
-    }
+  (error) => {
+    ApiErrorHandler.handleError(error)
     return Promise.reject(error)
   }
 )

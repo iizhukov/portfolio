@@ -18,6 +18,8 @@ export const MarkdownViewer = ({ url }: MarkdownViewerProps) => {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    let cancelled = false
+
     const fetchMarkdown = async () => {
       try {
         setLoading(true)
@@ -30,16 +32,29 @@ export const MarkdownViewer = ({ url }: MarkdownViewerProps) => {
         }
         
         const text = await response.text()
-        setContent(text)
+        if (!cancelled) {
+          setContent(text)
+        }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load markdown')
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Failed to load markdown')
+        }
       } finally {
-        setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
+        }
       }
     }
 
     if (url) {
       fetchMarkdown()
+    } else {
+      setError('Markdown file URL is missing')
+      setLoading(false)
+    }
+
+    return () => {
+      cancelled = true
     }
   }, [url])
 

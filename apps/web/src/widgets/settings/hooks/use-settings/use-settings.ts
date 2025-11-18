@@ -1,46 +1,35 @@
 import { useState, useEffect } from 'react'
+import { STORAGE_KEYS } from '@shared/constants/storage'
+import { safeJsonParse } from '@shared/utils/safe-json'
+import { isBrowser } from '@shared/utils/browser'
 
 export interface Settings {
-  // Appearance
   wallpaper: 'big-sur-default' | 'dark-gradient' | 'code-pattern'
   theme: 'light' | 'dark' | 'auto'
   animations: boolean
   language: 'ru' | 'en'
-
-  // Display
   resolution: 'default' | 'scaled'
   nightShift: boolean
   trueTone: boolean
-
-  // Sound
   outputDevice: 'internal-speakers' | 'external-speakers' | 'bluetooth'
   notificationVolume: number
   balance: 'left' | 'center' | 'right'
-
-  // Security
   fileVault: boolean
   firewall: boolean
   locationServices: boolean
 }
 
 const defaultSettings: Settings = {
-  // Appearance
   wallpaper: 'big-sur-default',
   theme: 'auto',
   animations: true,
   language: 'en',
-
-  // Display
   resolution: 'default',
   nightShift: false,
   trueTone: false,
-
-  // Sound
   outputDevice: 'internal-speakers',
   notificationVolume: 50,
   balance: 'center',
-
-  // Security
   fileVault: false,
   firewall: false,
   locationServices: false,
@@ -51,36 +40,69 @@ export const useSettings = () => {
   const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
+    if (!isBrowser) {
+      setIsLoaded(true)
+      return
+    }
+
     try {
-      const savedSettings = localStorage.getItem('macos-settings')
+      const savedSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS)
       if (savedSettings) {
-        const parsed = JSON.parse(savedSettings)
+        const parsed = safeJsonParse<Partial<Settings>>(savedSettings, {})
         setSettings({ ...defaultSettings, ...parsed })
       }
     } catch (error) {
-      console.error('Failed to load settings:', error)
+      if (error instanceof DOMException) {
+        if (error.name === 'QuotaExceededError') {
+          console.error('LocalStorage quota exceeded. Clearing old data...')
+        } else if (error.name === 'SecurityError') {
+          console.error('LocalStorage access denied')
+        }
+      } else {
+        console.error('Error loading settings:', error)
+      }
     } finally {
       setIsLoaded(true)
     }
   }, [])
 
   const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
+    if (!isBrowser) return
+
     const newSettings = { ...settings, [key]: value }
     setSettings(newSettings)
 
     try {
-      localStorage.setItem('macos-settings', JSON.stringify(newSettings))
+      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(newSettings))
     } catch (error) {
-      console.error('Failed to save settings:', error)
+      if (error instanceof DOMException) {
+        if (error.name === 'QuotaExceededError') {
+          console.error('LocalStorage quota exceeded. Cannot save settings.')
+        } else if (error.name === 'SecurityError') {
+          console.error('LocalStorage access denied')
+        }
+      } else {
+        console.error('Error saving settings:', error)
+      }
     }
   }
 
   const resetSettings = () => {
+    if (!isBrowser) return
+
     setSettings(defaultSettings)
     try {
-      localStorage.setItem('macos-settings', JSON.stringify(defaultSettings))
+      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(defaultSettings))
     } catch (error) {
-      console.error('Failed to reset settings:', error)
+      if (error instanceof DOMException) {
+        if (error.name === 'QuotaExceededError') {
+          console.error('LocalStorage quota exceeded. Cannot reset settings.')
+        } else if (error.name === 'SecurityError') {
+          console.error('LocalStorage access denied')
+        }
+      } else {
+        console.error('Error resetting settings:', error)
+      }
     }
   }
 

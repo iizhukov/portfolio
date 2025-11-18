@@ -1,22 +1,20 @@
 import apiClient from './config'
+import type { AxiosResponse, AxiosRequestConfig } from 'axios'
 import type { Project, ProjectHealth } from './types/projects'
 
 export const projectsApi = {
-  getProjects: async (parentId?: number): Promise<Project[]> => {
+  getProjects: async (parentId?: number, config?: AxiosRequestConfig): Promise<AxiosResponse<Project[]>> => {
     const params = parentId !== undefined ? { parent_id: parentId } : {}
-    const response = await apiClient.get<Project[]>('/projects/', { params })
-    return response.data
+    return apiClient.get<Project[]>('/projects/', { ...config, params })
   },
 
-  getProjectById: async (projectId: number): Promise<Project> => {
-    const response = await apiClient.get<Project>(`/projects/${projectId}`)
-    return response.data
+  getProjectById: async (projectId: number, config?: AxiosRequestConfig): Promise<AxiosResponse<Project>> => {
+    return apiClient.get<Project>(`/projects/${projectId}`, config)
   },
 
-  getProjectTree: async (rootId?: number): Promise<Project[]> => {
+  getProjectTree: async (rootId?: number, config?: AxiosRequestConfig): Promise<AxiosResponse<Project[]>> => {
     const params = rootId !== undefined ? { root_id: rootId } : {}
-    const response = await apiClient.get<Project[]>('/projects/tree', { params })
-    return response.data
+    return apiClient.get<Project[]>('/projects/tree', { ...config, params })
   },
 
   getHealth: async (): Promise<ProjectHealth> => {

@@ -1,35 +1,9 @@
-import axios from 'axios'
-import type { AxiosInstance } from 'axios'
+import { modulesApi } from '@shared/api/modules'
+import { apiCache } from '@shared/api/cache'
+import { ApiErrorHandler } from '@shared/api/error-handler'
+import type { ServiceInfo } from '@shared/api/types/modules'
 
-const API_PROTOCOL = import.meta.env.VITE_API_PROTOCOL || 'http'
-const API_IP = import.meta.env.VITE_API_IP || 'localhost'
-const GATEWAY_URL = `${API_PROTOCOL}://${API_IP}`
-
-const apiClient: AxiosInstance = axios.create({
-  baseURL: `${GATEWAY_URL}/api/v1`,
-  timeout: 30000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-})
-
-export interface ServiceInfo {
-  id: number
-  service_name: string
-  version: string
-  admin_topic: string
-  ttl_seconds: number
-  status: string
-  created_at: string
-  updated_at: string
-}
-
-export const modulesApi = {
-  listServices: async (): Promise<ServiceInfo[]> => {
-    const response = await apiClient.get<ServiceInfo[]>('/modules/services')
-    return response.data
-  },
-}
+const CACHE_TTL = 5 * 60 * 1000
 
 export const SERVICE_APP_MAPPING: Record<string, { icon: string; type: string; name: string }> = {
   projects: {
@@ -47,5 +21,23 @@ export const SERVICE_APP_MAPPING: Record<string, { icon: string; type: string; n
     type: 'swagger',
     name: 'Swagger',
   },
+}
+
+export const fetchServices = async (): Promise<ServiceInfo[]> => {
+  const cacheKey = 'modules:services'
+  const cached = apiCache.get<ServiceInfo[]>(cacheKey)
+  if (cached) {
+    return cached
+  }
+
+  try {
+    const response = await modulesApi.listServices()
+    const etag = response.headers?.['etag'] as string | undefined
+    apiCache.set(cacheKey, response.data, undefined, { ttl: CACHE_TTL }, etag)
+    return response.data
+  } catch (err) {
+    ApiErrorHandler.handleError(err)
+    throw err
+  }
 }
 

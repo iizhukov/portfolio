@@ -1,9 +1,8 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { type Project, type FinderState } from '../types/finder'
 import { useProjectTree } from '../api/hooks'
 import { adaptApiProjectToFinder } from '../utils/project-adapter'
-import { handleFileOpen, setCurrentFinderPath } from '../utils/file-handlers'
-import { notifyLocationChange } from '@shared/utils/location'
+import { handleFileOpen } from '../utils/file-handlers'
 
 const initialState: FinderState = {
   navigation: {
@@ -20,11 +19,15 @@ const initialState: FinderState = {
 export const useFinder = () => {
   const [state, setState] = useState<FinderState>(initialState)
   const { projects: apiProjects, loading, error } = useProjectTree()
-  const finderProjects = apiProjects.map(adaptApiProjectToFinder)
+  const finderProjects = useMemo(
+    () => apiProjects.map(adaptApiProjectToFinder),
+    [apiProjects]
+  )
 
-  const restorePathFromUrl = useCallback(() => {
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    if (params.get('app') !== 'finder') {
+    const app = params.get('app')
+    if (app !== 'finder' && app !== 'projects') {
       return
     }
     const pathParam = params.get('path')
@@ -40,34 +43,43 @@ export const useFinder = () => {
           },
           selectedItems: [],
         }))
-        setCurrentFinderPath(path)
       }
     }
-  }, [setState])
+  }, [])
 
   useEffect(() => {
-    restorePathFromUrl()
-  }, [restorePathFromUrl])
-
-  useEffect(() => {
-    setCurrentFinderPath(state.navigation.currentPath)
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('app') !== 'finder') {
+    const currentParams = new URLSearchParams(window.location.search)
+    const currentApp = currentParams.get('app')
+    
+    if (currentApp && currentApp !== 'finder' && currentApp !== 'projects') {
       return
     }
-    params.set('app', 'finder')
-    if (state.navigation.currentPath.length > 0) {
-      params.set('path', state.navigation.currentPath.join(','))
-    } else {
-      params.delete('path')
+    
+    if (state.navigation.currentPath.length === 0) {
+      return
     }
-    const queryString = params.toString()
-    const newUrl = queryString ? `/window?${queryString}` : '/window'
-    window.history.replaceState(null, '', newUrl)
-    notifyLocationChange()
+    
+    const query: Record<string, string> = {}
+    const existingApp = currentParams.get('app')
+    if (existingApp) {
+      query.app = existingApp
+    }
+    query.path = state.navigation.currentPath.join(',')
+    
+    const params = new URLSearchParams(query)
+    const fullPath = `/window?${params.toString()}`
+    
+    if (window.location.pathname === '/window') {
+      const currentSearch = window.location.search
+      const newSearch = `?${params.toString()}`
+      if (currentSearch !== newSearch) {
+        window.history.replaceState(null, '', fullPath)
+        window.dispatchEvent(new PopStateEvent('popstate'))
+      }
+    }
   }, [state.navigation.currentPath])
 
-  const getCurrentItems = useCallback((): Project[] => {
+  const getCurrentItems = useMemo((): Project[] => {
     if (loading || error || finderProjects.length === 0) {
       return []
     }
@@ -122,7 +134,7 @@ export const useFinder = () => {
           navigateTo(newPath)
         }
       } else {
-        handleFileOpen(item)
+        handleFileOpen(item, state.navigation.currentPath)
       }
     },
     [state.navigation.currentPath, navigateTo]
@@ -209,7 +221,7 @@ export const useFinder = () => {
 
   return {
     state,
-    currentItems: getCurrentItems(),
+    currentItems: getCurrentItems,
     allProjects: finderProjects,
     navigateToItem,
     navigateTo,

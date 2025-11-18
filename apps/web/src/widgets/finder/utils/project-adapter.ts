@@ -1,4 +1,4 @@
-import type { Project as ApiProject } from '../api/types'
+import type { Project as ApiProject } from '../api/projects'
 import type { Project as FinderProject, FileType } from '../types/finder'
 import { getFileIcon } from './file-icons'
 

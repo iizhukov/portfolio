@@ -1,5 +1,4 @@
 export * from './connections'
 export * from './hooks'
-export * from './types'
-export { default as apiClient } from './config'
+export type { Connection, Status, Working, Image, Health } from '@shared/api/types/connections'
 

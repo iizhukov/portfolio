@@ -1,0 +1,11 @@
+/* Database Viewer Styles */
+.database-viewer-container {
+  background: #fbfbfb;
+}
+
+.react-flow-node-override {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+

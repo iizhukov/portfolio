@@ -1,10 +1,13 @@
-import { FAVORITES } from '../models/projects'
 import { getFileIcon } from '../utils/file-icons'
 
 interface SidebarProps {
   currentPath: string[]
   onNavigateTo: (path: string[]) => void
 }
+
+const FAVORITES = [
+  { id: 'projects', name: 'Projects', path: [] },
+]
 
 export const Sidebar = ({ currentPath, onNavigateTo }: SidebarProps) => {
   return (
@@ -29,13 +32,6 @@ export const Sidebar = ({ currentPath, onNavigateTo }: SidebarProps) => {
                 onError={e => {
                   const target = e.target as HTMLImageElement
                   target.style.display = 'none'
-                  const parent = target.parentElement
-                  if (parent) {
-                    const emoji = document.createElement('span')
-                    emoji.className = 'text-lg mr-3'
-                    emoji.textContent = favorite.icon
-                    parent.insertBefore(emoji, target)
-                  }
                 }}
               />
               <span className="font-medium">{favorite.name}</span>

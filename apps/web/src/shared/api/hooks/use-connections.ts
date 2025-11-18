@@ -1,104 +1,50 @@
-import { useState, useEffect } from 'react'
 import { connectionsApi } from '../connections'
+import { useApiQuery } from './use-api-query'
+import { CACHE_TTL } from '@shared/constants/cache'
 import type { Connection, Status, Working, Image } from '../types/connections'
 
+const CACHE_KEY_CONNECTIONS = 'connections:list'
+const CACHE_KEY_STATUS = 'connections:status'
+const CACHE_KEY_WORKING = 'connections:working'
+const CACHE_KEY_IMAGE = 'connections:image'
+
 export const useConnections = () => {
-  const [connections, setConnections] = useState<Connection[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+  const { data, loading, error } = useApiQuery<Connection[]>(
+    CACHE_KEY_CONNECTIONS,
+    (signal, config) => connectionsApi.getConnections({ ...config, signal }),
+    { ttl: CACHE_TTL.DEFAULT }
+  )
 
-  useEffect(() => {
-    const fetchConnections = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const data = await connectionsApi.getConnections()
-        setConnections(data)
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch connections'))
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchConnections()
-  }, [])
-
-  return { connections, loading, error }
+  return { connections: data ?? [], loading, error }
 }
 
 export const useStatus = () => {
-  const [status, setStatus] = useState<Status | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+  const { data, loading, error } = useApiQuery<Status>(
+    CACHE_KEY_STATUS,
+    (signal, config) => connectionsApi.getStatus({ ...config, signal }),
+    { ttl: CACHE_TTL.DEFAULT }
+  )
 
-  useEffect(() => {
-    const fetchStatus = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const data = await connectionsApi.getStatus()
-        setStatus(data)
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch status'))
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchStatus()
-  }, [])
-
-  return { status, loading, error }
+  return { status: data ?? null, loading, error }
 }
 
 export const useWorking = () => {
-  const [working, setWorking] = useState<Working | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+  const { data, loading, error } = useApiQuery<Working>(
+    CACHE_KEY_WORKING,
+    (signal, config) => connectionsApi.getWorking({ ...config, signal }),
+    { ttl: CACHE_TTL.DEFAULT }
+  )
 
-  useEffect(() => {
-    const fetchWorking = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const data = await connectionsApi.getWorking()
-        setWorking(data)
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch working status'))
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchWorking()
-  }, [])
-
-  return { working, loading, error }
+  return { working: data ?? null, loading, error }
 }
 
 export const useImage = () => {
-  const [image, setImage] = useState<Image | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+  const { data, loading, error } = useApiQuery<Image>(
+    CACHE_KEY_IMAGE,
+    (signal, config) => connectionsApi.getImage({ ...config, signal }),
+    { ttl: CACHE_TTL.DEFAULT }
+  )
 
-  useEffect(() => {
-    const fetchImage = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const data = await connectionsApi.getImage()
-        setImage(data)
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch image'))
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchImage()
-  }, [])
-
-  return { image, loading, error }
+  return { image: data ?? null, loading, error }
 }
 

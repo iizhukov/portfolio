@@ -7,6 +7,7 @@ import { MarkdownViewer } from '@widgets/markdown-viewer'
 import { DatabaseViewer } from '@widgets/database-viewer'
 import { ArchitectureViewer } from '@widgets/architecture-viewer'
 import { SwaggerViewer } from '@widgets/swagger-viewer'
+import type { AppConfig } from '../types'
 
 export type WindowSize =
   | 'standard' // (800x600px)
@@ -14,19 +15,8 @@ export type WindowSize =
   | 'vertical' // (600x800px)
   | 'fullscreen' // (95% x 95%)
 
-interface App {
-  id: string
-  name: string
-  icon: string
-  type: string
-  url?: string
-  dbml?: string
-  excalidraw?: string
-  swagger?: string
-}
-
 interface WindowProps {
-  app: App
+  app: AppConfig
   isActive: boolean
   onClose: () => void
   onMinimize: () => void
@@ -115,9 +105,11 @@ export const Window = ({
           ) : app.type === 'architecture' ? (
             <ArchitectureViewer url={app.excalidraw || ''} title={app.name} />
           ) : app.type === 'swagger' ? (
-            <SwaggerViewer url={app.swagger || ''} title={app.name} />
+            <SwaggerViewer url={app.swagger || app.url || ''} title={app.name} />
           ) : (
-            <Connections />
+            <div className="w-full h-full flex items-center justify-center bg-window-bg text-window-text">
+              <p>Application type &quot;{app.type}&quot; is not supported</p>
+            </div>
           )}
         </div>
       </div>

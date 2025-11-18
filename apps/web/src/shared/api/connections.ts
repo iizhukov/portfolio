@@ -1,25 +1,22 @@
 import apiClient from './config'
+import type { AxiosResponse, AxiosRequestConfig } from 'axios'
 import type { Connection, Status, Working, Image, Health } from './types/connections'
 
 export const connectionsApi = {
-  getConnections: async (): Promise<Connection[]> => {
-    const response = await apiClient.get<Connection[]>('/connections/connections/')
-    return response.data
+  getConnections: async (config?: AxiosRequestConfig): Promise<AxiosResponse<Connection[]>> => {
+    return apiClient.get<Connection[]>('/connections/connections/', config)
   },
 
-  getStatus: async (): Promise<Status> => {
-    const response = await apiClient.get<Status>('/connections/status/')
-    return response.data
+  getStatus: async (config?: AxiosRequestConfig): Promise<AxiosResponse<Status>> => {
+    return apiClient.get<Status>('/connections/status/', config)
   },
 
-  getWorking: async (): Promise<Working> => {
-    const response = await apiClient.get<Working>('/connections/working-on/')
-    return response.data
+  getWorking: async (config?: AxiosRequestConfig): Promise<AxiosResponse<Working>> => {
+    return apiClient.get<Working>('/connections/working-on/', config)
   },
 
-  getImage: async (): Promise<Image> => {
-    const response = await apiClient.get<Image>('/connections/image/')
-    return response.data
+  getImage: async (config?: AxiosRequestConfig): Promise<AxiosResponse<Image>> => {
+    return apiClient.get<Image>('/connections/image/', config)
   },
 
   getHealth: async (): Promise<Health> => {

@@ -1,6 +1,4 @@
-const API_PROTOCOL = import.meta.env.VITE_API_PROTOCOL || 'http'
-const API_IP = import.meta.env.VITE_API_IP || 'localhost'
-const GATEWAY_URL = `${API_PROTOCOL}://${API_IP}`
+import { env } from '@shared/config/env'
 
 export const getFileUrl = (url: string | undefined | null): string => {
   if (!url) {
@@ -8,7 +6,7 @@ export const getFileUrl = (url: string | undefined | null): string => {
   }
 
   if (url.startsWith('/storage/')) {
-    return `${GATEWAY_URL}${url}`
+    return `${env.GATEWAY_URL}${url}`
   }
 
   if (url.startsWith('http://') || url.startsWith('https://')) {

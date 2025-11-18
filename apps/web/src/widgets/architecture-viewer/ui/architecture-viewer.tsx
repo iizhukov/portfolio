@@ -1,5 +1,6 @@
 import { useEffect, useState, lazy, Suspense } from 'react'
 import { getFileUrl } from '@shared/utils/url'
+import { validateExcalidrawJson } from '@shared/utils/validators'
 
 const Excalidraw = lazy(async () => {
   await import('@excalidraw/excalidraw/index.css')
@@ -12,7 +13,7 @@ interface ArchitectureViewerProps {
   title?: string
 }
 
-type ExcalidrawInitialData = any
+type ExcalidrawInitialData = Record<string, unknown>
 
 export const ArchitectureViewer = ({ url, title }: ArchitectureViewerProps) => {
   const [initialData, setInitialData] = useState<ExcalidrawInitialData | null>(null)
@@ -35,6 +36,10 @@ export const ArchitectureViewer = ({ url, title }: ArchitectureViewerProps) => {
 
         const json = await response.json()
         if (!cancelled) {
+          const validation = validateExcalidrawJson(json)
+          if (!validation.valid) {
+            throw new Error(validation.error || 'Invalid Excalidraw file format')
+          }
           setInitialData(json)
         }
       } catch (err) {
@@ -78,11 +83,6 @@ export const ArchitectureViewer = ({ url, title }: ArchitectureViewerProps) => {
 
   return (
     <div className="w-full h-full bg-window-bg flex flex-col">
-      {title && (
-        <div className="px-6 py-4 border-b border-window-header-border text-window-text text-xl font-semibold">
-          {title}
-        </div>
-      )}
       <div className="flex-1">
         <Suspense fallback={
           <div className="w-full h-full flex items-center justify-center bg-window-bg text-window-text-secondary">

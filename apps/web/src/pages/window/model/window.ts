@@ -1,30 +1,3 @@
-export const MOCK_APPS = [
-  {
-    id: 'finder',
-    name: 'Finder',
-    icon: '/assets/icons/folder.ico',
-    type: 'finder',
-  },
-  {
-    id: 'notes',
-    name: 'Notes',
-    icon: '/assets/icons/notes.ico',
-    type: 'notes',
-  },
-  {
-    id: 'settings',
-    name: 'System Preferences',
-    icon: '/assets/icons/settings.ico',
-    type: 'settings',
-  },
-  {
-    id: 'theme',
-    name: 'Theme',
-    icon: '/assets/icons/color_meter.ico',
-    type: 'theme',
-  },
-]
-
 export const WINDOW_SIZES = {
   standard: { width: '800px', height: '600px' },
   large: { width: '1200px', height: '800px' },
