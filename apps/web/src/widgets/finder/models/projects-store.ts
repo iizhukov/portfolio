@@ -217,18 +217,18 @@ class ProjectsStore {
       return null
     }
 
-    let current: Project | undefined
+    let current: Project | null = null
     const rootProjects = this.getRootProjects()
     
     for (let i = 0; i < path.length; i++) {
       const pathId = path[i]
       
       if (i === 0) {
-        current = rootProjects.find(p => p.id === pathId)
+        current = rootProjects.find(p => p.id === pathId) || null
       } else {
-        const parent = current
-        if (!parent) return null
-        current = this.getChildren(parent.id).find(p => p.id === pathId)
+        if (!current) return null
+        const parent: Project = current
+        current = this.getChildren(parent.id).find(p => p.id === pathId) || null
       }
       
       if (!current) return null
