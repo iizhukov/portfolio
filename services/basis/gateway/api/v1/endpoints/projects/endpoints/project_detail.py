@@ -1,6 +1,7 @@
 import grpc
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from tenacity import RetryError
+from typing import Optional
 
 from core.logging import get_logger
 from generated.projects import projects_pb2
