@@ -7,36 +7,60 @@ import { useAppConfig } from '../hooks/use-app-config'
 import { isBrowser } from '@shared/utils/browser'
 import type { WindowQueryParams } from '../types'
 
-const WINDOW_APPEAR_DELAY = 50
-const WINDOW_CLOSE_DELAY = 500
+const WINDOW_APPEAR_DELAY = 100
+const WINDOW_CLOSE_DELAY = 350
+const WINDOW_SWITCH_DELAY = 350
 
 export const WindowPage = () => {
+  const initialParams = parseWindowQueryParams()
   const [isActive, setIsActive] = useState(false)
   const [isMaximized, setIsMaximized] = useState(false)
-  const [urlParams, setUrlParams] = useState<WindowQueryParams>(parseWindowQueryParams)
-  const prevAppIdRef = useRef<string | undefined>(urlParams.app)
-  const prevParamsRef = useRef<string>(JSON.stringify(urlParams))
+  const [urlParams, setUrlParams] = useState<WindowQueryParams>(initialParams)
+  const prevAppIdRef = useRef<string | undefined>(undefined)
+  const prevParamsRef = useRef<string>(JSON.stringify(initialParams))
+  const isInitialMountRef = useRef(true)
 
   useEffect(() => {
     if (!isBrowser) return
 
+    let switchTimeoutId: ReturnType<typeof setTimeout> | undefined
+
     const handleLocationChange = () => {
       const newParams = parseWindowQueryParams()
       const paramsString = JSON.stringify(newParams)
-      const appChanged = prevAppIdRef.current !== newParams.app
+      const prevApp = prevAppIdRef.current
+      const newApp = newParams.app
+      const isFirstOpen = isInitialMountRef.current && newApp !== undefined
+      const appChanged = !isInitialMountRef.current && prevApp !== undefined && newApp !== undefined && prevApp !== newApp
       const paramsChanged = prevParamsRef.current !== paramsString
       
-      if (paramsChanged) {
+      if (isFirstOpen) {
         setUrlParams(newParams)
-        prevAppIdRef.current = newParams.app
+        prevAppIdRef.current = newApp
+        prevParamsRef.current = paramsString
+        isInitialMountRef.current = false
+        setTimeout(() => {
+          setIsActive(true)
+        }, WINDOW_APPEAR_DELAY)
+        return
+      }
+      
+      if (paramsChanged) {
+        if (switchTimeoutId) {
+          clearTimeout(switchTimeoutId)
+        }
+
+        setUrlParams(newParams)
+        prevAppIdRef.current = newApp
         prevParamsRef.current = paramsString
         
         if (appChanged) {
           setIsActive(false)
           setIsMaximized(false)
-          setTimeout(() => {
+          switchTimeoutId = setTimeout(() => {
             setIsActive(true)
-          }, WINDOW_APPEAR_DELAY)
+            switchTimeoutId = undefined
+          }, WINDOW_SWITCH_DELAY)
         } else {
           setIsActive(true)
         }
@@ -57,6 +81,9 @@ export const WindowPage = () => {
     handleLocationChange()
 
     return () => {
+      if (switchTimeoutId) {
+        clearTimeout(switchTimeoutId)
+      }
       window.removeEventListener('popstate', handleLocationChange)
       window.removeEventListener(LOCATION_CHANGE_EVENT, handleLocationChange)
       clearInterval(checkInterval)
@@ -102,13 +129,6 @@ export const WindowPage = () => {
     }
   }, [isMaximized, currentApp.type])
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsActive(true)
-    }, WINDOW_APPEAR_DELAY)
-
-    return () => clearTimeout(timer)
-  }, [])
 
   const handleClose = () => {
     setIsActive(false)
@@ -124,7 +144,7 @@ export const WindowPage = () => {
   }
 
   const handleMinimize = () => {
-    setIsActive(false)
+    // setIsActive(false)
   }
 
   const handleMaximize = () => {

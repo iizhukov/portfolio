@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense } from 'react'
+import { useEffect, useState, lazy, Suspense, useRef } from 'react'
 import { getFileUrl } from '@shared/utils/url'
 import { validateExcalidrawJson } from '@shared/utils/validators'
 
@@ -19,6 +19,8 @@ export const ArchitectureViewer = ({ url, title }: ArchitectureViewerProps) => {
   const [initialData, setInitialData] = useState<ExcalidrawInitialData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [containerKey, setContainerKey] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -65,6 +67,20 @@ export const ArchitectureViewer = ({ url, title }: ArchitectureViewerProps) => {
     }
   }, [url])
 
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    const resizeObserver = new ResizeObserver(() => {
+      setContainerKey(prev => prev + 1)
+    })
+
+    resizeObserver.observe(containerRef.current)
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [])
+
   if (loading) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-window-bg text-window-text-secondary">
@@ -82,29 +98,31 @@ export const ArchitectureViewer = ({ url, title }: ArchitectureViewerProps) => {
   }
 
   return (
-    <div className="w-full h-full bg-window-bg flex flex-col">
-      <div className="flex-1">
+    <div className="w-full h-full bg-window-bg flex flex-col overflow-hidden">
+      <div ref={containerRef} className="flex-1 w-full h-full relative">
         <Suspense fallback={
           <div className="w-full h-full flex items-center justify-center bg-window-bg text-window-text-secondary">
             Loading Excalidraw...
           </div>
         }>
-          <Excalidraw
-            initialData={initialData}
-            viewModeEnabled
-            zenModeEnabled
-            UIOptions={{
-              canvasActions: {
-                changeViewBackgroundColor: false,
-                clearCanvas: false,
-                export: false,
-                loadScene: false,
-                saveToActiveFile: false,
-                toggleTheme: false,
-              },
-            }}
-            renderTopRightUI={() => null}
-          />
+          <div className="w-full h-full absolute inset-0" key={containerKey}>
+            <Excalidraw
+              initialData={initialData}
+              viewModeEnabled
+              zenModeEnabled
+              UIOptions={{
+                canvasActions: {
+                  changeViewBackgroundColor: false,
+                  clearCanvas: false,
+                  export: false,
+                  loadScene: false,
+                  saveToActiveFile: false,
+                  toggleTheme: false,
+                },
+              }}
+              renderTopRightUI={() => null}
+            />
+          </div>
         </Suspense>
       </div>
     </div>

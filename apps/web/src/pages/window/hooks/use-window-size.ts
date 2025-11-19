@@ -18,6 +18,7 @@ type WindowDimensions = {
   maxHeight: string
   top?: string
   left?: string
+  isMobile?: boolean
 }
 
 const computeDimensions = (size: WindowSize): WindowDimensions => {
@@ -31,19 +32,41 @@ const computeDimensions = (size: WindowSize): WindowDimensions => {
       maxHeight: baseSize.height,
       top: size === 'fullscreen' ? '50%' : undefined,
       left: size === 'fullscreen' ? '50%' : undefined,
+      isMobile: false,
     }
   }
 
   const screenWidth = window.innerWidth
   const screenHeight = window.innerHeight
 
-  if (screenWidth < SCREEN_BREAKPOINT || screenHeight < BASE_SCREEN.height) {
-    const scaleX = screenWidth / BASE_SCREEN.width
-    const scaleY = screenHeight / BASE_SCREEN.height
+  const MOBILE_BREAKPOINT = 769
+
+  if (screenWidth < MOBILE_BREAKPOINT) {
+    const padding = 16
+    const mobileWidth = '95vw'
+    const mobileHeight = '95vh'
+
+    return {
+      width: mobileWidth,
+      height: mobileHeight,
+      maxWidth: mobileWidth,
+      maxHeight: mobileHeight,
+      top: `${padding}px`,
+      left: `${padding}px`,
+      isMobile: true,
+    }
+  }
+
+  const baseWidth = parseInt(baseSize.width)
+  const baseHeight = parseInt(baseSize.height)
+
+  if (screenWidth > BASE_SCREEN.width || screenHeight > BASE_SCREEN.height) {
+    const scaleX = BASE_SCREEN.width / screenWidth
+    const scaleY = BASE_SCREEN.height / screenHeight
     const scale = Math.min(scaleX, scaleY, 1)
 
-    const scaledWidth = Math.round(parseInt(baseSize.width) * scale)
-    const scaledHeight = Math.round(parseInt(baseSize.height) * scale)
+    const scaledWidth = Math.round(baseWidth * scale)
+    const scaledHeight = Math.round(baseHeight * scale)
 
     return {
       width: `${scaledWidth}px`,
@@ -52,6 +75,7 @@ const computeDimensions = (size: WindowSize): WindowDimensions => {
       maxHeight: `${scaledHeight}px`,
       top: undefined,
       left: undefined,
+      isMobile: false,
     }
   }
 
@@ -62,6 +86,7 @@ const computeDimensions = (size: WindowSize): WindowDimensions => {
     maxHeight: baseSize.height,
     top: undefined,
     left: undefined,
+    isMobile: false,
   }
 }
 

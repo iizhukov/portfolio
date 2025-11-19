@@ -25,6 +25,10 @@ interface WindowProps {
   className?: string
 }
 
+const CLOSING_SIZE = { width: '200px', height: '150px' }
+
+const APPS_WITHOUT_MAXIMIZE: AppConfig['type'][] = ['connections']
+
 export const Window = ({
   app,
   isActive,
@@ -35,32 +39,37 @@ export const Window = ({
   className,
 }: WindowProps) => {
   const dimensions = useWindowSize(size)
+  const canMaximize = !APPS_WITHOUT_MAXIMIZE.includes(app.type)
 
   return (
     <div
       className={clsx(
-        'fixed bg-window-bg rounded-xl shadow-2xl flex flex-col overflow-hidden transition-all duration-500 ease-out',
+        'fixed bg-window-bg rounded-xl shadow-2xl flex flex-col overflow-hidden',
         {
-          'opacity-100 scale-100': isActive,
-          'opacity-0 scale-95 pointer-events-none': !isActive,
+          'opacity-100 pointer-events-auto': isActive,
+          'opacity-0 pointer-events-none': !isActive,
         },
         className
       )}
       style={{
         visibility: isActive ? 'visible' : 'hidden',
-        width: dimensions.width,
-        height: dimensions.height,
-        maxWidth: dimensions.maxWidth,
-        maxHeight: dimensions.maxHeight,
-        top: dimensions.top || '50%',
-        left: dimensions.left || '50%',
-        transform: 'translate(-50%, -50%)',
-        transition: 'width 0.4s ease-out, height 0.4s ease-out, opacity 0.3s ease-out, transform 0.3s ease-out',
-        willChange: 'width, height, transform',
+        width: isActive ? dimensions.width : CLOSING_SIZE.width,
+        height: isActive ? dimensions.height : CLOSING_SIZE.height,
+        maxWidth: isActive ? dimensions.maxWidth : CLOSING_SIZE.width,
+        maxHeight: isActive ? dimensions.maxHeight : CLOSING_SIZE.height,
+        top: isActive ? (dimensions.top || '50%') : '50%',
+        left: isActive ? (dimensions.left || '50%') : '50%',
+        transform: dimensions.isMobile 
+          ? (isActive ? 'none' : 'scale(0.9)') 
+          : (isActive ? 'translate(-50%, -50%) scale(1)' : 'translate(-50%, -50%) scale(0.9)'),
+        transition: isActive
+          ? 'width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), max-width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), max-height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease-out, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
+          : 'width 0.3s ease-in, height 0.3s ease-in, max-width 0.3s ease-in, max-height 0.3s ease-in, opacity 0.3s ease-in, transform 0.3s ease-in',
+        willChange: 'width, height, max-width, max-height, transform, opacity',
       }}
     >
       {/* Window Header */}
-      <div className="h-9 flex items-center px-2.5 gap-2 bg-window-header-bg border-b border-window-header-border">
+      <div className="h-9 flex items-center px-2.5 gap-2 bg-window-header-bg border-b border-window-header-border relative">
         {/* Window Controls */}
         <div className="flex gap-2">
           <button
@@ -74,23 +83,35 @@ export const Window = ({
             title="Minimize"
           />
           <button
-            onClick={onMaximize}
-            className="w-3 h-3 rounded-full bg-control-maximize hover:bg-control-maximize-hover transition-colors duration-200 cursor-pointer"
+            onClick={canMaximize ? onMaximize : undefined}
+            className={clsx(
+              'w-3 h-3 rounded-full bg-control-maximize transition-colors duration-200',
+              {
+                'hover:bg-control-maximize-hover cursor-pointer': canMaximize,
+                'opacity-50 cursor-not-allowed': !canMaximize,
+              }
+            )}
             title="Maximize"
+            disabled={!canMaximize}
           />
         </div>
 
-        {/* Window Title */}
-        <span className="flex-1 text-center font-medium text-sm text-window-text">{app.name}</span>
+        {/* Window Title - centered relative to entire window */}
+        <span className="absolute left-1/2 transform -translate-x-1/2 font-medium text-sm text-window-text pointer-events-none">
+          {app.name}
+        </span>
       </div>
 
       {/* Window Content */}
       <div className="flex-1 flex overflow-hidden">
         <div
-          className={clsx('w-full h-full transition-opacity', {
-            'duration-300 opacity-100': isActive,
-            'duration-100 opacity-0': !isActive,
-          })}
+          className="w-full h-full"
+          style={{
+            opacity: isActive ? 1 : 0,
+            transition: isActive 
+              ? 'opacity 0.4s ease-out 0.1s' 
+              : 'opacity 0.2s ease-in',
+          }}
         >
           {app.type === 'settings' ? (
             <Settings />

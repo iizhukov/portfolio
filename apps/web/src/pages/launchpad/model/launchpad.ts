@@ -1,5 +1,7 @@
 export const LAUNCHPAD_GRID_COLS = 7
+export const LAUNCHPAD_GRID_COLS_MOBILE = 3
 export const LAUNCHPAD_ICON_SIZE = 100
+export const LAUNCHPAD_ICON_SIZE_MOBILE = 80
 export const LAUNCHPAD_ICON_GAP = 80
 
 export const LAUNCHPAD_CONTAINER = {

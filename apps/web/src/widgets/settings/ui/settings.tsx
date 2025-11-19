@@ -224,28 +224,29 @@ export const Settings = () => {
 
   return (
     <div className="flex h-full bg-settings-bg">
-      <div className="w-64 bg-settings-sidebar-bg border-r border-settings-border">
-        <div className="p-4">
-          <h2 className="text-xl font-bold text-settings-text mb-6">Settings</h2>
+      <div className="w-16 md:w-64 bg-settings-sidebar-bg border-r border-settings-border">
+        <div className="p-2 md:p-4">
+          <h2 className="hidden md:block text-xl font-bold text-settings-text mb-6">Settings</h2>
           <nav className="space-y-1">
             {SECTIONS.map(section => (
               <button
                 key={section.id}
                 onClick={() => setActiveSection(section.id as SettingsSection)}
-                className={`w-full flex items-center px-3 py-2 text-left rounded-lg transition-colors duration-200 ${
+                className={`w-full flex items-center justify-center md:justify-start px-2 md:px-3 py-2 text-left rounded-lg transition-colors duration-200 ${
                   activeSection === section.id
                     ? 'bg-settings-active text-white'
                     : 'text-settings-text hover:bg-settings-hover'
                 }`}
+                title={section.label}
               >
-                <span className="text-lg mr-3">{section.icon}</span>
-                <span className="font-medium">{section.label}</span>
+                <span className="text-lg md:mr-3">{section.icon}</span>
+                <span className="hidden md:inline font-medium">{section.label}</span>
               </button>
             ))}
           </nav>
         </div>
       </div>
-      <div className="flex-1 p-6 overflow-y-auto">
+      <div className="flex-1 p-4 md:p-6 overflow-y-auto">
         <div className="max-w-2xl">
           <h1 className="text-2xl font-bold text-settings-text mb-2">
             {SECTIONS.find(s => s.id === activeSection)?.label}

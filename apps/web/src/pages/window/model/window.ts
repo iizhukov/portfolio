@@ -1,6 +1,6 @@
 export const WINDOW_SIZES = {
-  standard: { width: '800px', height: '600px' },
-  large: { width: '1200px', height: '800px' },
-  vertical: { width: '500px', height: '800px' },
+  standard: { width: '700px', height: '550px' },
+  large: { width: '1000px', height: '600px' },
+  vertical: { width: '450px', height: '650px' },
   fullscreen: { width: '95vw', height: '95vh' },
 } as const

@@ -1,6 +1,7 @@
 import { clsx } from 'clsx'
-import { LAUNCHPAD_ICON_SIZE, LAUNCHPAD_GRID_COLS } from '../model/launchpad'
+import { LAUNCHPAD_ICON_SIZE, LAUNCHPAD_ICON_SIZE_MOBILE, LAUNCHPAD_GRID_COLS, LAUNCHPAD_GRID_COLS_MOBILE } from '../model/launchpad'
 import { useLaunchpadLayout } from '../hooks/use-launchpad-layout'
+import { useState, useEffect } from 'react'
 
 interface AppIcon {
   id: string
@@ -17,6 +18,19 @@ interface LaunchpadProps {
 
 export const Launchpad = ({ apps = [], onAppClick = () => {}, className }: LaunchpadProps) => {
   const layout = useLaunchpadLayout()
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const gridCols = isMobile ? LAUNCHPAD_GRID_COLS_MOBILE : LAUNCHPAD_GRID_COLS
+  const iconSize = isMobile ? LAUNCHPAD_ICON_SIZE_MOBILE : LAUNCHPAD_ICON_SIZE
 
   return (
     <div
@@ -28,7 +42,7 @@ export const Launchpad = ({ apps = [], onAppClick = () => {}, className }: Launc
       <div
         className={`grid w-full text-white`}
         style={{
-          gridTemplateColumns: `repeat(${LAUNCHPAD_GRID_COLS}, 1fr)`,
+          gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
           gap: `${layout.gap}px`,
           maxWidth: layout.maxWidth,
         }}
@@ -44,7 +58,7 @@ export const Launchpad = ({ apps = [], onAppClick = () => {}, className }: Launc
                 src={app.icon}
                 alt={app.name}
                 className="rounded-[20px] transition-transform duration-250 hover:scale-110 mx-auto"
-                style={{ width: `${LAUNCHPAD_ICON_SIZE}px`, height: `${LAUNCHPAD_ICON_SIZE}px` }}
+                style={{ width: `${iconSize}px`, height: `${iconSize}px` }}
               />
             </div>
             <div className="mt-2 text-sm font-medium">{app.name}</div>

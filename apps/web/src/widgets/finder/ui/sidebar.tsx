@@ -11,8 +11,8 @@ const FAVORITES = [
 
 export const Sidebar = ({ currentPath, onNavigateTo }: SidebarProps) => {
   return (
-    <div className="w-56 bg-finder-sidebar border-r border-finder-border">
-      <div className="p-4">
+    <div className="w-56 h-full bg-finder-sidebar border-r border-finder-border flex flex-col">
+      <div className="p-4 flex-1">
         <h3 className="text-sm font-semibold text-finder-text-secondary mb-4">Favorites</h3>
         <nav className="space-y-1">
           {FAVORITES.map(favorite => (

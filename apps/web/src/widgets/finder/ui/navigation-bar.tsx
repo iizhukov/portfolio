@@ -77,9 +77,23 @@ export const NavigationBar = ({
   }
 
   const breadcrumbItems = getBreadcrumbItems()
+  
+  const getDisplayedBreadcrumbs = () => {
+    if (breadcrumbItems.length <= 3) {
+      return breadcrumbItems
+    }
+    return [
+      breadcrumbItems[0],
+      { id: 'ellipsis', name: '...', path: [], icon: '' },
+      ...breadcrumbItems.slice(-2),
+    ]
+  }
+
+  const displayedBreadcrumbs = getDisplayedBreadcrumbs()
+
   return (
-    <div className="flex items-center gap-2 p-3 bg-finder-toolbar border-b border-finder-border">
-      <div className="flex gap-1">
+    <div className="flex items-center gap-2 p-3 bg-finder-toolbar border-b border-finder-border overflow-hidden">
+      <div className="flex gap-1 flex-shrink-0">
         <Button
           variant="ghost"
           size="sm"
@@ -109,29 +123,35 @@ export const NavigationBar = ({
         </Button>
       </div>
 
-      <div className="flex-1 flex items-center">
-        {breadcrumbItems.map((item, index) => (
-          <div key={item.id} className="flex items-center">
-            {index > 0 && <span className="mx-2 text-finder-text-secondary">/</span>}
-            <button
-              onClick={() => onNavigateToPath(item.path)}
-              className="flex items-center gap-1 text-finder-text hover:text-finder-text-hover transition-colors duration-200"
-            >
-              {item.id === 'root' && (
-                <img
-                  src={item.icon}
-                  alt={item.name}
-                  className="w-4 h-4"
-                  onError={e => {
-                    const target = e.target as HTMLImageElement
-                    target.src = getFileIcon('folder')
-                  }}
-                />
+      <div className="flex-1 flex items-center min-w-0 overflow-hidden">
+        <div className="flex items-center min-w-0">
+          {displayedBreadcrumbs.map((item, index) => (
+            <div key={item.id} className="flex items-center flex-shrink-0">
+              {index > 0 && <span className="mx-1 md:mx-2 text-finder-text-secondary flex-shrink-0">/</span>}
+              {item.id === 'ellipsis' ? (
+                <span className="text-finder-text-secondary px-1">...</span>
+              ) : (
+                <button
+                  onClick={() => onNavigateToPath(item.path)}
+                  className="flex items-center gap-1 text-finder-text hover:text-finder-text-hover transition-colors duration-200 min-w-0"
+                >
+                  {item.id === 'root' && (
+                    <img
+                      src={item.icon}
+                      alt={item.name}
+                      className="w-4 h-4 flex-shrink-0"
+                      onError={e => {
+                        const target = e.target as HTMLImageElement
+                        target.src = getFileIcon('folder')
+                      }}
+                    />
+                  )}
+                  <span className="font-medium truncate max-w-[100px] md:max-w-none">{item.name}</span>
+                </button>
               )}
-              <span className="font-medium">{item.name}</span>
-            </button>
-          </div>
-        ))}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

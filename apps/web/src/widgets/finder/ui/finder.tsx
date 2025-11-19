@@ -22,16 +22,18 @@ export const Finder = () => {
 
   return (
     <div className="flex h-full bg-finder-bg">
-      <Sidebar
-        currentPath={state.navigation.currentPath}
-        onNavigateTo={path => {
-          if (path.length === 0) {
-            goToRoot()
-          } else {
-            navigateTo(path)
-          }
-        }}
-      />
+      <div className="hidden md:block">
+        <Sidebar
+          currentPath={state.navigation.currentPath}
+          onNavigateTo={path => {
+            if (path.length === 0) {
+              goToRoot()
+            } else {
+              navigateTo(path)
+            }
+          }}
+        />
+      </div>
 
       <div className="flex-1 flex flex-col">
         <NavigationBar
