@@ -53,7 +53,8 @@ class ProjectsGrpcService(projects_pb2_grpc.ProjectsServiceServicer):
             async for db in db_manager.get_session():
                 service = ProjectService(db)
                 parent_id = request.parent_id if request.HasField("parent_id") else None
-                projects = await service.get_all_projects(parent_id=parent_id)
+                depth = request.depth if request.HasField("depth") else None
+                projects = await service.get_all_projects(parent_id=parent_id, depth=depth)
                 
                 response = projects_pb2.GetProjectsResponse()
                 for project in projects:
@@ -73,7 +74,8 @@ class ProjectsGrpcService(projects_pb2_grpc.ProjectsServiceServicer):
 
             async for db in db_manager.get_session():
                 service = ProjectService(db)
-                project = await service.get_project_by_id(request.id)
+                depth = request.depth if request.HasField("depth") else None
+                project = await service.get_project_by_id(request.id, depth=depth)
                 
                 if not project:
                     context.set_code(grpc.StatusCode.NOT_FOUND)

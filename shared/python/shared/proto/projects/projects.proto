@@ -23,6 +23,7 @@ message Project {
 
 message GetProjectsRequest {
   optional int32 parent_id = 1;
+  optional int32 depth = 2;
 }
 
 message GetProjectsResponse {
@@ -31,6 +32,7 @@ message GetProjectsResponse {
 
 message GetProjectByIdRequest {
   int32 id = 1;
+  optional int32 depth = 2;
 }
 
 message GetProjectByIdResponse {

@@ -20,6 +20,7 @@ logger = get_logger(__name__)
 @cache_response(ttl=300)
 async def get_projects(
     parent_id: Optional[int] = Query(None, description="ID родительского проекта"),
+    depth: Optional[int] = Query(None, description="Глубина загрузки детей (0 - только сам объект, 1 - прямые дети, и т.д.)"),
     grpc_manager: GrpcClientManager = Depends(get_grpc_manager),
 ):
     try:
@@ -28,6 +29,8 @@ async def get_projects(
         request = projects_pb2.GetProjectsRequest()
         if parent_id is not None:
             request.parent_id = parent_id
+        if depth is not None:
+            request.depth = depth
 
         response = await grpc_manager.call_grpc_with_retry(
             projects_client,

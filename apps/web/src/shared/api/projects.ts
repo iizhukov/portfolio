@@ -3,13 +3,23 @@ import type { AxiosResponse, AxiosRequestConfig } from 'axios'
 import type { Project, ProjectHealth } from './types/projects'
 
 export const projectsApi = {
-  getProjects: async (parentId?: number, config?: AxiosRequestConfig): Promise<AxiosResponse<Project[]>> => {
-    const params = parentId !== undefined ? { parent_id: parentId } : {}
+  getProjects: async (parentId?: number, depth?: number, config?: AxiosRequestConfig): Promise<AxiosResponse<Project[]>> => {
+    const params: Record<string, string | number> = {}
+    if (parentId !== undefined) {
+      params.parent_id = parentId
+    }
+    if (depth !== undefined) {
+      params.depth = depth
+    }
     return apiClient.get<Project[]>('/projects/', { ...config, params })
   },
 
-  getProjectById: async (projectId: number, config?: AxiosRequestConfig): Promise<AxiosResponse<Project>> => {
-    return apiClient.get<Project>(`/projects/${projectId}`, config)
+  getProjectById: async (projectId: number, depth?: number, config?: AxiosRequestConfig): Promise<AxiosResponse<Project>> => {
+    const params: Record<string, number> = {}
+    if (depth !== undefined) {
+      params.depth = depth
+    }
+    return apiClient.get<Project>(`/projects/${projectId}`, { ...config, params })
   },
 
   getProjectTree: async (rootId?: number, config?: AxiosRequestConfig): Promise<AxiosResponse<Project[]>> => {

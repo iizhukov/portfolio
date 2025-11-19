@@ -11,25 +11,22 @@ class ProjectService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def get_all_projects(self, parent_id: Optional[int] = None) -> Sequence[ProjectModel]:
-        query = select(ProjectModel).options(selectinload(ProjectModel.children))
-
+    async def get_all_projects(self, parent_id: Optional[int] = None, depth: Optional[int] = None) -> Sequence[ProjectModel]:
         if parent_id is not None:
-            query = query.where(ProjectModel.parent_id == parent_id)
-            result = await self.db.execute(
-                query
-            )
+            query = select(ProjectModel).where(ProjectModel.parent_id == parent_id).options(selectinload(ProjectModel.children))
         else:
-            result = await self.db.execute(query)
+            query = select(ProjectModel).where(ProjectModel.parent_id.is_(None)).options(selectinload(ProjectModel.children))
         
+        result = await self.db.execute(query)
         projects = result.scalars().unique().all()
 
+        effective_depth = depth if depth is not None else None
         for project in projects:
-            await self._load_children_recursive(project)
+            await self._load_children_with_depth(project, effective_depth, 0)
 
         return projects
 
-    async def get_project_by_id(self, project_id: int) -> Optional[ProjectModel]:
+    async def get_project_by_id(self, project_id: int, depth: Optional[int] = None) -> Optional[ProjectModel]:
         result = await self.db.execute(
             select(ProjectModel)
             .where(ProjectModel.id == project_id)
@@ -38,7 +35,7 @@ class ProjectService:
         project = result.scalar_one_or_none()
 
         if project:
-            await self._load_children_recursive(project)
+            await self._load_children_with_depth(project, depth, 0)
 
         return project
 
@@ -78,6 +75,24 @@ class ProjectService:
                 loaded_child = result.scalar_one_or_none()
                 if loaded_child and loaded_child.children:
                     await self._load_children_recursive(loaded_child)
+    
+    async def _load_children_with_depth(self, project: ProjectModel, depth: Optional[int], current_level: int):
+        if depth is not None and current_level >= depth:
+            project.children = []
+            return
+        
+        if not project.children:
+            return
+        
+        for child in project.children:
+            result = await self.db.execute(
+                select(ProjectModel)
+                .where(ProjectModel.id == child.id)
+                .options(selectinload(ProjectModel.children))
+            )
+            loaded_child = result.scalar_one_or_none()
+            if loaded_child:
+                await self._load_children_with_depth(loaded_child, depth, current_level + 1)
 
     async def create_project(self, project_data: ProjectCreateSchema) -> ProjectModel:
         new_project = ProjectModel(
@@ -98,7 +113,7 @@ class ProjectService:
         update_data = project_data.model_dump(exclude_unset=True)
         
         if not update_data:
-            return await self.get_project_by_id(project_id)
+            return await self.get_project_by_id(project_id, depth=None)
         
         await self.db.execute(
             update(ProjectModel)
@@ -108,7 +123,7 @@ class ProjectService:
 
         await self.db.commit()
         
-        project = await self.get_project_by_id(project_id)
+        project = await self.get_project_by_id(project_id, depth=None)
         return project
 
     async def delete_project(self, project_id: int) -> bool:

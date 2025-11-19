@@ -1,28 +1,117 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import { type Project, type FinderState } from '../types/finder'
-import { useProjectTree } from '../api/hooks'
-import { adaptApiProjectToFinder } from '../utils/project-adapter'
+import { useProjects } from '@shared/api/hooks/use-projects'
+import { useProject } from '@shared/api/hooks/use-projects'
+import { projectsStore } from '../models/projects-store'
 import { handleFileOpen } from '../utils/file-handlers'
+import { STORAGE_KEYS } from '@shared/constants/storage'
+import { safeJsonParse } from '@shared/utils/safe-json'
+import { isBrowser } from '@shared/utils/browser'
 
-const initialState: FinderState = {
-  navigation: {
-    currentPath: [],
-    history: [[]],
-    historyIndex: 0,
-  },
-  selectedItems: [],
-  viewMode: 'grid',
-  sortBy: 'name',
-  sortOrder: 'asc',
+const getInitialState = (): FinderState => {
+  if (!isBrowser) {
+    return {
+      navigation: {
+        currentPath: [],
+        history: [[]],
+        historyIndex: 0,
+      },
+      selectedItems: [],
+      viewMode: 'grid',
+      sortBy: 'name',
+      sortOrder: 'asc',
+    }
+  }
+
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.FINDER_STATE)
+    if (stored) {
+      const parsed = safeJsonParse<FinderState>(stored, {
+        navigation: {
+          currentPath: [],
+          history: [[]],
+          historyIndex: 0,
+        },
+        selectedItems: [],
+        viewMode: 'grid',
+        sortBy: 'name',
+        sortOrder: 'asc',
+      })
+      return parsed
+    }
+  } catch (error) {
+    console.error('Failed to load finder state from storage:', error)
+  }
+
+  return {
+    navigation: {
+      currentPath: [],
+      history: [[]],
+      historyIndex: 0,
+    },
+    selectedItems: [],
+    viewMode: 'grid',
+    sortBy: 'name',
+    sortOrder: 'asc',
+  }
 }
 
 export const useFinder = () => {
-  const [state, setState] = useState<FinderState>(initialState)
-  const { projects: apiProjects, loading, error } = useProjectTree()
-  const finderProjects = useMemo(
-    () => apiProjects.map(adaptApiProjectToFinder),
-    [apiProjects]
+  const [state, setState] = useState<FinderState>(getInitialState)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
+
+  projectsStore.initialize()
+
+  const shouldLoadRoots = state.navigation.currentPath.length === 0
+  const rootProjectsFromStore = projectsStore.getRootProjects()
+  const needsRootLoad = shouldLoadRoots && (isInitialLoad || rootProjectsFromStore.length === 0)
+  
+  const { projects: rootProjects, loading: rootLoading, error: rootError } = useProjects(
+    undefined,
+    1,
+    needsRootLoad
   )
+
+  const currentFolderId = state.navigation.currentPath.length > 0 
+    ? state.navigation.currentPath[state.navigation.currentPath.length - 1]
+    : null
+
+  const { project: currentFolder, loading: folderLoading, error: folderError } = useProject(
+    currentFolderId ? Number(currentFolderId) : 0,
+    2,
+    currentFolderId !== null
+  )
+
+  const hasRootData = rootProjectsFromStore.length > 0
+  const hasFolderData = currentFolderId ? projectsStore.getProject(currentFolderId) !== undefined : true
+  
+  const loading = (shouldLoadRoots && !hasRootData && rootLoading) || (currentFolderId && !hasFolderData && folderLoading)
+  const error = rootError || folderError
+
+  useEffect(() => {
+    if (rootProjects.length > 0) {
+      projectsStore.addProjects(rootProjects)
+    }
+    if (isInitialLoad && (rootProjects.length > 0 || rootProjectsFromStore.length > 0)) {
+      setIsInitialLoad(false)
+    }
+  }, [rootProjects, isInitialLoad, rootProjectsFromStore.length])
+
+  useEffect(() => {
+    if (currentFolder && currentFolderId) {
+      projectsStore.addProject(currentFolder)
+    }
+  }, [currentFolder, currentFolderId])
+
+  useEffect(() => {
+    if (!isBrowser) return
+
+    try {
+      localStorage.setItem(STORAGE_KEYS.FINDER_STATE, JSON.stringify(state))
+    } catch (error) {
+      console.error('Failed to save finder state to storage:', error)
+    }
+  }, [state])
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -43,6 +132,7 @@ export const useFinder = () => {
           },
           selectedItems: [],
         }))
+        setIsInitialLoad(false)
       }
     }
   }, [])
@@ -80,33 +170,18 @@ export const useFinder = () => {
   }, [state.navigation.currentPath])
 
   const getCurrentItems = useMemo((): Project[] => {
-    if (loading || error || finderProjects.length === 0) {
-      return []
+    if (state.navigation.currentPath.length === 0) {
+      const roots = projectsStore.getRootProjects()
+      return roots
     }
 
-    let current = finderProjects
+    const parentId = state.navigation.currentPath[state.navigation.currentPath.length - 1]
+    return projectsStore.getChildren(parentId)
+  }, [state.navigation.currentPath])
 
-    for (const pathId of state.navigation.currentPath) {
-      const found = current.find(item => item.id === pathId)
-      if (found && found.children) {
-        current = found.children
-      } else {
-        return []
-      }
-    }
-
-    const sorted = [...current].sort((a, b) => {
-      if (a.type === 'folder' && b.type !== 'folder') {
-        return -1
-      }
-      if (a.type !== 'folder' && b.type === 'folder') {
-        return 1
-      }
-      return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
-    })
-
-    return sorted
-  }, [state.navigation.currentPath, finderProjects, loading, error])
+  const allProjects = useMemo(() => {
+    return projectsStore.getRootProjects()
+  }, [rootProjects, currentFolder])
 
   const navigateTo = useCallback((path: string[]) => {
     setState(prev => {
@@ -129,10 +204,8 @@ export const useFinder = () => {
   const navigateToItem = useCallback(
     (item: Project) => {
       if (item.type === 'folder') {
-        if (item.children && item.children.length > 0) {
-          const newPath = [...state.navigation.currentPath, item.id]
-          navigateTo(newPath)
-        }
+        const newPath = [...state.navigation.currentPath, item.id]
+        navigateTo(newPath)
       } else {
         handleFileOpen(item, state.navigation.currentPath)
       }
@@ -222,7 +295,7 @@ export const useFinder = () => {
   return {
     state,
     currentItems: getCurrentItems,
-    allProjects: finderProjects,
+    allProjects,
     navigateToItem,
     navigateTo,
     goBack,
