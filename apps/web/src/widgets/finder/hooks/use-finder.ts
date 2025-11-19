@@ -59,8 +59,16 @@ const getInitialState = (): FinderState => {
 export const useFinder = () => {
   const [state, setState] = useState<FinderState>(getInitialState)
   const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const [storeUpdateCounter, setStoreUpdateCounter] = useState(0)
 
   projectsStore.initialize()
+
+  useEffect(() => {
+    const unsubscribe = projectsStore.subscribe(() => {
+      setStoreUpdateCounter(projectsStore.getUpdateCounter())
+    })
+    return unsubscribe
+  }, [])
 
   const shouldLoadRoots = state.navigation.currentPath.length === 0
   const rootProjectsFromStore = projectsStore.getRootProjects()
@@ -177,11 +185,11 @@ export const useFinder = () => {
 
     const parentId = state.navigation.currentPath[state.navigation.currentPath.length - 1]
     return projectsStore.getChildren(parentId)
-  }, [state.navigation.currentPath])
+  }, [state.navigation.currentPath, storeUpdateCounter])
 
   const allProjects = useMemo(() => {
     return projectsStore.getRootProjects()
-  }, [rootProjects, currentFolder])
+  }, [rootProjects, currentFolder, storeUpdateCounter])
 
   const navigateTo = useCallback((path: string[]) => {
     setState(prev => {

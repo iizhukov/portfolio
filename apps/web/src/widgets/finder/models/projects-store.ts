@@ -15,9 +15,29 @@ interface ProjectData {
   children?: string[]
 }
 
+type StoreUpdateCallback = () => void
+
 class ProjectsStore {
   private projects: Map<string, ProjectData> = new Map()
   private initialized = false
+  private updateCounter = 0
+  private listeners: Set<StoreUpdateCallback> = new Set()
+
+  private notifyListeners(): void {
+    this.updateCounter++
+    this.listeners.forEach(callback => callback())
+  }
+
+  subscribe(callback: StoreUpdateCallback): () => void {
+    this.listeners.add(callback)
+    return () => {
+      this.listeners.delete(callback)
+    }
+  }
+
+  getUpdateCounter(): number {
+    return this.updateCounter
+  }
 
   private loadFromStorage(): void {
     if (!isBrowser) return
@@ -155,11 +175,13 @@ class ProjectsStore {
       this.mergeProjectTree(apiProject)
     }
     this.saveToStorage()
+    this.notifyListeners()
   }
 
   addProject(apiProject: ApiProject): void {
     this.mergeProjectTree(apiProject)
     this.saveToStorage()
+    this.notifyListeners()
   }
 
   getProject(id: string): Project | undefined {
@@ -194,7 +216,11 @@ class ProjectsStore {
 
   getChildren(parentId: string): Project[] {
     const parent = this.projects.get(parentId)
-    if (!parent || !parent.children) {
+    if (!parent) {
+      return []
+    }
+    
+    if (!parent.children || parent.children.length === 0) {
       return []
     }
     
