@@ -57,28 +57,6 @@ const computeDimensions = (size: WindowSize): WindowDimensions => {
     }
   }
 
-  const baseWidth = parseInt(baseSize.width)
-  const baseHeight = parseInt(baseSize.height)
-
-  if (screenWidth > BASE_SCREEN.width || screenHeight > BASE_SCREEN.height) {
-    const scaleX = BASE_SCREEN.width / screenWidth
-    const scaleY = BASE_SCREEN.height / screenHeight
-    const scale = Math.min(scaleX, scaleY, 1)
-
-    const scaledWidth = Math.round(baseWidth * scale)
-    const scaledHeight = Math.round(baseHeight * scale)
-
-    return {
-      width: `${scaledWidth}px`,
-      height: `${scaledHeight}px`,
-      maxWidth: `${scaledWidth}px`,
-      maxHeight: `${scaledHeight}px`,
-      top: undefined,
-      left: undefined,
-      isMobile: false,
-    }
-  }
-
   return {
     width: baseSize.width,
     height: baseSize.height,
